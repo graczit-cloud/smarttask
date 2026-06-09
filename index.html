@@ -834,9 +834,11 @@ function loadAll() {
   if (!currentUser) return; // ยังไม่ได้ login
   if (!SCRIPT_URL) { setCS('er','ยังไม่ได้ตั้งค่า URL'); loadDemoData(); return; }
   setCS('ld','กำลังโหลด...');
+  // admin โหลด log ทั้งหมด, user ทั่วไปโหลดแค่ของตัวเอง
+  var logParams = currentUser.isAdmin ? {} : {username:currentUser.username};
   Promise.all([
     jsonp('getUsers'),
-    jsonp('getDailyLogs',{username:currentUser.username}),
+    jsonp('getDailyLogs', logParams),
     jsonp('getProjects'),
   ]).then(function(res){
     S.users = res[0]||[]; S.dailyLogs = res[1]||[]; S.projects = res[2]||[];
@@ -865,7 +867,9 @@ function loadDemoData() {
 // ══════════════════════════════════════════════
 function loadDashboard() {
   var today = fmt(new Date());
-  var todayLogs = S.dailyLogs.filter(function(l){ return l.username===currentUser.username && l.date===today; });
+  var todayLogs = S.dailyLogs.filter(function(l){
+    return l.username===currentUser.username && normDate(l.date)===today;
+  });
   var totalMins = todayLogs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
   var myProjs   = S.projects.filter(function(p){ return p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1; });
   var activeP   = myProjs.filter(function(p){ return p.status==='กำลังดำเนินการ'; });
@@ -901,7 +905,8 @@ function loadDailyPage() {
   renderDailyDate();
   if (SCRIPT_URL) {
     setCS('ld','กำลังโหลด...');
-    jsonp('getDailyLogs',{username:currentUser.username}).then(function(d){
+    var lp = currentUser.isAdmin ? {} : {username:currentUser.username};
+    jsonp('getDailyLogs', lp).then(function(d){
       S.dailyLogs = d||[];
       setCS('ok','เชื่อมต่อแล้ว');
       renderDailyList();
@@ -948,7 +953,20 @@ function logItemHTML(l) {
   var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
   var timeStr = h+'ชม. '+m+'น.';
   var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
-  var img = l.imageUrl ? '<img class="log-img" src="'+driveUrl(l.imageUrl)+'" onclick="lightbox(\''+escHtml(l.imageUrl)+'\')" title="ดูรูป" onerror="this.style.display=\'none\'">' : '';
+  // store in global temp map to avoid inline quote issues
+  if (!window._logImgs) window._logImgs = {};
+  var imgKey = 'li_'+l.id;
+  var imgHtml = '';
+  if (l.imageUrl) {
+    window._logImgs[imgKey] = l.imageUrl;
+    imgHtml = '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px">'
+      + '<img class="log-img" src="'+driveUrl(l.imageUrl)+'" title="คลิกดูรูป" onerror="this.parentNode.style.display=\'none\'" onclick="lightboxKey(\''+imgKey+'\')">'
+      + '<button class="bi" style="font-size:11px;padding:2px 8px" onclick="lightboxKey(\''+imgKey+'\')">🔍 ดูรูป</button>'
+      + '</div>';
+  }
+  if (!window._logIds) window._logIds = {};
+  var editKey = 'le_'+l.id;
+  window._logIds[editKey] = l.id;
   return '<div class="log-item">'
     +'<div class="log-time">'+timeStr+'</div>'
     +'<div class="log-body">'
@@ -956,10 +974,15 @@ function logItemHTML(l) {
     +'<div class="log-cat">'+escHtml(l.category||'')+' · <span class="badge '+stCls+'">'+l.status+'</span></div>'
     +(l.description?'<div class="log-desc">'+escHtml(l.description)+'</div>':'')
     +'</div>'
-    +img
+    +imgHtml
     +'<div class="log-actions">'
-    +'<button class="bi" onclick="editDailyLog(\''+l.id+'\')">✏️</button>'
+    +'<button class="bi" onclick="editDailyLog(window._logIds[\''+editKey+'\'])">✏️</button>'
     +'</div></div>';
+}
+
+function lightboxKey(key) {
+  var url = window._logImgs && window._logImgs[key];
+  if (url) lightbox(url);
 }
 
 function changeDate(d) {
