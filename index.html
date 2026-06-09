@@ -518,6 +518,10 @@ function setFilter(f,el){curFilter=f;document.querySelectorAll('.fc').forEach(fu
 //  MODALS
 // ══════════════════════════════════════════════
 function openModal(type){
+  // ปิด modal ที่เปิดค้างอยู่ก่อน
+  ['mo-task','mo-user','mo-cat'].forEach(function(id){
+    document.getElementById(id).classList.remove('on');
+  });
   if(type==='task'){document.getElementById('task-eid').value='';document.getElementById('task-mtitle').textContent='➕ สร้างงานใหม่';document.getElementById('task-sbtn').textContent='➕ สร้างงาน';['f-tname','f-tdesc','f-tdate','f-ttime'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('f-tpri').value='กลาง';document.getElementById('f-tsta').value='รออยู่';document.getElementById('f-tdate').value=new Date().toISOString().split('T')[0];}
   if(type==='user'){document.getElementById('user-eid').value='';document.getElementById('user-mtitle').textContent='👤 เพิ่มผู้ใช้งาน';['f-uusername','f-upass','f-uname','f-udept'].forEach(function(id){document.getElementById(id).value='';});}
   document.getElementById('mo-'+type).classList.add('on');
