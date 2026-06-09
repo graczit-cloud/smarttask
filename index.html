@@ -281,10 +281,13 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
   <div class="nav-i on" data-pg="dashboard"><span class="nav-ic">📊</span><span>ภาพรวม</span></div>
   <div class="nav-sec nav-user-only">บันทึกงาน</div>
   <div class="nav-i nav-user-only" data-pg="daily"><span class="nav-ic">📅</span><span>งานประจำวัน</span></div>
-  <div class="nav-i nav-user-only" data-pg="projects"><span class="nav-ic">🗂️</span><span>Projects</span></div>
+  <div class="nav-i nav-user-only" data-pg="projects"><span class="nav-ic">🗂️</span><span>Projects</span> <span id="due-badge" class="nav-badge" style="display:none">0</span></div>
   <div class="nav-sec nav-admin-only" style="display:none">จัดการ</div>
   <div class="nav-i nav-admin-only" data-pg="users" style="display:none"><span class="nav-ic">👥</span><span>ผู้ใช้งาน</span></div>
   <div class="nav-i nav-admin-only" data-pg="settings" style="display:none"><span class="nav-ic">⚙️</span><span>ตั้งค่าระบบ</span></div>
+  <div class="nav-sec nav-admin-only" style="display:none">รายงาน</div>
+  <div class="nav-i nav-admin-only" data-pg="report-logs" style="display:none"><span class="nav-ic">📋</span><span>Log ทุกคน</span></div>
+  <div class="nav-i nav-admin-only" data-pg="report-summary" style="display:none"><span class="nav-ic">📈</span><span>สรุปเวลา</span></div>
   <div class="sb-user">
     <div class="u-row">
       <div class="u-av" id="sb-av">G</div>
@@ -490,6 +493,84 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
       <div class="sec">
         <div class="sec-h"><div class="sec-t">สถานะ</div></div>
         <div class="sec-b" id="settings-status"></div>
+      </div>
+    </div>
+
+
+    <!-- ══ REPORT: LOGS (Admin) ══ -->
+    <div id="pg-report-logs" class="pg">
+      <div class="ph">
+        <div class="pt">📋 Log งานทุกคน</div>
+        <div class="ha">
+          <select class="fi" id="rl-filter-user" style="width:130px;font-size:13px;padding:7px 10px" onchange="renderReportLogs()">
+            <option value="">— ทุกคน —</option>
+          </select>
+          <input type="date" class="fi" id="rl-date-from" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderReportLogs()">
+          <span style="font-size:13px;color:var(--ts)">ถึง</span>
+          <input type="date" class="fi" id="rl-date-to" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderReportLogs()">
+          <button class="btn-add" onclick="exportLogsCSV()" style="background:var(--green);white-space:nowrap">⬇️ Export CSV</button>
+        </div>
+      </div>
+      <div class="sec" id="rl-summary-bar" style="margin-bottom:14px">
+        <div class="sec-b" id="rl-summary"></div>
+      </div>
+      <div class="sec">
+        <div class="sec-h">
+          <div class="sec-t">รายการงาน <span id="rl-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div>
+        </div>
+        <div class="sec-b" style="padding:0;overflow-x:auto">
+          <table class="tbl" id="rl-table">
+            <thead><tr>
+              <th>วันที่</th><th>ผู้ใช้</th><th>งาน</th><th>หมวดหมู่</th>
+              <th>เวลา</th><th>สถานะ</th><th>รายละเอียด</th>
+            </tr></thead>
+            <tbody id="rl-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REPORT: SUMMARY (Admin) ══ -->
+    <div id="pg-report-summary" class="pg">
+      <div class="ph">
+        <div class="pt">📈 สรุปเวลาทำงาน</div>
+        <div class="ha">
+          <select class="fi" id="rs-range" style="width:160px;font-size:13px;padding:7px 10px" onchange="renderReportSummary()">
+            <option value="7">7 วันที่ผ่านมา</option>
+            <option value="30" selected>30 วันที่ผ่านมา</option>
+            <option value="90">90 วันที่ผ่านมา</option>
+          </select>
+          <select class="fi" id="rs-user" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderReportSummary()">
+            <option value="">— ทุกคน —</option>
+          </select>
+          <button class="btn-add" onclick="exportSummaryCSV()" style="background:var(--green);white-space:nowrap">⬇️ Export CSV</button>
+        </div>
+      </div>
+      <!-- Stats -->
+      <div class="grid-4" id="rs-stats" style="margin-bottom:20px"></div>
+      <!-- Bar chart by day -->
+      <div class="sec" style="margin-bottom:16px">
+        <div class="sec-h"><div class="sec-t">⏱️ ชั่วโมงทำงานรายวัน</div></div>
+        <div class="sec-b">
+          <div id="rs-chart" style="height:180px;display:flex;align-items:flex-end;gap:3px;padding:8px 0;overflow-x:auto"></div>
+          <div id="rs-chart-labels" style="display:flex;gap:3px;overflow-x:auto;margin-top:4px"></div>
+        </div>
+      </div>
+      <!-- By category -->
+      <div class="grid-2">
+        <div class="sec">
+          <div class="sec-h"><div class="sec-t">🏷️ แยกตามหมวดหมู่</div></div>
+          <div class="sec-b" id="rs-by-cat"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-h"><div class="sec-t">👤 แยกตามผู้ใช้</div></div>
+          <div class="sec-b" id="rs-by-user"></div>
+        </div>
+      </div>
+      <!-- Due soon projects -->
+      <div class="sec">
+        <div class="sec-h"><div class="sec-t">⚠️ Projects / Steps ใกล้ครบกำหนด</div></div>
+        <div class="sec-b" id="rs-due-soon"></div>
       </div>
     </div>
 
@@ -789,7 +870,7 @@ function navigateTo(pg) {
   var el = document.getElementById('pg-'+pg);
   if (el) el.classList.add('on');
   document.getElementById('bc-label').textContent = pgLabels[pg] || pg;
-  document.getElementById('topbar-add-btn').style.display = pg === 'settings' ? 'none' : '';
+  document.getElementById('topbar-add-btn').style.display = (pg==='settings'||pg==='report-logs'||pg==='report-summary') ? 'none' : '';
   document.querySelector('.cnt').scrollTop = 0;
   onEnter(pg);
 }
@@ -806,8 +887,10 @@ function onEnter(pg) {
   if (pg === 'daily')          loadDailyPage();
   if (pg === 'projects')       loadProjects();
   if (pg === 'users')          loadUsers();
-  if (pg === 'settings')       initSettings();
-  if (pg === 'project-detail') loadProjectDetail(currentProjectId);
+  if (pg === 'settings')         initSettings();
+  if (pg === 'project-detail')   loadProjectDetail(currentProjectId);
+  if (pg === 'report-logs')      initReportLogs();
+  if (pg === 'report-summary')   initReportSummary();
 }
 
 // ══════════════════════════════════════════════
@@ -859,6 +942,7 @@ function loadAll() {
     setCS('ok','เชื่อมต่อแล้ว');
     fillUserDropdowns();
     loadDashboard();
+    updateDueBadge();
   }).catch(function(e){ setCS('er','โหลดไม่ได้'); showToast('❌ '+e.message,'er'); loadDemoData(); });
 }
 
@@ -1655,6 +1739,299 @@ function showToast(msg,type){
   var el=document.getElementById('toastEl');
   el.textContent=msg; el.className='toast on'+(type?' '+type:'');
   clearTimeout(_tt); _tt=setTimeout(function(){el.classList.remove('on');},2800);
+}
+
+
+// ══════════════════════════════════════════════
+//  REPORT: LOG ทุกคน (Admin)
+// ══════════════════════════════════════════════
+function initReportLogs() {
+  // fill user dropdown
+  var sel = document.getElementById('rl-filter-user');
+  sel.innerHTML = '<option value="">— ทุกคน —</option>'
+    + S.users.map(function(u){ return '<option value="'+u.username+'">'+(u.name||u.username)+'</option>'; }).join('');
+  // default: 30 วันที่ผ่านมา
+  var today = new Date(), from = new Date(today);
+  from.setDate(from.getDate()-29);
+  document.getElementById('rl-date-from').value = today.toISOString().split('T')[0];
+  document.getElementById('rl-date-to').value   = today.toISOString().split('T')[0];
+  document.getElementById('rl-date-from').value = from.toISOString().split('T')[0];
+  // reload logs if needed
+  if (SCRIPT_URL && currentUser && currentUser.isAdmin) {
+    setCS('ld','กำลังโหลด...');
+    jsonp('getDailyLogs',{}).then(function(d){ S.dailyLogs=d||[]; setCS('ok','เชื่อมต่อแล้ว'); renderReportLogs(); })
+      .catch(function(){ renderReportLogs(); });
+  } else { renderReportLogs(); }
+}
+
+function renderReportLogs() {
+  var uFilter  = document.getElementById('rl-filter-user').value;
+  var fromVal  = document.getElementById('rl-date-from').value;
+  var toVal    = document.getElementById('rl-date-to').value;
+  var fromDate = fromVal ? new Date(fromVal) : null;
+  var toDate   = toVal   ? new Date(toVal)   : null;
+  if (toDate) toDate.setHours(23,59,59);
+
+  var logs = S.dailyLogs.filter(function(l){
+    if (uFilter && l.username !== uFilter) return false;
+    var d = parseDateStr(normDate(l.date));
+    if (fromDate && d < fromDate) return false;
+    if (toDate   && d > toDate)   return false;
+    return true;
+  });
+
+  // sort newest first
+  logs = logs.slice().sort(function(a,b){ return normDate(b.date).localeCompare(normDate(a.date)); });
+
+  // summary bar
+  var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); },0);
+  var th = Math.floor(totalMins/60), tm = totalMins%60;
+  document.getElementById('rl-summary').innerHTML =
+    '<div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">'
+    +'<span><b style="font-size:20px;color:var(--navy)">'+logs.length+'</b> รายการ</span>'
+    +'<span><b style="font-size:20px;color:var(--blue)">'+th+'h '+tm+'m</b> รวมเวลา</span>'
+    +'<span><b style="font-size:20px;color:var(--green)">'+(new Set(logs.map(function(l){return l.username;}))).size+'</b> คน</span>'
+    +'</div>';
+  document.getElementById('rl-count').textContent = '('+logs.length+' รายการ)';
+
+  var tbody = document.getElementById('rl-tbody');
+  if (!logs.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="emp"><div class="emp-i">📋</div>ไม่พบข้อมูล</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = logs.map(function(l){
+    var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
+    var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
+    var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name || l.username;
+    return '<tr>'
+      +'<td style="white-space:nowrap">'+escHtml(normDate(l.date))+'</td>'
+      +'<td>'+escHtml(uName)+'</td>'
+      +'<td>'+escHtml(l.taskName||'')+'</td>'
+      +'<td>'+escHtml(l.category||'')+'</td>'
+      +'<td style="white-space:nowrap;text-align:center">'+h+'h '+m+'m</td>'
+      +'<td><span class="badge '+stCls+'">'+l.status+'</span></td>'
+      +'<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(l.description||'-')+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function exportLogsCSV() {
+  var uFilter  = document.getElementById('rl-filter-user').value;
+  var fromVal  = document.getElementById('rl-date-from').value;
+  var toVal    = document.getElementById('rl-date-to').value;
+  var fromDate = fromVal ? new Date(fromVal) : null;
+  var toDate   = toVal   ? new Date(toVal)   : null;
+  if (toDate) toDate.setHours(23,59,59);
+
+  var logs = S.dailyLogs.filter(function(l){
+    if (uFilter && l.username !== uFilter) return false;
+    var d = parseDateStr(normDate(l.date));
+    if (fromDate && d < fromDate) return false;
+    if (toDate   && d > toDate)   return false;
+    return true;
+  }).sort(function(a,b){ return normDate(a.date).localeCompare(normDate(b.date)); });
+
+  var rows = [['วันที่','Username','ชื่อ-นามสกุล','งาน','หมวดหมู่','ชั่วโมง','นาที','รวม(นาที)','สถานะ','รายละเอียด']];
+  logs.forEach(function(l){
+    var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name || l.username;
+    var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
+    rows.push([normDate(l.date),l.username,uName,l.taskName||'',l.category||'',h,m,(h*60+m),l.status||'',l.description||'']);
+  });
+  downloadCSV(rows, 'daily-log-'+fromVal+'-to-'+toVal+'.csv');
+}
+
+// ══════════════════════════════════════════════
+//  REPORT: SUMMARY (Admin)
+// ══════════════════════════════════════════════
+function initReportSummary() {
+  var sel = document.getElementById('rs-user');
+  sel.innerHTML = '<option value="">— ทุกคน —</option>'
+    + S.users.map(function(u){ return '<option value="'+u.username+'">'+(u.name||u.username)+'</option>'; }).join('');
+  // reload all logs
+  if (SCRIPT_URL && currentUser && currentUser.isAdmin) {
+    setCS('ld','กำลังโหลด...');
+    jsonp('getDailyLogs',{}).then(function(d){ S.dailyLogs=d||[]; setCS('ok','เชื่อมต่อแล้ว'); renderReportSummary(); })
+      .catch(function(){ renderReportSummary(); });
+  } else { renderReportSummary(); }
+}
+
+function renderReportSummary() {
+  var days  = parseInt(document.getElementById('rs-range').value)||30;
+  var uFilt = document.getElementById('rs-user').value;
+  var today = new Date(); today.setHours(23,59,59);
+  var from  = new Date(); from.setDate(from.getDate()-(days-1)); from.setHours(0,0,0,0);
+
+  var logs = S.dailyLogs.filter(function(l){
+    if (uFilt && l.username!==uFilt) return false;
+    var d = parseDateStr(normDate(l.date));
+    return d>=from && d<=today;
+  });
+
+  var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); },0);
+  var avgPerDay = logs.length ? Math.round(totalMins/days) : 0;
+  var th=Math.floor(totalMins/60), tm=totalMins%60;
+
+  // Stats cards
+  var statsHtml =
+    '<div class="stat-card"><div class="stat-ic bl">📋</div><div><div class="sn">'+logs.length+'</div><div class="sl">รายการทั้งหมด</div></div></div>'
+   +'<div class="stat-card"><div class="stat-ic am">⏱️</div><div><div class="sn">'+th+'h</div><div class="sl">รวม '+tm+' น.</div></div></div>'
+   +'<div class="stat-card"><div class="stat-ic gn">📅</div><div><div class="sn">'+Math.floor(avgPerDay/60)+'h</div><div class="sl">เฉลี่ย/วัน '+avgPerDay%60+'น.</div></div></div>'
+   +'<div class="stat-card"><div class="stat-ic pu">👤</div><div><div class="sn">'+(new Set(logs.map(function(l){return l.username;}))).size+'</div><div class="sl">คนที่บันทึก</div></div></div>';
+  document.getElementById('rs-stats').innerHTML = statsHtml;
+
+  // Bar chart by day
+  var dayMap = {};
+  for (var i=0; i<days; i++) {
+    var d = new Date(from); d.setDate(d.getDate()+i);
+    dayMap[fmt(d)] = 0;
+  }
+  logs.forEach(function(l){ var k=normDate(l.date); if(dayMap[k]!==undefined) dayMap[k]+=(parseInt(l.hours||0)*60+parseInt(l.minutes||0)); });
+  var maxMins = Math.max.apply(null, Object.values(dayMap).concat([1]));
+  var chartHtml='', labelHtml='';
+  var dayKeys = Object.keys(dayMap);
+  var barW = Math.max(16, Math.floor(Math.min(40, 900/dayKeys.length)));
+  dayKeys.forEach(function(k){
+    var mins = dayMap[k];
+    var pct  = Math.round(mins/maxMins*100);
+    var hh   = Math.floor(mins/60), mm=mins%60;
+    var isToday = (k===fmt(new Date()));
+    chartHtml += '<div title="'+k+': '+hh+'h '+mm+'m" style="flex-shrink:0;width:'+barW+'px;display:flex;flex-direction:column;justify-content:flex-end;height:100%">'
+      +'<div style="width:100%;background:'+(isToday?'var(--gold)':'var(--blue)')+';border-radius:4px 4px 0 0;height:'+pct+'%;min-height:'+(mins>0?3:0)+'px;transition:height .3s"></div>'
+      +'</div>';
+    // แสดง label ทุก 5 วัน หรือถ้า days<=14 แสดงทุกวัน
+    var parts=k.split('/');
+    var lbl = (days<=14||parseInt(parts[0])%5===0||parseInt(parts[0])===1) ? parts[0]+'/'+parts[1] : '';
+    labelHtml += '<div style="flex-shrink:0;width:'+barW+'px;font-size:9px;color:var(--tl);text-align:center;overflow:hidden">'+lbl+'</div>';
+  });
+  document.getElementById('rs-chart').innerHTML = chartHtml;
+  document.getElementById('rs-chart-labels').innerHTML = labelHtml;
+
+  // By category
+  var catMap = {};
+  logs.forEach(function(l){ var c=l.category||'อื่นๆ'; catMap[c]=(catMap[c]||0)+(parseInt(l.hours||0)*60+parseInt(l.minutes||0)); });
+  var cats = Object.entries(catMap).sort(function(a,b){return b[1]-a[1];});
+  var catHtml = cats.length ? cats.map(function(e){
+    var pct = Math.round(e[1]/Math.max(totalMins,1)*100);
+    return '<div style="margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px">'
+      +'<span>'+escHtml(e[0])+'</span><span style="color:var(--ts)">'+Math.floor(e[1]/60)+'h '+e[1]%60+'m ('+pct+'%)</span></div>'
+      +'<div class="progress-bar"><div class="progress-fill bl" style="width:'+pct+'%"></div></div>'
+      +'</div>';
+  }).join('') : '<div class="emp"><div class="emp-i">📊</div>ไม่มีข้อมูล</div>';
+  document.getElementById('rs-by-cat').innerHTML = catHtml;
+
+  // By user
+  var userMap = {};
+  logs.forEach(function(l){ userMap[l.username]=(userMap[l.username]||0)+(parseInt(l.hours||0)*60+parseInt(l.minutes||0)); });
+  var users = Object.entries(userMap).sort(function(a,b){return b[1]-a[1];});
+  var userHtml = users.length ? users.map(function(e){
+    var uName = (S.users.find(function(u){return u.username===e[0];})||{}).name || e[0];
+    var pct = Math.round(e[1]/Math.max(totalMins,1)*100);
+    return '<div style="margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px">'
+      +'<span>'+escHtml(uName)+'</span><span style="color:var(--ts)">'+Math.floor(e[1]/60)+'h '+e[1]%60+'m ('+pct+'%)</span></div>'
+      +'<div class="progress-bar"><div class="progress-fill gn" style="width:'+pct+'%"></div></div>'
+      +'</div>';
+  }).join('') : '<div class="emp"><div class="emp-i">👤</div>ไม่มีข้อมูล</div>';
+  document.getElementById('rs-by-user').innerHTML = userHtml;
+
+  // Due soon projects & steps (ภายใน 7 วัน)
+  var soon = new Date(); soon.setDate(soon.getDate()+7);
+  var dueSoonHtml = '';
+  S.projects.forEach(function(p){
+    if (!p.dueDate) return;
+    var d = parseDateStr(normDate(p.dueDate));
+    if (d && d<=soon && p.status!=='เสร็จสิ้น') {
+      var diff = Math.ceil((d-new Date())/86400000);
+      var cls  = diff<=0?'high':diff<=3?'mid':'low';
+      dueSoonHtml += '<div class="log-item" style="cursor:pointer" onclick="openProjectDetail(\''+p.id+'\')">'
+        +'<span class="badge '+cls+'" style="flex-shrink:0">'+(diff<=0?'เกินกำหนด':diff+' วัน')+'</span>'
+        +'<div style="flex:1"><b>'+escHtml(p.name)+'</b><div style="font-size:11.5px;color:var(--ts)">Project · กำหนด '+escHtml(normDate(p.dueDate))+'</div></div>'
+        +'</div>';
+    }
+  });
+  (S.steps||[]).forEach(function(s){
+    if (!s.dueDate) return;
+    var d = parseDateStr(normDate(s.dueDate));
+    if (d && d<=soon && s.status!=='เสร็จแล้ว') {
+      var diff = Math.ceil((d-new Date())/86400000);
+      var cls  = diff<=0?'high':diff<=3?'mid':'low';
+      dueSoonHtml += '<div class="log-item">'
+        +'<span class="badge '+cls+'" style="flex-shrink:0">'+(diff<=0?'เกินกำหนด':diff+' วัน')+'</span>'
+        +'<div style="flex:1"><b>'+escHtml(s.stepName)+'</b><div style="font-size:11.5px;color:var(--ts)">Step · กำหนด '+escHtml(normDate(s.dueDate))+'</div></div>'
+        +'</div>';
+    }
+  });
+  document.getElementById('rs-due-soon').innerHTML = dueSoonHtml || '<div class="emp"><div class="emp-i">✅</div>ไม่มีงานใกล้ครบกำหนด</div>';
+}
+
+function exportSummaryCSV() {
+  var days  = parseInt(document.getElementById('rs-range').value)||30;
+  var uFilt = document.getElementById('rs-user').value;
+  var today = new Date(); today.setHours(23,59,59);
+  var from  = new Date(); from.setDate(from.getDate()-(days-1)); from.setHours(0,0,0,0);
+  var logs = S.dailyLogs.filter(function(l){
+    if (uFilt && l.username!==uFilt) return false;
+    var d=parseDateStr(normDate(l.date)); return d>=from&&d<=today;
+  }).sort(function(a,b){ return normDate(a.date).localeCompare(normDate(b.date)); });
+  var rows=[['วันที่','Username','ชื่อ-นามสกุล','งาน','หมวดหมู่','ชั่วโมง','นาที','รวม(นาที)','สถานะ']];
+  logs.forEach(function(l){
+    var uName=(S.users.find(function(u){return u.username===l.username;})||{}).name||l.username;
+    var h=parseInt(l.hours||0),m=parseInt(l.minutes||0);
+    rows.push([normDate(l.date),l.username,uName,l.taskName||'',l.category||'',h,m,h*60+m,l.status||'']);
+  });
+  downloadCSV(rows,'summary-'+days+'days.csv');
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS: CSV + DATE PARSE
+// ══════════════════════════════════════════════
+function downloadCSV(rows, filename) {
+  var BOM = '\uFEFF'; // UTF-8 BOM สำหรับ Excel ภาษาไทย
+  var csv = BOM + rows.map(function(r){
+    return r.map(function(c){
+      var s = String(c===null||c===undefined?'':c);
+      if (s.indexOf(',')>-1||s.indexOf('"')>-1||s.indexOf('\n')>-1) s='"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }).join(',');
+  }).join('\r\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href=url; a.download=filename; a.style.display='none';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); document.body.removeChild(a); },100);
+}
+
+function parseDateStr(s) {
+  if (!s) return null;
+  s = String(s).trim();
+  if (s.indexOf('/')>-1) {
+    var p=s.split('/');
+    if (p.length>=3) {
+      var y=parseInt(p[2]); if(y>2400)y-=543;
+      return new Date(y,parseInt(p[1])-1,parseInt(p[0]));
+    }
+  }
+  var d=new Date(s); return isNaN(d)?null:d;
+}
+
+// Badge เตือนใน dashboard — เพิ่ม badge ใน sidebar project menu
+function updateDueBadge() {
+  var soon = new Date(); soon.setDate(soon.getDate()+7);
+  var count = 0;
+  S.projects.forEach(function(p){
+    if(!p.dueDate) return;
+    var d=parseDateStr(normDate(p.dueDate));
+    if(d&&d<=soon&&p.status!=='เสร็จสิ้น') count++;
+  });
+  (S.steps||[]).forEach(function(s){
+    if(!s.dueDate) return;
+    var d=parseDateStr(normDate(s.dueDate));
+    if(d&&d<=soon&&s.status!=='เสร็จแล้ว') count++;
+  });
+  var badge = document.getElementById('due-badge');
+  if (badge) { badge.textContent=count; badge.style.display=count>0?'':'none'; }
 }
 
 // ══════════════════════════════════════════════
