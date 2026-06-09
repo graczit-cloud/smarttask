@@ -192,7 +192,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);displ
 .toast.on{transform:none;opacity:1}
 .toast.ok{background:#15803d}.toast.er{background:#dc2626}
 
-/* ── SPIN ── */
+/* ── LOGIN ── */
+.login-wrap{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .3s}
+.login-box{background:#fff;border-radius:20px;padding:40px 36px;width:360px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.login-logo{width:56px;height:56px;background:var(--gold);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px}
+.login-title{font-family:'Prompt',sans-serif;font-size:20px;font-weight:600;color:var(--navy);text-align:center;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--ts);text-align:center;margin-bottom:28px}
+.login-fl{font-size:12px;font-weight:600;color:var(--tp);margin-bottom:5px;display:block}
+.login-fi{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--tp);outline:none;transition:border-color .15s;margin-bottom:14px}
+.login-fi:focus{border-color:var(--navy)}
+.login-btn{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px}
+.login-btn:hover{background:var(--navy-h)}
+.login-err{font-size:13px;color:var(--red);margin-top:10px;min-height:20px;text-align:center}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
@@ -231,6 +242,21 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);displ
 </head>
 <body>
 
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">✅</div>
+    <div class="login-title">Gracz Task</div>
+    <div class="login-sub">IT Gracz — บันทึกงานประจำวัน & Projects</div>
+    <label class="login-fl">Username</label>
+    <input class="login-fi" id="login-user" placeholder="กรอก username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    <label class="login-fl">รหัสผ่าน</label>
+    <input class="login-fi" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-logo">
@@ -256,7 +282,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);displ
         <div class="u-rl" id="sb-role">ผู้ดูแลระบบ</div>
       </div>
     </div>
-    <button class="btn-lo" onclick="showToast('ออกจากระบบ','')">↩ <span>ออกจากระบบ</span></button>
+    <button class="btn-lo" onclick="doLogout()">↩ <span>ออกจากระบบ</span></button>
   </div>
 </aside>
 
@@ -610,9 +636,82 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);displ
 // ══════════════════════════════════════════════
 var SCRIPT_URL = localStorage.getItem('gracz_task_url') || '';
 var S = { users:[], dailyLogs:[], projects:[], steps:[] };
-var currentUser = { username:'admin', name:'Admin IT Gracz', role:'ผู้ดูแลระบบ', isAdmin:true };
+var currentUser = null;
 var currentDate = new Date();
 var currentProjectId = null;
+
+// Fallback users (ใช้เมื่อ Sheet ยังไม่พร้อม)
+var LOCAL_USERS = [
+  { username:'admin', password:'1234', name:'Admin IT Gracz', role:'ผู้ดูแลระบบ', isAdmin:true },
+];
+
+// ══════════════════════════════════════════════
+//  LOGIN / LOGOUT
+// ══════════════════════════════════════════════
+function doLogin() {
+  var u = document.getElementById('login-user').value.trim();
+  var p = document.getElementById('login-pass').value;
+  var errEl = document.getElementById('login-err');
+  var btn   = document.getElementById('login-btn');
+  if (!u || !p) { errEl.textContent = '⚠️ กรุณากรอก username และรหัสผ่าน'; return; }
+
+  btn.textContent = '⏳ กำลังตรวจสอบ...'; btn.disabled = true;
+  errEl.textContent = '';
+
+  var tryLocalLogin = function() {
+    var found = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
+    if (found) { loginSuccess(found); }
+    else { errEl.textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'; }
+    btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
+  };
+
+  if (!SCRIPT_URL) { tryLocalLogin(); return; }
+
+  // ลอง login จาก Sheet
+  var cb = '_lcb', sc = document.createElement('script'), done = false;
+  var timer = setTimeout(function(){
+    if (!done) { done=true; sc.remove(); tryLocalLogin(); }
+  }, 8000);
+
+  window[cb] = function(d) {
+    if (done) return; done=true; clearTimeout(timer); delete window[cb]; sc.remove();
+    btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
+    if (d.ok && d.data && d.data.success) {
+      loginSuccess(d.data);
+    } else {
+      // Sheet ตอบแต่ login ผิด → ไม่ fallback local
+      errEl.textContent = '❌ ' + ((d.data && d.data.error) || d.error || 'เข้าสู่ระบบไม่สำเร็จ');
+    }
+  };
+  sc.src = SCRIPT_URL + '?action=login&username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p) + '&callback=' + cb + '&_=' + Date.now();
+  document.head.appendChild(sc);
+}
+
+function loginSuccess(user) {
+  currentUser = user;
+  // อัปเดต UI
+  document.getElementById('sb-name').textContent = user.name || user.username;
+  document.getElementById('sb-role').textContent = user.role || '';
+  document.getElementById('sb-av').textContent   = (user.name||user.username||'G').charAt(0).toUpperCase();
+  // ซ่อน login
+  var lw = document.getElementById('login-wrap');
+  lw.style.opacity = '0'; lw.style.pointerEvents = 'none';
+  setTimeout(function(){ lw.style.display = 'none'; }, 300);
+  loadAll();
+}
+
+function doLogout() {
+  currentUser = null;
+  S = { users:[], dailyLogs:[], projects:[], steps:[] };
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-err').textContent = '';
+  var lw = document.getElementById('login-wrap');
+  lw.style.display = 'flex'; lw.style.opacity = '0'; lw.style.pointerEvents = 'all';
+  requestAnimationFrame(function(){ lw.style.opacity = '1'; });
+  // reset หน้า
+  navigateTo('dashboard');
+}
 
 // ══════════════════════════════════════════════
 //  NAVIGATION
@@ -698,6 +797,7 @@ function setCS(cls, txt) {
 //  LOAD ALL
 // ══════════════════════════════════════════════
 function loadAll() {
+  if (!currentUser) return; // ยังไม่ได้ login
   if (!SCRIPT_URL) { setCS('er','ยังไม่ได้ตั้งค่า URL'); loadDemoData(); return; }
   setCS('ld','กำลังโหลด...');
   Promise.all([
@@ -1357,15 +1457,12 @@ function showToast(msg,type){
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-document.getElementById('sb-name').textContent = currentUser.name;
-document.getElementById('sb-role').textContent = currentUser.role;
-document.getElementById('sb-av').textContent   = (currentUser.name||'G').charAt(0).toUpperCase();
-document.getElementById('f-dl-date').value = fmt(new Date()).split('/').reverse().join('-') .split('-').map(function(v,i){ return i===0?v:(v.length<2?'0'+v:v); }).join('-');
-// fix date for input[type=date]
+// ตั้งค่า date defaults
 document.getElementById('f-dl-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('f-pj-start').value = new Date().toISOString().split('T')[0];
-
-loadAll();
+// โหลด URL จาก localStorage (ถ้ามี)
+if (SCRIPT_URL) document.getElementById('url-input') && (document.getElementById('url-input').value = SCRIPT_URL);
+// หน้า login จะแสดงอยู่แล้ว รอ user กรอก
 </script>
 </body>
 </html>
