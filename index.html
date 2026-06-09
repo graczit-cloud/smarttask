@@ -14,6 +14,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);display:flex;height:100vh;overflow:hidden}
+body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 
 /* ── SIDEBAR ── */
 .sb{width:240px;background:var(--navy);display:flex;flex-direction:column;height:100vh;overflow-y:auto;flex-shrink:0;scrollbar-width:none;transition:width .25s}
@@ -689,14 +690,14 @@ function doLogin() {
 
 function loginSuccess(user) {
   currentUser = user;
-  // อัปเดต UI
   document.getElementById('sb-name').textContent = user.name || user.username;
   document.getElementById('sb-role').textContent = user.role || '';
   document.getElementById('sb-av').textContent   = (user.name||user.username||'G').charAt(0).toUpperCase();
-  // ซ่อน login
+  // ซ่อน login screen
   var lw = document.getElementById('login-wrap');
   lw.style.opacity = '0'; lw.style.pointerEvents = 'none';
   setTimeout(function(){ lw.style.display = 'none'; }, 300);
+  document.body.classList.remove('logged-out');
   loadAll();
 }
 
@@ -706,10 +707,12 @@ function doLogout() {
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-err').textContent = '';
+  document.getElementById('login-btn').textContent = 'เข้าสู่ระบบ';
+  document.getElementById('login-btn').disabled = false;
+  document.body.classList.add('logged-out');
   var lw = document.getElementById('login-wrap');
   lw.style.display = 'flex'; lw.style.opacity = '0'; lw.style.pointerEvents = 'all';
   requestAnimationFrame(function(){ lw.style.opacity = '1'; });
-  // reset หน้า
   navigateTo('dashboard');
 }
 
@@ -898,7 +901,7 @@ function logItemHTML(l) {
   var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
   var timeStr = h+'ชม. '+m+'น.';
   var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
-  var img = l.imageUrl ? '<img class="log-img" src="'+l.imageUrl+'" onclick="lightbox(\''+l.imageUrl+'\')" title="ดูรูป">' : '';
+  var img = l.imageUrl ? '<img class="log-img" src="'+driveUrl(l.imageUrl)+'" onclick="lightbox(\''+escHtml(l.imageUrl)+'\')" title="ดูรูป" onerror="this.style.display=\'none\'">' : '';
   return '<div class="log-item">'
     +'<div class="log-time">'+timeStr+'</div>'
     +'<div class="log-body">'
@@ -1029,7 +1032,7 @@ function projCardHTML(p) {
   var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
   var prog = parseInt(p.progress||0);
   var imgHtml = p.imageUrl
-    ? '<img src="'+p.imageUrl+'" style="width:100%;height:120px;object-fit:cover">'
+    ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;height:120px;object-fit:cover" onerror="this.parentNode.innerHTML=\'<div style=\\\"width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px\\\">🗂️</div>\'">'
     : '<div style="width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px">🗂️</div>';
   return '<div class="project-card" onclick="openProjectDetail(\''+p.id+'\')">'
     +imgHtml
@@ -1064,7 +1067,7 @@ function loadProjectDetail(id) {
   document.getElementById('detail-prog-pct').textContent = prog+'%';
   document.getElementById('detail-prog-bar').style.width = prog+'%';
   var imgEl = document.getElementById('detail-proj-image');
-  imgEl.innerHTML = p.imageUrl ? '<img src="'+p.imageUrl+'" style="width:100%;border-radius:8px;cursor:zoom-in" onclick="lightbox(\''+p.imageUrl+'\')">' : '';
+  imgEl.innerHTML = p.imageUrl ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;border-radius:8px;cursor:zoom-in" onclick="lightbox(\''+escHtml(p.imageUrl)+'\')" onerror="this.style.display=\'none\'">' : '';
   // load steps
   if (SCRIPT_URL) {
     jsonp('getSteps',{projectId:id}).then(function(d){
@@ -1094,7 +1097,7 @@ function renderSteps(projectId) {
       +'</div>'
       +'<div class="step-prog" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
       +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
-      +(s.imageUrl?'<img src="'+s.imageUrl+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;cursor:zoom-in" onclick="lightbox(\''+s.imageUrl+'\')">':'')
+      +(s.imageUrl?'<img src="'+driveUrl(s.imageUrl)+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;cursor:zoom-in" onclick="lightbox(\''+escHtml(s.imageUrl)+'\')" onerror="this.style.display=\'none\'">':'')
       +'<button class="bi" onclick="editStep(\''+s.id+'\')">✏️</button>'
       +'</div>'
       +'</div>';
@@ -1366,8 +1369,24 @@ function dropFile(e, inputId, previewId, areaId) {
 }
 
 function lightbox(url) {
-  document.getElementById('lightbox-img').src = url;
+  // แปลง Google Drive URL ให้ embed ได้
+  var displayUrl = driveUrl(url);
+  document.getElementById('lightbox-img').src = displayUrl;
   document.getElementById('lightbox').classList.add('on');
+}
+
+// แปลง Drive URL หลายรูปแบบให้เป็น thumbnail URL ที่ใช้ใน <img> ได้
+function driveUrl(url) {
+  if (!url) return '';
+  // https://drive.google.com/uc?export=view&id=FILE_ID → ใช้ได้เลย
+  if (url.indexOf('uc?export=view') > -1) return url;
+  // https://drive.google.com/file/d/FILE_ID/view → แปลง
+  var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
+  // https://drive.google.com/open?id=FILE_ID
+  var m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m2) return 'https://drive.google.com/uc?export=view&id=' + m2[1];
+  return url;
 }
 
 // ══════════════════════════════════════════════
@@ -1457,12 +1476,10 @@ function showToast(msg,type){
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-// ตั้งค่า date defaults
+document.body.classList.add('logged-out'); // ซ่อน sidebar จนกว่าจะ login
 document.getElementById('f-dl-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('f-pj-start').value = new Date().toISOString().split('T')[0];
-// โหลด URL จาก localStorage (ถ้ามี)
-if (SCRIPT_URL) document.getElementById('url-input') && (document.getElementById('url-input').value = SCRIPT_URL);
-// หน้า login จะแสดงอยู่แล้ว รอ user กรอก
+if (SCRIPT_URL && document.getElementById('url-input')) document.getElementById('url-input').value = SCRIPT_URL;
 </script>
 </body>
 </html>
