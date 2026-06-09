@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Task - หน่วยงานสาธารณสุข</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1a2744;--navy-h:#2d3d6e;--gold:#f5a623;--gold-d:#e09415;--bg:#f0f2f7;--border:#e2e6f0;--tp:#1a2744;--ts:#6b7a9e;--tl:#9ca8c5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sb{width:240px;background:var(--navy);display:flex;flex-direction:column;height:100vh;overflow-y:auto;flex-shrink:0;scrollbar-width:none}
+.sb::-webkit-scrollbar{display:none}
+.sb-logo{padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-ic{width:50px;height:50px;background:rgba(255,255,255,.12);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:8px;border:1px solid rgba(255,255,255,.15)}
+.logo-t{font-family:'Prompt',sans-serif;font-weight:600;color:#fff;font-size:15px}
+.logo-s{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;text-align:center}
+.nav-sec{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:1.2px;text-transform:uppercase;padding:16px 20px 6px}
+.nav-i{display:flex;align-items:center;gap:11px;padding:9px 20px;color:rgba(255,255,255,.6);font-size:13.5px;cursor:pointer;transition:all .15s;position:relative}
+.nav-i:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-i.on{background:rgba(245,166,35,.15);color:var(--gold);font-weight:500}
+.nav-i.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);border-radius:0 3px 3px 0}
+.nav-ic{font-size:15px;width:18px;text-align:center}
+.sb-foot{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:14px 18px}
+.u-info{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.u-av{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--navy);flex-shrink:0}
+.u-nm{font-size:13px;color:#fff;font-weight:500}.u-rl{font-size:11px;color:rgba(255,255,255,.4)}
+.btn-lo{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:8px;background:#d9363e;color:#fff;border:none;border-radius:7px;font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;font-weight:500;transition:background .15s}
+.btn-lo:hover{background:#b52b32}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:54px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 26px;flex-shrink:0}
+.bc{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ts)}
+.bc b{color:var(--tp);font-weight:600}
+.tb-r{display:flex;align-items:center;gap:11px}
+.btn-c{display:flex;align-items:center;gap:5px;padding:7px 16px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-c:hover{background:var(--gold-d);transform:translateY(-1px)}
+.btn-ref{width:34px;height:34px;background:#fff;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s}
+.btn-ref:hover{border-color:var(--navy)}
+.cs-wrap{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ts)}
+.cs-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cs-dot.ok{background:#22c55e}.cs-dot.er{background:#ef4444}.cs-dot.ld{background:#f59e0b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* CONTENT */
+.cnt{flex:1;overflow-y:auto;padding:26px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.cnt::-webkit-scrollbar{width:5px}.cnt::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.pg{display:none}.pg.on{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.pt{display:flex;align-items:center;gap:10px;font-family:'Prompt',sans-serif;font-size:21px;font-weight:600}
+.ha{display:flex;gap:8px}
+.psub{font-size:13px;color:var(--ts);margin-bottom:22px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.fc{cursor:pointer;padding:3px 11px;border-radius:20px;border:1px solid transparent;transition:background .15s;font-size:13px}
+.fc:hover{background:var(--border)}.fc.on{background:var(--navy);color:#fff}
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.sg2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:26px}
+.sc{background:#fff;border-radius:13px;padding:18px 20px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);transition:all .15s;cursor:default}
+.sc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,39,68,.08)}
+.si{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.si.bl{background:#eff6ff}.si.am{background:#fffbeb}.si.pu{background:#faf5ff}.si.rd{background:#fef2f2}.si.gr{background:#f0fdf4}.si.or{background:#fff7ed}
+.sn{font-family:'Prompt',sans-serif;font-size:26px;font-weight:700;line-height:1}
+.sl{font-size:12px;color:var(--ts);margin-top:3px}
+/* SECTION */
+.sec{background:#fff;border-radius:13px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden}
+.sec-h{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.sec-t{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600}
+.badge{background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center}
+.badge.bl{background:#3b82f6;color:#fff}
+.sec-m{font-size:12px;color:var(--ts)}.sec-b{padding:14px 20px 18px}
+/* TASK CARDS */
+.tc{background:#fff8e6;border:1px solid #f5a623;border-radius:11px;padding:14px 16px;margin-bottom:9px;transition:all .15s;cursor:pointer}
+.tc:last-child{margin-bottom:0}
+.tc:hover{box-shadow:0 4px 14px rgba(245,166,35,.2);transform:translateX(3px)}
+.tc.nm{background:#f8faff;border-color:#c7d2fe}
+.tc.nm:hover{box-shadow:0 4px 14px rgba(99,102,241,.15)}
+.tc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.tn{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px;line-height:1.4}
+.pb{display:flex;align-items:center;gap:4px;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+.pb.md{background:#fef9c3;color:#a16207}.pb.lw{background:#f0fdf4;color:#15803d}
+.tm{display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--ts);margin-top:7px;flex-wrap:wrap}
+.dw{color:#f59e0b;font-weight:500}
+.sb2{padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600}
+.sp{background:#fef9c3;color:#92400e}.sd{background:#dbeafe;color:#1d4ed8}.sk{background:#dcfce7;color:#15803d}
+/* EMPTY */
+.emp{display:flex;flex-direction:column;align-items:center;padding:28px 16px;color:var(--tl);font-size:13px;gap:7px}
+.emp-i{font-size:28px}
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{background:var(--bg);padding:9px 13px;text-align:left;font-weight:600;font-size:11.5px;color:var(--ts);border-bottom:1px solid var(--border);white-space:nowrap}
+.dt td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.dt tr:last-child td{border-bottom:none}.dt tr:hover td{background:#f8faff}
+.bi{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px;transition:all .15s}
+.bi:hover{background:var(--bg);border-color:var(--navy)}.bi.dg:hover{background:#fee2e2;border-color:#ef4444;color:#ef4444}
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(10,20,50,.5);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.on{opacity:1;pointer-events:all}
+.mb{background:#fff;border-radius:16px;width:510px;max-width:92vw;padding:26px;transform:translateY(18px) scale(.97);transition:transform .2s;max-height:88vh;overflow-y:auto}
+.mo.on .mb{transform:none}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.mt2{font-family:'Prompt',sans-serif;font-size:17px;font-weight:600}
+.mc{width:30px;height:30px;background:var(--bg);border:none;border-radius:7px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.mc:hover{background:var(--border)}
+.fg{margin-bottom:14px}.fl{font-size:12.5px;font-weight:600;color:var(--tp);margin-bottom:5px;display:block}
+.fi,.fs,.ft{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:'Sarabun',sans-serif;font-size:13.5px;color:var(--tp);background:#fff;outline:none;transition:border-color .15s}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--navy)}.ft{resize:vertical;min-height:72px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ma{display:flex;gap:9px;justify-content:flex-end;margin-top:20px}
+.btn-x{padding:8px 18px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-family:'Sarabun',sans-serif;font-size:13.5px;cursor:pointer;transition:background .15s}
+.btn-x:hover{background:var(--border)}
+.btn-s{padding:8px 20px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:6px}
+.btn-s:hover{background:var(--navy-h)}.btn-s:disabled{opacity:.6;cursor:not-allowed}
+/* SETUP */
+.setup{background:#fff;border-radius:14px;border:2px dashed var(--border);padding:32px;text-align:center;margin-bottom:18px}
+.steps{text-align:left;max-width:460px;margin:20px auto 0}
+.step{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}
+.stn{width:26px;height:26px;background:var(--navy);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.stc{font-size:13px;line-height:1.65}.stc code{background:var(--bg);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11.5px;color:var(--navy)}
+.cb{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:500}
+.cb.ok{background:#dcfce7;border:1px solid #86efac;color:#15803d}
+.cb.er{background:#fee2e2;border:1px solid #fca5a5;color:#dc2626}
+.cb.ld{background:#fef9c3;border:1px solid #fde68a;color:#92400e}
+/* LOG */
+.le{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.le:last-child{border-bottom:none}
+.lt{color:var(--tl);font-size:11px;width:125px;flex-shrink:0}.la{font-weight:600;color:var(--navy)}.ld2{color:var(--ts)}
+/* SPINNER */
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* TOAST */
+.toast{position:fixed;bottom:26px;right:26px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:9px;font-size:13.5px;box-shadow:0 8px 22px rgba(0,0,0,.18);transform:translateY(70px);opacity:0;transition:all .22s;z-index:2000;display:flex;align-items:center;gap:7px}
+.toast.on{transform:none;opacity:1}.toast.ok{background:#15803d}.toast.er{background:#dc2626}
+.cd{width:11px;height:11px;border-radius:50%;display:inline-block;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="logo-ic">✅</div>
+    <div class="logo-t">Smart Task</div>
+    <div class="logo-s">หน่วยงานสาธารณสุข</div>
+  </div>
+  <div class="nav-sec">เมนูหลัก</div>
+  <div class="nav-i on" data-pg="dashboard"><span class="nav-ic">⊞</span>กระดานงาน</div>
+  <div class="nav-sec">งาน</div>
+  <div class="nav-i" data-pg="my-tasks"><span class="nav-ic">☑️</span>งานของฉัน</div>
+  <div class="nav-i" data-pg="all-tasks"><span class="nav-ic">≡</span>งานทั้งหมด</div>
+  <div class="nav-sec">หลังบ้าน</div>
+  <div class="nav-i" data-pg="admin-tasks"><span class="nav-ic">📋</span>จัดการงาน</div>
+  <div class="nav-i" data-pg="admin-users"><span class="nav-ic">👥</span>จัดการผู้ใช้</div>
+  <div class="nav-i" data-pg="admin-cats"><span class="nav-ic">🏷️</span>หมวดหมู่งาน</div>
+  <div class="nav-i" data-pg="admin-logs"><span class="nav-ic">📜</span>Log การเปลี่ยนแปลง</div>
+  <div class="nav-sec">ระบบ</div>
+  <div class="nav-i" data-pg="settings"><span class="nav-ic">⚙️</span>ตั้งค่าระบบ</div>
+  <div class="sb-foot">
+    <div class="u-info">
+      <div class="u-av">ส</div>
+      <div><div class="u-nm">สุนทร วิริยะพันธ์</div><div class="u-rl">ผู้ดูแลระบบ</div></div>
+    </div>
+    <button class="btn-lo" onclick="showToast('ออกจากระบบ','')">↩ ออกจากระบบ</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="bc"><span>หน้าหลัก</span><span style="color:var(--tl)">›</span><b id="bc-label">กระดานงาน</b></div>
+    <div class="tb-r">
+      <div class="cs-wrap"><div class="cs-dot ld" id="cs-dot"></div><span id="cs-txt">กำลังโหลด...</span></div>
+      <button class="btn-c" onclick="openModal('task')">+ สร้างงาน</button>
+      <div class="u-av" style="width:32px;height:32px;font-size:12px">ส</div>
+    </div>
+  </div>
+
+  <div class="cnt">
+
+    <!-- DASHBOARD -->
+    <div id="pg-dashboard" class="pg on">
+      <div class="ph">
+        <div class="pt">📊 กระดานงาน</div>
+        <div class="ha"><button class="btn-c" onclick="openModal('task')">+ สร้างงาน</button><button class="btn-ref" onclick="loadAll()">🔄</button></div>
+      </div>
+      <div class="psub">
+        <span class="fc on" onclick="setFilter('all',this)">ทั้งหมด</span>
+        <span class="fc" onclick="setFilter('urgent',this)">เร่งด่วน</span>
+        <span class="fc" onclick="setFilter('high',this)">สำคัญสูง</span>
+      </div>
+      <div class="sg">
+        <div class="sc"><div class="si bl">📋</div><div><div class="sn" id="s-tot">—</div><div class="sl">งานทั้งหมด</div></div></div>
+        <div class="sc"><div class="si am">⏳</div><div><div class="sn" id="s-pnd">—</div><div class="sl">รออยู่</div></div></div>
+        <div class="sc"><div class="si pu">🔵</div><div><div class="sn" id="s-do">—</div><div class="sl">กำลังทำ</div></div></div>
+        <div class="sc"><div class="si rd">🔴</div><div><div class="sn" id="s-ov">—</div><div class="sl">เกินกำหนด</div></div></div>
+      </div>
+      <div class="sg2">
+        <div class="sc"><div class="si gr">✅</div><div><div class="sn" id="s-dn">—</div><div class="sl">เสร็จแล้ว</div></div></div>
+        <div class="sc"><div class="si or">⭐</div><div><div class="sn" id="s-hi">—</div><div class="sl">สำคัญสูงค้างอยู่</div></div></div>
+      </div>
+      <div class="sec">
+        <div class="sec-h"><div class="sec-t">🔥 งานเร่งด่วน <span class="badge" id="ub">0</span></div><div class="sec-m">เกินกำหนด + ครบใน 3 วัน</div></div>
+        <div class="sec-b" id="ul"><div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div></div>
+      </div>
+      <div class="sec">
+        <div class="sec-h"><div class="sec-t">⭐ งานสำคัญสูง <span class="badge bl" id="hb">0</span></div><div class="sec-m">Priority = สูง</div></div>
+        <div class="sec-b" id="hl"><div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div></div>
+      </div>
+    </div>
+
+    <!-- MY TASKS -->
+    <div id="pg-my-tasks" class="pg">
+      <div class="ph"><div class="pt">☑️ งานของฉัน</div><button class="btn-c" onclick="openModal('task')">+ สร้างงาน</button></div>
+      <div style="height:14px"></div>
+      <div class="sec"><div class="sec-b" id="my-list"><div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div></div></div>
+    </div>
+
+    <!-- ALL TASKS -->
+    <div id="pg-all-tasks" class="pg">
+      <div class="ph"><div class="pt">≡ งานทั้งหมด</div><button class="btn-ref" onclick="renderAllTasks()">🔄</button></div>
+      <div style="height:14px"></div>
+      <div class="sec"><div class="sec-b" style="padding:0;overflow-x:auto" id="all-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN TASKS -->
+    <div id="pg-admin-tasks" class="pg">
+      <div class="ph"><div class="pt">📋 จัดการงาน</div><div class="ha"><button class="btn-c" onclick="openModal('task')">+ เพิ่มงาน</button><button class="btn-ref" onclick="loadAll()">🔄</button></div></div>
+      <div style="height:14px"></div>
+      <div class="sec"><div class="sec-b" style="padding:0;overflow-x:auto" id="adm-task-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN USERS -->
+    <div id="pg-admin-users" class="pg">
+      <div class="ph"><div class="pt">👥 จัดการผู้ใช้</div><button class="btn-c" onclick="openModal('user')">+ เพิ่มผู้ใช้</button></div>
+      <div style="height:14px"></div>
+      <div class="sec"><div class="sec-b" style="padding:0;overflow-x:auto" id="adm-user-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN CATS -->
+    <div id="pg-admin-cats" class="pg">
+      <div class="ph"><div class="pt">🏷️ หมวดหมู่งาน</div><button class="btn-c" onclick="openModal('cat')">+ เพิ่มหมวดหมู่</button></div>
+      <div style="height:14px"></div>
+      <div class="sec"><div class="sec-b" style="padding:0;overflow-x:auto" id="adm-cat-wrap"></div></div>
+    </div>
+
+    <!-- AUDIT LOG -->
+    <div id="pg-admin-logs" class="pg">
+      <div class="ph"><div class="pt">📜 Log การเปลี่ยนแปลง</div><button class="btn-ref" onclick="loadLogs()">🔄</button></div>
+      <div style="height:14px"></div>
+      <div class="sec"><div class="sec-b" id="log-wrap"><div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div></div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="pg-settings" class="pg">
+      <div class="pt" style="margin-bottom:18px">⚙️ ตั้งค่าระบบ</div>
+      <div class="setup">
+        <div style="font-size:30px;margin-bottom:8px">🔗</div>
+        <h2 style="font-family:'Prompt',sans-serif;font-size:17px;margin-bottom:6px">ตั้งค่า Google Apps Script URL</h2>
+        <p style="font-size:13px;color:var(--ts);max-width:440px;margin:0 auto">วาง Web App URL จาก Apps Script เพื่อเชื่อมต่อ Google Sheet</p>
+        <div class="steps">
+          <div class="step"><div class="stn">1</div><div class="stc">ไปที่ <a href="https://script.google.com" target="_blank" style="color:var(--navy)">script.google.com</a> → New Project → วางโค้ดจาก <strong>Code.gs</strong></div></div>
+          <div class="step"><div class="stn">2</div><div class="stc"><strong>Deploy → New Deployment</strong> · Type: <code>Web app</code> · Execute as: <code>Me</code> · Access: <code>Anyone</code></div></div>
+          <div class="step"><div class="stn">3</div><div class="stc">คัดลอก <strong>Web App URL</strong> แล้ววางด้านล่าง</div></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;max-width:480px;margin-left:auto;margin-right:auto">
+          <input class="fi" id="url-input" placeholder="https://script.google.com/macros/s/..." style="flex:1">
+          <button class="btn-s" onclick="saveUrl()">บันทึก & ทดสอบ</button>
+        </div>
+        <div id="test-result" style="margin-top:10px;font-size:13px"></div>
+      </div>
+      <div class="sec">
+        <div class="sec-h"><div class="sec-t">สถานะการเชื่อมต่อ</div></div>
+        <div class="sec-b" id="conn-status-box"></div>
+      </div>
+    </div>
+
+  </div><!-- /cnt -->
+</div><!-- /main -->
+
+<!-- MODALS -->
+<!-- Task -->
+<div class="mo" id="mo-task" onclick="cmo(event,'mo-task')">
+  <div class="mb">
+    <div class="mh"><div class="mt2" id="task-mtitle">➕ สร้างงานใหม่</div><button class="mc" onclick="closeModal('mo-task')">✕</button></div>
+    <input type="hidden" id="task-eid">
+    <div class="fg"><label class="fl">ชื่องาน *</label><input class="fi" id="f-tname" placeholder="ชื่องาน..."></div>
+    <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="f-tdesc" placeholder="รายละเอียด..."></textarea></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">หมวดหมู่</label><select class="fs" id="f-tcat"><option value="">— ไม่ระบุ —</option></select></div>
+      <div class="fg"><label class="fl">ผู้รับผิดชอบ</label><select class="fs" id="f-tass"><option value="">— ไม่ระบุ —</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">ความสำคัญ</label>
+        <select class="fs" id="f-tpri"><option value="สูง">🔥 สูง</option><option value="กลาง" selected>⚡ กลาง</option><option value="ต่ำ">📌 ต่ำ</option></select>
+      </div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="f-tsta"><option value="รออยู่" selected>⏳ รออยู่</option><option value="กำลังทำ">🔵 กำลังทำ</option><option value="เสร็จแล้ว">✅ เสร็จแล้ว</option></select>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">วันกำหนดส่ง</label><input class="fi" type="date" id="f-tdate"></div>
+      <div class="fg"><label class="fl">เวลา</label><input class="fi" type="time" id="f-ttime"></div>
+    </div>
+    <div class="ma">
+      <button class="btn-x" onclick="closeModal('mo-task')">ยกเลิก</button>
+      <button class="btn-s" id="task-sbtn" onclick="submitTask()">➕ สร้างงาน</button>
+    </div>
+  </div>
+</div>
+
+<!-- User -->
+<div class="mo" id="mo-user" onclick="cmo(event,'mo-user')">
+  <div class="mb">
+    <div class="mh"><div class="mt2" id="user-mtitle">👤 เพิ่มผู้ใช้งาน</div><button class="mc" onclick="closeModal('mo-user')">✕</button></div>
+    <input type="hidden" id="user-eid">
+    <div class="fr">
+      <div class="fg"><label class="fl">ชื่อ-นามสกุล *</label><input class="fi" id="f-uname" placeholder="ชื่อ-นามสกุล"></div>
+      <div class="fg"><label class="fl">อีเมล</label><input class="fi" type="email" id="f-uemail" placeholder="email@..."></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">บทบาท</label>
+        <select class="fs" id="f-urole"><option>ผู้ดูแลระบบ</option><option selected>ผู้ใช้งาน</option><option>ผู้จัดการ</option></select>
+      </div>
+      <div class="fg"><label class="fl">แผนก</label><input class="fi" id="f-udept" placeholder="แผนก/ฝ่าย"></div>
+    </div>
+    <div class="fg"><label class="fl">สถานะ</label>
+      <select class="fs" id="f-usta"><option>ใช้งาน</option><option>ระงับ</option></select>
+    </div>
+    <div class="ma">
+      <button class="btn-x" onclick="closeModal('mo-user')">ยกเลิก</button>
+      <button class="btn-s" id="user-sbtn" onclick="submitUser()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category -->
+<div class="mo" id="mo-cat" onclick="cmo(event,'mo-cat')">
+  <div class="mb" style="width:380px">
+    <div class="mh"><div class="mt2">🏷️ เพิ่มหมวดหมู่</div><button class="mc" onclick="closeModal('mo-cat')">✕</button></div>
+    <div class="fg"><label class="fl">ชื่อหมวดหมู่ *</label><input class="fi" id="f-cname" placeholder="ชื่อหมวดหมู่"></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">สี</label><input class="fi" type="color" id="f-ccol" value="#1a2744" style="height:40px;cursor:pointer"></div>
+      <div class="fg"><label class="fl">คำอธิบาย</label><input class="fi" id="f-cdesc" placeholder="คำอธิบาย"></div>
+    </div>
+    <div class="ma">
+      <button class="btn-x" onclick="closeModal('mo-cat')">ยกเลิก</button>
+      <button class="btn-s" onclick="submitCat()">เพิ่มหมวดหมู่</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG — ใส่ Script URL ที่นี่ หรือตั้งค่าในหน้า Settings
+// ══════════════════════════════════════════════
+var SCRIPT_URL = localStorage.getItem('smart_task_url') || '';
+
+var S = { tasks:[], users:[], cats:[], logs:[] };
+var curFilter = 'all';
+var pgLabels = {
+  'dashboard':'กระดานงาน','my-tasks':'งานของฉัน','all-tasks':'งานทั้งหมด',
+  'admin-tasks':'จัดการงาน','admin-users':'จัดการผู้ใช้',
+  'admin-cats':'หมวดหมู่งาน','admin-logs':'Log การเปลี่ยนแปลง','settings':'ตั้งค่าระบบ'
+};
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+document.querySelectorAll('.nav-i[data-pg]').forEach(function(el) {
+  el.addEventListener('click', function() {
+    var pg = el.dataset.pg;
+    document.querySelectorAll('.nav-i').forEach(function(n) { n.classList.remove('on'); });
+    el.classList.add('on');
+    document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('on'); });
+    document.getElementById('pg-' + pg).classList.add('on');
+    document.getElementById('bc-label').textContent = pgLabels[pg] || pg;
+    onEnter(pg);
+    document.querySelector('.cnt').scrollTop = 0;
+  });
+});
+
+function onEnter(pg) {
+  if (pg === 'my-tasks')    renderMyTasks();
+  if (pg === 'all-tasks')   renderAllTasks();
+  if (pg === 'admin-tasks') renderAdmTasks();
+  if (pg === 'admin-users') renderAdmUsers();
+  if (pg === 'admin-cats')  renderAdmCats();
+  if (pg === 'admin-logs')  loadLogs();
+  if (pg === 'settings')    initSettings();
+}
+
+// ══════════════════════════════════════════════
+//  JSONP API  (แก้ปัญหา CORS)
+// ══════════════════════════════════════════════
+var _cbIdx = 0;
+
+function jsonp(action) {
+  return new Promise(function(resolve, reject) {
+    if (!SCRIPT_URL) { reject(new Error('ยังไม่ได้ตั้งค่า Script URL')); return; }
+    var cbName = '_jcb' + (++_cbIdx);
+    var script = document.createElement('script');
+    var done = false;
+    var timer = setTimeout(function() {
+      cleanup(); reject(new Error('Timeout'));
+    }, 15000);
+
+    window[cbName] = function(data) {
+      cleanup();
+      if (data.ok) resolve(data.data);
+      else reject(new Error(data.error || 'API Error'));
+    };
+
+    function cleanup() {
+      if (done) return; done = true;
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    script.onerror = function() { cleanup(); reject(new Error('Script load failed')); };
+    script.src = SCRIPT_URL + '?action=' + action + '&callback=' + cbName + '&_=' + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
+// POST ยังใช้ fetch ได้ (Apps Script รองรับ POST cross-origin)
+function apiPost(body) {
+  if (!SCRIPT_URL) return Promise.reject(new Error('ยังไม่ได้ตั้งค่า Script URL'));
+  return fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' }, // ใช้ text/plain เพื่อหลีกเลี่ยง preflight
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); })
+    .then(function(d) { if (!d.ok) throw new Error(d.error); return d.data; });
+}
+
+// ══════════════════════════════════════════════
+//  LOAD DATA
+// ══════════════════════════════════════════════
+function loadAll() {
+  if (!SCRIPT_URL) { setCS('er', 'ยังไม่ได้ตั้งค่า URL'); showDemoData(); return; }
+  setCS('ld', 'กำลังโหลด...');
+  Promise.all([
+    jsonp('getTasks'), jsonp('getUsers'), jsonp('getCategories'), jsonp('getStats')
+  ]).then(function(res) {
+    S.tasks = res[0] || []; S.users = res[1] || []; S.cats = res[2] || [];
+    setCS('ok', 'เชื่อมต่อแล้ว');
+    renderDash(res[3] || {}); fillDrops();
+  }).catch(function(e) {
+    setCS('er', 'โหลดไม่ได้');
+    showToast('❌ ' + e.message, 'er');
+    showDemoData();
+  });
+}
+
+function loadLogs() {
+  document.getElementById('log-wrap').innerHTML = '<div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div>';
+  jsonp('getLogs').then(function(d) {
+    S.logs = d || []; renderLogs();
+  }).catch(function(e) {
+    document.getElementById('log-wrap').innerHTML = '<div class="emp"><div class="emp-i">❌</div>' + e.message + '</div>';
+  });
+}
+
+// ══════════════════════════════════════════════
+//  DEMO DATA
+// ══════════════════════════════════════════════
+function showDemoData() {
+  var t = new Date(), fmt = function(d) { return d.toISOString().split('T')[0]; };
+  var d1 = new Date(t); d1.setDate(d1.getDate()+1);
+  var d2 = new Date(t); d2.setDate(d2.getDate()+4);
+  S.tasks = [
+    {ID:'DEMO_1','ชื่องาน':'ทำโปรแกรม Task Track ให้เสร็จ','หมวดหมู่':'IT','ผู้รับผิดชอบ':'สุนทร','ความสำคัญ':'สูง','สถานะ':'รออยู่','วันกำหนดส่ง':fmt(d1),'เวลา':'','วันที่สร้าง':'01/06/2567'},
+    {ID:'DEMO_2','ชื่องาน':'มหกรรม NCDprevention center','หมวดหมู่':'สาธารณสุข','ผู้รับผิดชอบ':'สุนทร','ความสำคัญ':'สูง','สถานะ':'รออยู่','วันกำหนดส่ง':fmt(d2),'เวลา':'08:59','วันที่สร้าง':'01/06/2567'},
+    {ID:'DEMO_3','ชื่องาน':'ประชุมทีมสาธารณสุข','หมวดหมู่':'ประชุม','ผู้รับผิดชอบ':'','ความสำคัญ':'กลาง','สถานะ':'กำลังทำ','วันกำหนดส่ง':'','เวลา':'','วันที่สร้าง':'01/06/2567'},
+  ];
+  S.users = [{ID:'USR_1','ชื่อ-นามสกุล':'สุนทร วิริยะพันธ์','อีเมล':'admin@health.go.th','บทบาท':'ผู้ดูแลระบบ','แผนก':'IT','สถานะ':'ใช้งาน'}];
+  S.cats  = [{ID:'CAT_1','ชื่อหมวดหมู่':'IT','สี':'#3b82f6','คำอธิบาย':'งานด้านไอที'},{ID:'CAT_2','ชื่อหมวดหมู่':'สาธารณสุข','สี':'#22c55e','คำอธิบาย':''},{ID:'CAT_3','ชื่อหมวดหมู่':'ประชุม','สี':'#f5a623','คำอธิบาย':''}];
+  var stats = calcStats();
+  renderDash(stats); fillDrops();
+}
+
+function calcStats() {
+  var tasks = S.tasks, today = new Date(); today.setHours(0,0,0,0);
+  var in3 = new Date(today); in3.setDate(in3.getDate()+3);
+  function pd(s) { if(!s) return null; s=String(s); if(s.indexOf('/')>-1){var p=s.split('/');var y=parseInt(p[2]);if(y>2400)y-=543;return new Date(y,parseInt(p[1])-1,parseInt(p[0]));} var d=new Date(s);return isNaN(d)?null:d; }
+  var st = {total:tasks.length,pending:0,doing:0,done:0,overdue:0,urgent:0,highPriority:0};
+  tasks.forEach(function(t) {
+    var s=String(t['สถานะ']||''),pr=String(t['ความสำคัญ']||''),d=pd(t['วันกำหนดส่ง']);
+    if(s==='รออยู่') st.pending++; if(s==='กำลังทำ') st.doing++; if(s==='เสร็จแล้ว') st.done++;
+    if(d&&s!=='เสร็จแล้ว'){if(d<today)st.overdue++;if(d<=in3)st.urgent++;}
+    if(pr==='สูง'&&s!=='เสร็จแล้ว') st.highPriority++;
+  });
+  return st;
+}
+
+// ══════════════════════════════════════════════
+//  CONN STATUS
+// ══════════════════════════════════════════════
+function setCS(cls, txt) {
+  document.getElementById('cs-dot').className = 'cs-dot ' + cls;
+  document.getElementById('cs-txt').textContent = txt;
+}
+
+// ══════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ══════════════════════════════════════════════
+function renderDash(st) {
+  document.getElementById('s-tot').textContent = st.total        || 0;
+  document.getElementById('s-pnd').textContent = st.pending      || 0;
+  document.getElementById('s-do').textContent  = st.doing        || 0;
+  document.getElementById('s-ov').textContent  = st.overdue      || 0;
+  document.getElementById('s-dn').textContent  = st.done         || 0;
+  document.getElementById('s-hi').textContent  = st.highPriority || 0;
+
+  var today = new Date(); today.setHours(0,0,0,0);
+  var in3   = new Date(today); in3.setDate(in3.getDate()+3);
+  function pd(s) { if(!s||s==='')return null; s=String(s); if(s.indexOf('/')>-1){var p=s.split('/');var y=parseInt(p[2]);if(y>2400)y-=543;return new Date(y,parseInt(p[1])-1,parseInt(p[0]));} var d=new Date(s);return isNaN(d)?null:d; }
+
+  var urgT = S.tasks.filter(function(t){ var d=pd(t['วันกำหนดส่ง']); return d&&d<=in3&&t['สถานะ']!=='เสร็จแล้ว'; });
+  var hiT  = S.tasks.filter(function(t){ return t['ความสำคัญ']==='สูง'&&t['สถานะ']!=='เสร็จแล้ว'; });
+
+  document.getElementById('ub').textContent = urgT.length;
+  document.getElementById('hb').textContent = hiT.length;
+
+  var su = curFilter==='high' ? [] : urgT;
+  var sh = curFilter==='urgent' ? [] : hiT;
+  document.getElementById('ul').innerHTML = su.length ? su.map(function(t){return tcHtml(t,true);}).join('') : '<div class="emp"><div class="emp-i">✨</div>ไม่มีงานเร่งด่วน</div>';
+  document.getElementById('hl').innerHTML = sh.length ? sh.map(function(t){return tcHtml(t,false);}).join('') : '<div class="emp"><div class="emp-i">✨</div>ไม่มีงานสำคัญสูง</div>';
+}
+
+// ══════════════════════════════════════════════
+//  TASK CARD
+// ══════════════════════════════════════════════
+function tcHtml(t, urg) {
+  var name=t['ชื่องาน']||'', pri=t['ความสำคัญ'];
+  var pCls=pri==='สูง'?'':pri==='กลาง'?'md':'lw';
+  var pIc=pri==='สูง'?'🔥':pri==='กลาง'?'⚡':'📌';
+  var dt=t['วันกำหนดส่ง']?('📅 '+fmtDate(t['วันกำหนดส่ง'])+daysLeft(t['วันกำหนดส่ง'])):'';
+  var tm=t['เวลา']?('🕐 '+t['เวลา']+' น.'):'';
+  return '<div class="tc '+(urg?'':'nm')+'" onclick="editTask(\''+t['ID']+'\')">'
+    +'<div class="tc-top"><div class="tn"><span>📋</span>'+name+'</div><div class="pb '+pCls+'">'+pIc+' '+pri+'</div></div>'
+    +'<div class="tm">'+(dt?'<span>'+dt+'</span>':'')+(tm?'<span>'+tm+'</span>':'')+'<span>'+stBadge(t['สถานะ'])+'</span></div></div>';
+}
+
+function stBadge(s) {
+  var m={'รออยู่':'<span class="sb2 sp">⏳ รออยู่</span>','กำลังทำ':'<span class="sb2 sd">🔵 กำลังทำ</span>','เสร็จแล้ว':'<span class="sb2 sk">✅ เสร็จแล้ว</span>'};
+  return m[s]||('<span class="sb2">'+s+'</span>');
+}
+
+// ══════════════════════════════════════════════
+//  RENDER PAGES
+// ══════════════════════════════════════════════
+function renderMyTasks() {
+  var me='สุนทร', mine=S.tasks.filter(function(t){return (t['ผู้รับผิดชอบ']||'').indexOf(me)>-1;});
+  document.getElementById('my-list').innerHTML = mine.length ? mine.map(function(t){return tcHtml(t,false);}).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานที่มอบหมาย</div>';
+}
+
+function renderAllTasks() {
+  var cols=[['ชื่องาน','ชื่องาน'],['หมวดหมู่','หมวดหมู่'],['ผู้รับผิดชอบ','ผู้รับผิดชอบ'],['ความสำคัญ','ความสำคัญ'],['สถานะ','สถานะ'],['วันกำหนดส่ง','กำหนดส่ง']];
+  document.getElementById('all-wrap').innerHTML = tblHtml(S.tasks, cols, null);
+}
+
+function renderAdmTasks() {
+  var cols=[['ชื่องาน','ชื่องาน'],['ความสำคัญ','ความสำคัญ'],['สถานะ','สถานะ'],['ผู้รับผิดชอบ','ผู้รับผิดชอบ'],['วันกำหนดส่ง','กำหนดส่ง'],['วันที่สร้าง','สร้างเมื่อ']];
+  document.getElementById('adm-task-wrap').innerHTML = tblHtml(S.tasks, cols, function(t) {
+    return '<button class="bi" onclick="editTask(\''+t['ID']+'\')">✏️</button> <button class="bi dg" onclick="delTask(\''+t['ID']+'\')">🗑️</button>';
+  });
+}
+
+function renderAdmUsers() {
+  var cols=[['ชื่อ-นามสกุล','ชื่อ-นามสกุล'],['อีเมล','อีเมล'],['บทบาท','บทบาท'],['แผนก','แผนก'],['สถานะ','สถานะ']];
+  document.getElementById('adm-user-wrap').innerHTML = tblHtml(S.users, cols, function(u) {
+    return '<button class="bi" onclick="editUser(\''+u['ID']+'\')">✏️</button> <button class="bi dg" onclick="delUser(\''+u['ID']+'\')">🗑️</button>';
+  });
+}
+
+function renderAdmCats() {
+  if (!S.cats.length) { document.getElementById('adm-cat-wrap').innerHTML='<div class="emp" style="padding:32px"><div class="emp-i">🏷️</div>ยังไม่มีหมวดหมู่</div>'; return; }
+  var rows = S.cats.map(function(c) {
+    return '<tr><td><span class="cd" style="background:'+(c['สี']||'#ccc')+'"></span></td><td>'+(c['ชื่อหมวดหมู่']||'')+'</td><td>'+(c['คำอธิบาย']||'')+'</td><td>'+(c['วันที่สร้าง']||'')+'</td>'
+      +'<td><button class="bi dg" onclick="delCat(\''+c['ID']+'\')">🗑️</button></td></tr>';
+  }).join('');
+  document.getElementById('adm-cat-wrap').innerHTML = '<table class="dt"><thead><tr><th>สี</th><th>ชื่อหมวดหมู่</th><th>คำอธิบาย</th><th>สร้างเมื่อ</th><th>จัดการ</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderLogs() {
+  if (!S.logs.length) { document.getElementById('log-wrap').innerHTML='<div class="emp"><div class="emp-i">📜</div>ยังไม่มี Log</div>'; return; }
+  document.getElementById('log-wrap').innerHTML = S.logs.map(function(l) {
+    return '<div class="le"><div class="lt">'+(l['เวลา']||'')+'</div><div><div class="la">'+(l['การกระทำ']||'')+' — '+(l['ตาราง']||'')+'</div><div class="ld2">'+(l['รายละเอียด']||'')+' ('+(l['ผู้ใช้']||'')+')</div></div></div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+//  TABLE HELPER
+// ══════════════════════════════════════════════
+function tblHtml(data, cols, actFn) {
+  if (!data.length) return '<div class="emp" style="padding:36px"><div class="emp-i">📋</div>ยังไม่มีข้อมูล</div>';
+  var hdr = cols.map(function(c){return '<th>'+c[1]+'</th>';}).join('') + (actFn?'<th>จัดการ</th>':'');
+  var rows = data.map(function(row) {
+    var cells = cols.map(function(c) {
+      var v = row[c[0]] || '';
+      if (c[0]==='สถานะ') v = stBadge(v);
+      if (c[0]==='ความสำคัญ') { var ic=v==='สูง'?'🔥':v==='กลาง'?'⚡':'📌'; v=ic+' '+v; }
+      return '<td>'+v+'</td>';
+    }).join('');
+    return '<tr>'+cells+(actFn?'<td>'+actFn(row)+'</td>':'')+'</tr>';
+  }).join('');
+  return '<table class="dt"><thead><tr>'+hdr+'</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ══════════════════════════════════════════════
+//  DROPDOWNS
+// ══════════════════════════════════════════════
+function fillDrops() {
+  var cs = document.getElementById('f-tcat'), us = document.getElementById('f-tass');
+  cs.innerHTML = '<option value="">— ไม่ระบุ —</option>' + S.cats.map(function(c){return '<option value="'+c['ชื่อหมวดหมู่']+'">'+c['ชื่อหมวดหมู่']+'</option>';}).join('');
+  us.innerHTML = '<option value="">— ไม่ระบุ —</option>' + S.users.map(function(u){return '<option value="'+u['ชื่อ-นามสกุล']+'">'+u['ชื่อ-นามสกุล']+'</option>';}).join('');
+}
+
+// ══════════════════════════════════════════════
+//  FILTER
+// ══════════════════════════════════════════════
+function setFilter(f, el) {
+  curFilter = f;
+  document.querySelectorAll('.fc').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+  renderDash(calcStats());
+}
+
+// ══════════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════════
+function openModal(type) {
+  if (type === 'task') {
+    document.getElementById('task-eid').value = '';
+    document.getElementById('task-mtitle').textContent = '➕ สร้างงานใหม่';
+    document.getElementById('task-sbtn').textContent = '➕ สร้างงาน';
+    ['f-tname','f-tdesc','f-tdate','f-ttime'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('f-tpri').value = 'กลาง';
+    document.getElementById('f-tsta').value = 'รออยู่';
+    document.getElementById('f-tdate').value = new Date().toISOString().split('T')[0];
+  }
+  if (type === 'user') {
+    document.getElementById('user-eid').value = '';
+    document.getElementById('user-mtitle').textContent = '👤 เพิ่มผู้ใช้งาน';
+    ['f-uname','f-uemail','f-udept'].forEach(function(id){document.getElementById(id).value='';});
+  }
+  document.getElementById('mo-' + type).classList.add('on');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+function cmo(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+function editTask(id) {
+  var t = S.tasks.find(function(x){return x.ID===id;}); if (!t) return;
+  document.getElementById('task-eid').value = id;
+  document.getElementById('task-mtitle').textContent = '✏️ แก้ไขงาน';
+  document.getElementById('task-sbtn').textContent = '💾 บันทึก';
+  document.getElementById('f-tname').value = t['ชื่องาน']||'';
+  document.getElementById('f-tdesc').value = t['รายละเอียด']||'';
+  document.getElementById('f-tpri').value  = t['ความสำคัญ']||'กลาง';
+  document.getElementById('f-tsta').value  = t['สถานะ']||'รออยู่';
+  document.getElementById('f-tdate').value = t['วันกำหนดส่ง']||'';
+  document.getElementById('f-ttime').value = t['เวลา']||'';
+  fillDrops();
+  setTimeout(function() {
+    document.getElementById('f-tcat').value = t['หมวดหมู่']||'';
+    document.getElementById('f-tass').value = t['ผู้รับผิดชอบ']||'';
+  }, 50);
+  document.getElementById('mo-task').classList.add('on');
+}
+
+function editUser(id) {
+  var u = S.users.find(function(x){return x.ID===id;}); if (!u) return;
+  document.getElementById('user-eid').value = id;
+  document.getElementById('user-mtitle').textContent = '✏️ แก้ไขผู้ใช้';
+  document.getElementById('f-uname').value  = u['ชื่อ-นามสกุล']||'';
+  document.getElementById('f-uemail').value = u['อีเมล']||'';
+  document.getElementById('f-urole').value  = u['บทบาท']||'ผู้ใช้งาน';
+  document.getElementById('f-udept').value  = u['แผนก']||'';
+  document.getElementById('f-usta').value   = u['สถานะ']||'ใช้งาน';
+  document.getElementById('mo-user').classList.add('on');
+}
+
+// ══════════════════════════════════════════════
+//  SUBMIT
+// ══════════════════════════════════════════════
+function submitTask() {
+  var name = document.getElementById('f-tname').value.trim();
+  if (!name) { showToast('⚠️ กรุณากรอกชื่องาน','er'); return; }
+  var eid = document.getElementById('task-eid').value;
+  var d = { name:name, desc:document.getElementById('f-tdesc').value, category:document.getElementById('f-tcat').value, assignee:document.getElementById('f-tass').value, priority:document.getElementById('f-tpri').value, status:document.getElementById('f-tsta').value, dueDate:document.getElementById('f-tdate').value, dueTime:document.getElementById('f-ttime').value, createdBy:'สุนทร', updatedBy:'สุนทร' };
+  var btn = document.getElementById('task-sbtn'); btn.disabled=true; btn.innerHTML='<div class="spin"></div>';
+  var body = eid ? {action:'updateTask', data:Object.assign({id:eid},d)} : {action:'createTask', data:d};
+  apiPost(body).then(function() {
+    closeModal('mo-task'); showToast(eid?'✅ แก้ไขงานสำเร็จ':'✅ สร้างงานสำเร็จ','ok'); loadAll();
+  }).catch(function(e){ showToast('❌ '+e.message,'er'); })
+    .finally(function(){ btn.disabled=false; btn.innerHTML=eid?'💾 บันทึก':'➕ สร้างงาน'; });
+}
+
+function submitUser() {
+  var name = document.getElementById('f-uname').value.trim();
+  if (!name) { showToast('⚠️ กรุณากรอกชื่อ','er'); return; }
+  var eid = document.getElementById('user-eid').value;
+  var d = { name:name, email:document.getElementById('f-uemail').value, role:document.getElementById('f-urole').value, dept:document.getElementById('f-udept').value, status:document.getElementById('f-usta').value };
+  var btn = document.getElementById('user-sbtn'); btn.disabled=true;
+  var body = eid ? {action:'updateUser', data:Object.assign({id:eid},d)} : {action:'createUser', data:d};
+  apiPost(body).then(function(){ closeModal('mo-user'); showToast('✅ บันทึกผู้ใช้สำเร็จ','ok'); loadAll(); })
+    .catch(function(e){ showToast('❌ '+e.message,'er'); }).finally(function(){ btn.disabled=false; });
+}
+
+function submitCat() {
+  var name = document.getElementById('f-cname').value.trim();
+  if (!name) { showToast('⚠️ กรุณากรอกชื่อหมวดหมู่','er'); return; }
+  apiPost({action:'createCategory', data:{name:name, color:document.getElementById('f-ccol').value, desc:document.getElementById('f-cdesc').value}})
+    .then(function(){ closeModal('mo-cat'); showToast('✅ เพิ่มหมวดหมู่สำเร็จ','ok'); loadAll(); })
+    .catch(function(e){ showToast('❌ '+e.message,'er'); });
+}
+
+function delTask(id) { if(!confirm('ลบงานนี้ใช่หรือไม่?'))return; apiPost({action:'deleteTask',id:id}).then(function(){showToast('🗑️ ลบงานแล้ว','');loadAll();}).catch(function(e){showToast('❌ '+e.message,'er');}); }
+function delUser(id) { if(!confirm('ลบผู้ใช้นี้ใช่หรือไม่?'))return; apiPost({action:'deleteUser',id:id}).then(function(){showToast('🗑️ ลบผู้ใช้แล้ว','');loadAll();}).catch(function(e){showToast('❌ '+e.message,'er');}); }
+function delCat(id)  { if(!confirm('ลบหมวดหมู่นี้ใช่หรือไม่?'))return; apiPost({action:'deleteCategory',id:id}).then(function(){showToast('🗑️ ลบหมวดหมู่แล้ว','');loadAll();}).catch(function(e){showToast('❌ '+e.message,'er');}); }
+
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+function initSettings() {
+  document.getElementById('url-input').value = SCRIPT_URL;
+  var box = document.getElementById('conn-status-box');
+  if (!SCRIPT_URL) {
+    box.innerHTML = '<div class="cb er"><div class="cs-dot er"></div>ยังไม่ได้ตั้งค่า URL — ระบบทำงานในโหมดตัวอย่าง (ข้อมูลไม่ถูกบันทึก)</div>';
+  } else {
+    box.innerHTML = '<div class="cb ok"><div class="cs-dot ok"></div>URL: '+SCRIPT_URL+'</div>';
+  }
+}
+
+function saveUrl() {
+  var url = document.getElementById('url-input').value.trim();
+  var res = document.getElementById('test-result');
+  if (!url) { res.innerHTML='<span style="color:#ef4444">⚠️ กรุณากรอก URL</span>'; return; }
+  res.innerHTML = '⏳ กำลังทดสอบ...';
+  SCRIPT_URL = url;
+  // ทดสอบด้วย JSONP
+  var cbName = '_testCb';
+  var script = document.createElement('script');
+  var done = false;
+  var timer = setTimeout(function(){ if(!done){done=true;res.innerHTML='<span style="color:#ef4444">❌ Timeout — ตรวจสอบ URL อีกครั้ง</span>';script.remove();} }, 10000);
+  window[cbName] = function(d) {
+    if (done) return; done=true; clearTimeout(timer); delete window[cbName]; script.remove();
+    if (d.ok) {
+      localStorage.setItem('smart_task_url', url);
+      res.innerHTML='<span style="color:#15803d">✅ เชื่อมต่อสำเร็จ! กำลังโหลดข้อมูล...</span>';
+      setCS('ok','เชื่อมต่อแล้ว');
+      loadAll(); initSettings();
+    } else {
+      res.innerHTML='<span style="color:#ef4444">❌ '+d.error+'</span>';
+    }
+  };
+  script.src = url + '?action=ping&callback=_testCb&_=' + Date.now();
+  document.head.appendChild(script);
+}
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function fmtDate(s) {
+  if (!s||s==='') return ''; s=String(s);
+  var d; if(s.indexOf('/')>-1){var p=s.split('/');var y=parseInt(p[2]);if(y>2400)y-=543;d=new Date(y,parseInt(p[1])-1,parseInt(p[0]));}else d=new Date(s);
+  if(isNaN(d))return s;
+  var th=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return d.getDate()+' '+th[d.getMonth()]+' '+(d.getFullYear()+543);
+}
+function daysLeft(s) {
+  if(!s||s==='')return ''; s=String(s);
+  var d; if(s.indexOf('/')>-1){var p=s.split('/');var y=parseInt(p[2]);if(y>2400)y-=543;d=new Date(y,parseInt(p[1])-1,parseInt(p[0]));}else d=new Date(s);
+  if(isNaN(d))return '';
+  var today=new Date();today.setHours(0,0,0,0);d.setHours(0,0,0,0);
+  var diff=Math.round((d-today)/86400000);
+  if(diff===0)return ' <span class="dw">(วันนี้)</span>';
+  if(diff===1)return ' <span class="dw">(พรุ่งนี้)</span>';
+  if(diff>0) return ' (อีก '+diff+' วัน)';
+  return ' <span style="color:#ef4444">(เกิน '+Math.abs(diff)+' วัน)</span>';
+}
+
+var _tt;
+function showToast(msg, type) {
+  var el = document.getElementById('toastEl');
+  el.textContent = msg; el.className = 'toast on' + (type?' '+type:'');
+  clearTimeout(_tt); _tt = setTimeout(function(){el.classList.remove('on');}, 2800);
+}
+
+// INIT
+loadAll();
+</script>
+</body>
+</html>
