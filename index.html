@@ -417,24 +417,46 @@ function doLogin() {
   var errEl = document.getElementById('login-err');
   if (!u || !p) { errEl.textContent = '⚠️ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'; return; }
 
+  // Fallback users — ใช้ได้เสมอแม้ Sheet ยังไม่พร้อม
+  var LOCAL_USERS = [
+    { username:'admin',  password:'1111', name:'Admin IT Gracz', role:'ผู้ดูแลระบบ', isAdmin:true  },
+    { username:'user1',  password:'1111', name:'User 1',         role:'ผู้ใช้งาน',   isAdmin:false },
+    { username:'user2',  password:'1111', name:'User 2',         role:'ผู้ใช้งาน',   isAdmin:false },
+  ];
+
+  // ถ้าไม่มี Script URL — ใช้ local เลย
   if (!SCRIPT_URL) {
-    // โหมดตัวอย่าง — ไม่มี URL ให้ใช้ admin/1111
-    if (u==='admin' && p==='1111') {
-      loginSuccess({username:'admin',name:'Admin',role:'ผู้ดูแลระบบ',isAdmin:true});
-    } else { errEl.textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'; }
+    var local = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
+    if (local) loginSuccess(local);
+    else errEl.textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
     return;
   }
 
   errEl.textContent = '⏳ กำลังตรวจสอบ...';
-  // เรียก login API ผ่าน JSONP
   var cbName = '_loginCb', script = document.createElement('script'), done = false;
-  var timer = setTimeout(function(){ if(!done){done=true;errEl.textContent='❌ Timeout กรุณาลองใหม่';script.remove();} }, 10000);
+  var timer = setTimeout(function(){
+    if (!done) {
+      done = true; script.remove();
+      // Timeout → ลอง fallback local
+      var local = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
+      if (local) { loginSuccess(local); }
+      else { errEl.textContent = '❌ เชื่อมต่อไม่ได้ และไม่พบ user ในระบบ'; }
+    }
+  }, 8000);
+
   window[cbName] = function(d) {
-    if(done)return; done=true; clearTimeout(timer); delete window[cbName]; script.remove();
+    if (done) return; done = true; clearTimeout(timer); delete window[cbName]; script.remove();
     if (d.ok && d.data && d.data.success) {
       loginSuccess(d.data);
     } else {
-      errEl.textContent = '❌ ' + (d.data ? d.data.error : (d.error || 'เข้าสู่ระบบไม่สำเร็จ'));
+      // Sheet ตอบกลับ error → ลอง fallback local ก่อน
+      var local = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
+      if (local) {
+        loginSuccess(local);
+      } else {
+        var msg = (d.data && d.data.error) ? d.data.error : (d.error || 'เข้าสู่ระบบไม่สำเร็จ');
+        errEl.textContent = '❌ ' + msg;
+      }
     }
   };
   script.src = SCRIPT_URL + '?action=login&username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p) + '&callback=' + cbName + '&_=' + Date.now();
