@@ -279,12 +279,12 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
   </div>
   <div class="nav-sec">หลัก</div>
   <div class="nav-i on" data-pg="dashboard"><span class="nav-ic">📊</span><span>ภาพรวม</span></div>
-  <div class="nav-sec">บันทึกงาน</div>
-  <div class="nav-i" data-pg="daily"><span class="nav-ic">📅</span><span>งานประจำวัน</span></div>
-  <div class="nav-i" data-pg="projects"><span class="nav-ic">🗂️</span><span>Projects</span></div>
-  <div class="nav-sec">จัดการ</div>
-  <div class="nav-i" data-pg="users"><span class="nav-ic">👥</span><span>ผู้ใช้งาน</span></div>
-  <div class="nav-i" data-pg="settings"><span class="nav-ic">⚙️</span><span>ตั้งค่าระบบ</span></div>
+  <div class="nav-sec nav-user-only">บันทึกงาน</div>
+  <div class="nav-i nav-user-only" data-pg="daily"><span class="nav-ic">📅</span><span>งานประจำวัน</span></div>
+  <div class="nav-i nav-user-only" data-pg="projects"><span class="nav-ic">🗂️</span><span>Projects</span></div>
+  <div class="nav-sec nav-admin-only" style="display:none">จัดการ</div>
+  <div class="nav-i nav-admin-only" data-pg="users" style="display:none"><span class="nav-ic">👥</span><span>ผู้ใช้งาน</span></div>
+  <div class="nav-i nav-admin-only" data-pg="settings" style="display:none"><span class="nav-ic">⚙️</span><span>ตั้งค่าระบบ</span></div>
   <div class="sb-user">
     <div class="u-row">
       <div class="u-av" id="sb-av">G</div>
@@ -724,6 +724,20 @@ function loginSuccess(user) {
   document.getElementById('sb-name').textContent = user.name || user.username;
   document.getElementById('sb-role').textContent = user.role || '';
   document.getElementById('sb-av').textContent   = (user.name||user.username||'G').charAt(0).toUpperCase();
+
+  // แสดง/ซ่อน เมนูตาม role
+  var adminEls = document.querySelectorAll('.nav-admin-only');
+  var userEls  = document.querySelectorAll('.nav-user-only');
+  if (user.isAdmin) {
+    // admin: เห็นเมนูจัดการ ไม่เห็นเมนูบันทึกงาน
+    adminEls.forEach(function(el){ el.style.display=''; });
+    userEls.forEach(function(el){ el.style.display='none'; });
+  } else {
+    // user: เห็นเมนูบันทึกงาน ไม่เห็นเมนูจัดการ
+    adminEls.forEach(function(el){ el.style.display='none'; });
+    userEls.forEach(function(el){ el.style.display=''; });
+  }
+
   // ซ่อน login screen
   var lw = document.getElementById('login-wrap');
   lw.style.opacity = '0'; lw.style.pointerEvents = 'none';
@@ -867,18 +881,31 @@ function loadDemoData() {
 // ══════════════════════════════════════════════
 function loadDashboard() {
   var today = fmt(new Date());
+  // admin เห็นภาพรวมทุกคน, user เห็นแค่ตัวเอง
+  var isAdmin = currentUser && currentUser.isAdmin;
   var todayLogs = S.dailyLogs.filter(function(l){
-    return l.username===currentUser.username && normDate(l.date)===today;
+    var dateOk = normDate(l.date) === today;
+    return isAdmin ? dateOk : (l.username===currentUser.username && dateOk);
   });
   var totalMins = todayLogs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
-  var myProjs   = S.projects.filter(function(p){ return p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1; });
-  var activeP   = myProjs.filter(function(p){ return p.status==='กำลังดำเนินการ'; });
+  var myProjs = isAdmin
+    ? S.projects
+    : S.projects.filter(function(p){ return p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1; });
+  var activeP = myProjs.filter(function(p){ return p.status==='กำลังดำเนินการ'; });
 
   var h = Math.floor(totalMins/60), m = totalMins%60;
-  document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-  document.getElementById('d-tasks').textContent  = todayLogs.length;
-  document.getElementById('d-projs').textContent  = myProjs.length;
-  document.getElementById('d-active').textContent = activeP.length;
+  // admin: แสดง label ต่างออกไป
+  if (isAdmin) {
+    document.getElementById('d-mins').textContent  = h+'h '+m+'m';
+    document.getElementById('d-tasks').textContent  = todayLogs.length + ' (ท.ห.)';
+    document.getElementById('d-projs').textContent  = myProjs.length;
+    document.getElementById('d-active').textContent = activeP.length;
+  } else {
+    document.getElementById('d-mins').textContent  = h+'h '+m+'m';
+    document.getElementById('d-tasks').textContent  = todayLogs.length;
+    document.getElementById('d-projs').textContent  = myProjs.length;
+    document.getElementById('d-active').textContent = activeP.length;
+  }
   document.getElementById('dash-date').textContent = fmtTH(new Date());
 
   // time bar
