@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Task - หน่วยงานสาธารณสุข</title>
+<title>Smart Task - IT Gracz</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#1a2744;--navy-h:#2d3d6e;--gold:#f5a623;--gold-d:#e09415;--bg:#f0f2f7;--border:#e2e6f0;--tp:#1a2744;--ts:#6b7a9e;--tl:#9ca8c5}
@@ -140,7 +140,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);displ
   <div class="sb-logo">
     <div class="logo-ic">✅</div>
     <div class="logo-t">Smart Task</div>
-    <div class="logo-s">หน่วยงานสาธารณสุข</div>
+    <div class="logo-s">IT Gracz</div>
   </div>
   <div class="nav-sec">เมนูหลัก</div>
   <div class="nav-i on" data-pg="dashboard"><span class="nav-ic">⊞</span>กระดานงาน</div>
@@ -157,7 +157,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tp);displ
   <div class="sb-foot">
     <div class="u-info">
       <div class="u-av">ส</div>
-      <div><div class="u-nm">สุนทร วิริยะพันธ์</div><div class="u-rl">ผู้ดูแลระบบ</div></div>
+      <div><div class="u-nm">Admin</div><div class="u-rl">ผู้ดูแลระบบ</div></div>
     </div>
     <button class="btn-lo" onclick="showToast('ออกจากระบบ','')">↩ ออกจากระบบ</button>
   </div>
@@ -471,11 +471,11 @@ function showDemoData() {
   var d1 = new Date(t); d1.setDate(d1.getDate()+1);
   var d2 = new Date(t); d2.setDate(d2.getDate()+4);
   S.tasks = [
-    {ID:'DEMO_1','ชื่องาน':'ทำโปรแกรม Task Track ให้เสร็จ','หมวดหมู่':'IT','ผู้รับผิดชอบ':'สุนทร','ความสำคัญ':'สูง','สถานะ':'รออยู่','วันกำหนดส่ง':fmt(d1),'เวลา':'','วันที่สร้าง':'01/06/2567'},
-    {ID:'DEMO_2','ชื่องาน':'มหกรรม NCDprevention center','หมวดหมู่':'สาธารณสุข','ผู้รับผิดชอบ':'สุนทร','ความสำคัญ':'สูง','สถานะ':'รออยู่','วันกำหนดส่ง':fmt(d2),'เวลา':'08:59','วันที่สร้าง':'01/06/2567'},
-    {ID:'DEMO_3','ชื่องาน':'ประชุมทีมสาธารณสุข','หมวดหมู่':'ประชุม','ผู้รับผิดชอบ':'','ความสำคัญ':'กลาง','สถานะ':'กำลังทำ','วันกำหนดส่ง':'','เวลา':'','วันที่สร้าง':'01/06/2567'},
+    {ID:'DEMO_1','ชื่องาน':'ติดตั้งระบบ IT โครงการใหม่','หมวดหมู่':'IT','ผู้รับผิดชอบ':'Admin','ความสำคัญ':'สูง','สถานะ':'รออยู่','วันกำหนดส่ง':fmt(d1),'เวลา':'','วันที่สร้าง':'01/06/2567'},
+    {ID:'DEMO_2','ชื่องาน':'ประชุมทีม IT Gracz ประจำเดือน','หมวดหมู่':'ประชุม','ผู้รับผิดชอบ':'Admin','ความสำคัญ':'สูง','สถานะ':'รออยู่','วันกำหนดส่ง':fmt(d2),'เวลา':'09:00','วันที่สร้าง':'01/06/2567'},
+    {ID:'DEMO_3','ชื่องาน':'พัฒนาระบบ Smart Task','หมวดหมู่':'IT','ผู้รับผิดชอบ':'Admin','ความสำคัญ':'กลาง','สถานะ':'กำลังทำ','วันกำหนดส่ง':'','เวลา':'','วันที่สร้าง':'01/06/2567'},
   ];
-  S.users = [{ID:'USR_1','ชื่อ-นามสกุล':'สุนทร วิริยะพันธ์','อีเมล':'admin@health.go.th','บทบาท':'ผู้ดูแลระบบ','แผนก':'IT','สถานะ':'ใช้งาน'}];
+  S.users = [{ID:'USR_1','ชื่อ-นามสกุล':'Admin','อีเมล':'admin@gracz.co.th','บทบาท':'ผู้ดูแลระบบ','แผนก':'IT','สถานะ':'ใช้งาน'}];
   S.cats  = [{ID:'CAT_1','ชื่อหมวดหมู่':'IT','สี':'#3b82f6','คำอธิบาย':'งานด้านไอที'},{ID:'CAT_2','ชื่อหมวดหมู่':'สาธารณสุข','สี':'#22c55e','คำอธิบาย':''},{ID:'CAT_3','ชื่อหมวดหมู่':'ประชุม','สี':'#f5a623','คำอธิบาย':''}];
   var stats = calcStats();
   renderDash(stats); fillDrops();
@@ -553,7 +553,7 @@ function stBadge(s) {
 //  RENDER PAGES
 // ══════════════════════════════════════════════
 function renderMyTasks() {
-  var me='สุนทร', mine=S.tasks.filter(function(t){return (t['ผู้รับผิดชอบ']||'').indexOf(me)>-1;});
+  var me='Admin', mine=S.tasks.filter(function(t){return (t['ผู้รับผิดชอบ']||'').indexOf(me)>-1;});
   document.getElementById('my-list').innerHTML = mine.length ? mine.map(function(t){return tcHtml(t,false);}).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานที่มอบหมาย</div>';
 }
 
@@ -691,7 +691,7 @@ function submitTask() {
   var name = document.getElementById('f-tname').value.trim();
   if (!name) { showToast('⚠️ กรุณากรอกชื่องาน','er'); return; }
   var eid = document.getElementById('task-eid').value;
-  var d = { name:name, desc:document.getElementById('f-tdesc').value, category:document.getElementById('f-tcat').value, assignee:document.getElementById('f-tass').value, priority:document.getElementById('f-tpri').value, status:document.getElementById('f-tsta').value, dueDate:document.getElementById('f-tdate').value, dueTime:document.getElementById('f-ttime').value, createdBy:'สุนทร', updatedBy:'สุนทร' };
+  var d = { name:name, desc:document.getElementById('f-tdesc').value, category:document.getElementById('f-tcat').value, assignee:document.getElementById('f-tass').value, priority:document.getElementById('f-tpri').value, status:document.getElementById('f-tsta').value, dueDate:document.getElementById('f-tdate').value, dueTime:document.getElementById('f-ttime').value, createdBy:'Admin', updatedBy:'Admin' };
   var btn = document.getElementById('task-sbtn'); btn.disabled=true; btn.innerHTML='<div class="spin"></div>';
   var body = eid ? {action:'updateTask', data:Object.assign({id:eid},d)} : {action:'createTask', data:d};
   apiPost(body).then(function() {
