@@ -1021,7 +1021,7 @@ function renderCalendar() {
   for (var i=0; i<startDow; i++) {
     var pd = new Date(y, mo, -(startDow-1-i));
     var ds = fmt(pd);
-    html2 += '<div class="cal-day other-month'+(logDates[ds]?' has-log':'')+'" onclick="calSelect(\''+ds+'\')">'  +pd.getDate()+'</div>';
+    html2 += '<div class="cal-day other-month'+(logDates[ds]?' has-log':'')+'" data-d="'+ds+'" onclick="calSelect(this.getAttribute(\'data-d\'))">'+pd.getDate()+'</div>';
   }
   // วันในเดือน
   for (var d2=1; d2<=last.getDate(); d2++) {
@@ -1030,14 +1030,14 @@ function renderCalendar() {
     if (ds2===today)    cls += ' today';
     if (ds2===selected) cls += ' selected';
     if (logDates[ds2])  cls += ' has-log';
-    html2 += '<div class="'+cls+'" onclick="calSelect(\''+ds2+'\')">'  +d2+'</div>';
+    html2 += '<div class="'+cls+'" data-d="'+ds2+'" onclick="calSelect(this.getAttribute(\'data-d\'))">'+d2+'</div>';
   }
   // blank หลัง
   var endDow = last.getDay();
   for (var j=endDow+1; j<=6; j++) {
     var nd = new Date(y, mo+1, j-endDow);
     var nds = fmt(nd);
-    html2 += '<div class="cal-day other-month'+(logDates[nds]?' has-log':'')+'" onclick="calSelect(\''+nds+'\')">'  +nd.getDate()+'</div>';
+    html2 += '<div class="cal-day other-month'+(logDates[nds]?' has-log':'')+'" data-d="'+nds+'" onclick="calSelect(this.getAttribute(\'data-d\'))">'+nd.getDate()+'</div>';
   }
   document.getElementById('cal-grid').innerHTML = html2;
 }
