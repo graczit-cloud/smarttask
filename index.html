@@ -193,6 +193,16 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 .toast.on{transform:none;opacity:1}
 .toast.ok{background:#15803d}.toast.er{background:#dc2626}
 
+/* ── CALENDAR ── */
+.cal-day{padding:5px 2px;border-radius:7px;cursor:pointer;font-size:12.5px;transition:all .15s;min-height:28px;display:flex;align-items:center;justify-content:center;position:relative}
+.cal-day:hover{background:var(--bg)}
+.cal-day.today{font-weight:700;color:var(--gold)}
+.cal-day.selected{background:var(--navy);color:#fff;font-weight:700}
+.cal-day.selected.today{background:var(--navy)}
+.cal-day.other-month{color:var(--tl)}
+.cal-day.has-log::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--green)}
+.cal-day.selected.has-log::after{background:var(--gold)}
+
 /* ── LOGIN ── */
 .login-wrap{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .3s}
 .login-box{background:#fff;border-radius:20px;padding:40px 36px;width:360px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,.35)}
@@ -343,11 +353,32 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
         <div class="pt">📅 งานประจำวัน</div>
         <div class="ha">
           <div class="date-nav">
-            <button onclick="changeDate(-1)">‹</button>
-            <div class="date-lbl" id="daily-date-lbl">—</div>
-            <button onclick="changeDate(1)">›</button>
+            <button onclick="changeDate(-1)" title="วันก่อนหน้า">‹</button>
+            <div class="date-lbl" id="daily-date-lbl" onclick="toggleCalendar()" style="cursor:pointer;user-select:none" title="คลิกเพื่อเลือกวัน">—</div>
+            <button onclick="changeDate(1)" title="วันถัดไป">›</button>
+            <button onclick="goToday()" style="font-size:11px;padding:0 8px;width:auto" title="วันนี้">วันนี้</button>
           </div>
           <button class="btn-add" onclick="openDailyModal()">+ บันทึกงาน</button>
+        </div>
+      </div>
+
+      <!-- Calendar Picker -->
+      <div id="calendar-wrap" style="display:none;margin-bottom:14px">
+        <div class="sec" style="margin-bottom:0">
+          <div class="sec-h" style="padding:10px 16px">
+            <div class="sec-t" style="font-size:13px">
+              <button onclick="calPrevMonth()" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 6px">‹</button>
+              <span id="cal-month-label" style="min-width:120px;text-align:center;display:inline-block"></span>
+              <button onclick="calNextMonth()" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 6px">›</button>
+            </div>
+            <button class="mc" onclick="toggleCalendar()">✕</button>
+          </div>
+          <div class="sec-b" style="padding:10px 14px">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11.5px;font-weight:600;color:var(--ts);margin-bottom:6px">
+              <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+            </div>
+            <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center"></div>
+          </div>
         </div>
       </div>
 
@@ -869,10 +900,12 @@ function loadDashboard() {
 function loadDailyPage() {
   renderDailyDate();
   if (SCRIPT_URL) {
+    setCS('ld','กำลังโหลด...');
     jsonp('getDailyLogs',{username:currentUser.username}).then(function(d){
       S.dailyLogs = d||[];
+      setCS('ok','เชื่อมต่อแล้ว');
       renderDailyList();
-    }).catch(function(){ renderDailyList(); });
+    }).catch(function(e){ showToast('❌ โหลดไม่ได้: '+e.message,'er'); renderDailyList(); });
   } else { renderDailyList(); }
 }
 
@@ -880,9 +913,23 @@ function renderDailyDate() {
   document.getElementById('daily-date-lbl').textContent = fmtTH(currentDate);
 }
 
+// normalise date string → dd/MM/yyyy
+function normDate(s) {
+  if (!s) return '';
+  s = String(s).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var p = s.substring(0,10).split('-');
+    return p[2]+'/'+p[1]+'/'+p[0];
+  }
+  if (s.indexOf('/') > -1) return s.split(' ')[0];
+  return s;
+}
+
 function renderDailyList() {
   var dateStr = fmt(currentDate);
-  var logs = S.dailyLogs.filter(function(l){ return l.username===currentUser.username && l.date===dateStr; });
+  var logs = S.dailyLogs.filter(function(l){
+    return l.username===currentUser.username && normDate(l.date)===dateStr;
+  });
   var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
   var h = Math.floor(totalMins/60), m = totalMins%60;
   var pct = Math.min(100, Math.round(totalMins/480*100));
@@ -891,10 +938,10 @@ function renderDailyList() {
   document.getElementById('daily-sum-time').textContent = h+' ชม. '+m+' น. / 8 ชม.';
   document.getElementById('daily-sum-bar').style.width = pct+'%';
   document.getElementById('daily-sum-bar').className = 'progress-fill'+(pct>=100?' gn':pct>=75?' bl':'');
-  document.getElementById('daily-count').textContent = '('+logs.length+' รายการ, '+totalMins+' น.)';
+  document.getElementById('daily-count').textContent = '('+logs.length+' รายการ · รวม '+h+' ชม. '+m+' น.)';
 
   var el = document.getElementById('daily-list');
-  el.innerHTML = logs.length ? logs.map(logItemHTML).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้</div>';
+  el.innerHTML = logs.length ? logs.map(logItemHTML).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false" style="color:var(--navy)">+ บันทึกงาน</a></div>';
 }
 
 function logItemHTML(l) {
@@ -918,6 +965,87 @@ function logItemHTML(l) {
 function changeDate(d) {
   currentDate = new Date(currentDate);
   currentDate.setDate(currentDate.getDate() + d);
+  renderDailyDate(); renderDailyList();
+  // อัปเดต calendar ถ้าเปิดอยู่
+  if (document.getElementById('calendar-wrap').style.display !== 'none') {
+    calViewDate = new Date(currentDate);
+    renderCalendar();
+  }
+}
+
+function goToday() {
+  currentDate = new Date();
+  renderDailyDate(); renderDailyList();
+  if (document.getElementById('calendar-wrap').style.display !== 'none') {
+    calViewDate = new Date();
+    renderCalendar();
+  }
+}
+
+// ── CALENDAR ──────────────────────────────────
+var calViewDate = new Date();
+
+function toggleCalendar() {
+  var w = document.getElementById('calendar-wrap');
+  if (w.style.display === 'none') {
+    calViewDate = new Date(currentDate);
+    renderCalendar();
+    w.style.display = 'block';
+  } else {
+    w.style.display = 'none';
+  }
+}
+
+function calPrevMonth() { calViewDate.setMonth(calViewDate.getMonth()-1); renderCalendar(); }
+function calNextMonth() { calViewDate.setMonth(calViewDate.getMonth()+1); renderCalendar(); }
+
+function renderCalendar() {
+  var thM = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+             'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  var y = calViewDate.getFullYear(), mo = calViewDate.getMonth();
+  document.getElementById('cal-month-label').textContent = thM[mo]+' '+(y+543);
+
+  var logDates = {};
+  S.dailyLogs.forEach(function(l){
+    if (currentUser && l.username===currentUser.username) logDates[normDate(l.date)] = true;
+  });
+
+  var today    = fmt(new Date());
+  var selected = fmt(currentDate);
+  var first    = new Date(y, mo, 1);
+  var last     = new Date(y, mo+1, 0);
+  var startDow = first.getDay();
+  var html2 = '';
+
+  // blank ก่อน
+  for (var i=0; i<startDow; i++) {
+    var pd = new Date(y, mo, -(startDow-1-i));
+    var ds = fmt(pd);
+    html2 += '<div class="cal-day other-month'+(logDates[ds]?' has-log':'')+'" onclick="calSelect(''+ds+'')">'+pd.getDate()+'</div>';
+  }
+  // วันในเดือน
+  for (var d2=1; d2<=last.getDate(); d2++) {
+    var ds2 = String(d2).padStart(2,'0')+'/'+String(mo+1).padStart(2,'0')+'/'+y;
+    var cls = 'cal-day';
+    if (ds2===today)    cls += ' today';
+    if (ds2===selected) cls += ' selected';
+    if (logDates[ds2])  cls += ' has-log';
+    html2 += '<div class="'+cls+'" onclick="calSelect(''+ds2+'')">'+d2+'</div>';
+  }
+  // blank หลัง
+  var endDow = last.getDay();
+  for (var j=endDow+1; j<=6; j++) {
+    var nd = new Date(y, mo+1, j-endDow);
+    var nds = fmt(nd);
+    html2 += '<div class="cal-day other-month'+(logDates[nds]?' has-log':'')+'" onclick="calSelect(''+nds+'')">'+nd.getDate()+'</div>';
+  }
+  document.getElementById('cal-grid').innerHTML = html2;
+}
+
+function calSelect(ds) {
+  var p = ds.split('/');
+  currentDate = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  document.getElementById('calendar-wrap').style.display = 'none';
   renderDailyDate(); renderDailyList();
 }
 
