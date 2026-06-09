@@ -986,10 +986,11 @@ function logItemHTML(l) {
   var imgHtml = '';
   if (l.imageUrl) {
     window._logImgs[imgKey] = l.imageUrl;
-    imgHtml = '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px">'
-      + '<img class="log-img" src="'+driveUrl(l.imageUrl)+'" title="คลิกดูรูป" onerror="this.parentNode.style.display=\'none\'" onclick="lightboxKey(\''+imgKey+'\')">'
-      + '<button class="bi" style="font-size:11px;padding:2px 8px" onclick="lightboxKey(\''+imgKey+'\')">🔍 ดูรูป</button>'
-      + '</div>';
+    var imgEl = '<img class="log-img" src="'+driveUrl(l.imageUrl)+'" title="คลิกดูรูป"';
+    imgEl += ' onerror="this.parentNode.style.display=\'none\''+'"';
+    imgEl += ' onclick="lightboxKey(\''+imgKey+'\')">';
+    var btnEl = '<button class="bi" style="font-size:11px;padding:2px 8px" onclick="lightboxKey(\''+imgKey+'\')">🔍 ดูรูป</button>';
+    imgHtml = '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px">'+imgEl+btnEl+'</div>';
   }
   if (!window._logIds) window._logIds = {};
   var editKey = 'le_'+l.id;
@@ -1280,7 +1281,7 @@ function renderSteps(projectId) {
       +'</div>'
       +'<div class="step-prog" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
       +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
-      +(s.imageUrl?'<img src="'+driveUrl(s.imageUrl)+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;cursor:zoom-in" onclick="lightbox(\''+escHtml(s.imageUrl)+'\')" onerror="this.style.display=\'none\'">':'')
+      +(s.imageUrl?(function(){if(!window._stepImgs)window._stepImgs={};var sk='si_'+(s.id||Math.random().toString(36).slice(2));window._stepImgs[sk]=s.imageUrl;return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'+('<img src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover" onclick="lightboxKey(\''+sk+'\')" onerror="this.style.display=\'none\'">')+('<button class="bi" style="font-size:10px;padding:1px 5px" onclick="lightboxKey(\''+sk+'\')">🔍</button>')+'</div>';})():'')
       +'<button class="bi" onclick="editStep(\''+s.id+'\')">✏️</button>'
       +'</div>'
       +'</div>';
