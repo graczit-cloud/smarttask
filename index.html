@@ -1217,7 +1217,7 @@ function projCardHTML(p) {
     + imgInner
     + (p.imageUrl ? '' : '🗂️')
     + '</div>';
-  return '<div class="project-card" onclick="openProjectDetail(\'\'+p.id+\'\')">'
+  return '<div class="project-card" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">' 
     +imgHtml
     +'<div class="project-body">'
     +'<div class="project-name">'+escHtml(p.name||'')+'</div>'
