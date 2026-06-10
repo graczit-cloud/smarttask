@@ -203,6 +203,72 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 .cal-day.has-log::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--green)}
 .cal-day.selected.has-log::after{background:var(--gold)}
 
+/* ── SEARCH ── */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;transition:border-color .15s;flex:1;max-width:320px}
+.search-bar:focus-within{border-color:var(--navy)}
+.search-bar input{border:none;background:none;outline:none;font-family:'Sarabun',sans-serif;font-size:13px;width:100%;color:var(--tp)}
+.search-bar input::placeholder{color:var(--tl)}
+.search-overlay{position:fixed;inset:0;background:rgba(10,20,50,.45);backdrop-filter:blur(2px);z-index:800;display:none}
+.search-overlay.on{display:block}
+.search-results{position:fixed;top:56px;left:50%;transform:translateX(-50%);width:min(600px,92vw);background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:900;max-height:70vh;overflow-y:auto;display:none}
+.search-results.on{display:block}
+.sr-header{padding:12px 18px 8px;font-size:11.5px;font-weight:600;color:var(--ts);border-bottom:1px solid var(--border)}
+.sr-item{display:flex;align-items:flex-start;gap:12px;padding:10px 18px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border)}
+.sr-item:last-child{border-bottom:none}
+.sr-item:hover{background:var(--bg)}
+.sr-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sr-ic.dl{background:#eff6ff}.sr-ic.pj{background:#faf5ff}.sr-ic.st{background:#f0fdf4}
+.sr-body{flex:1;min-width:0}
+.sr-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-sub{font-size:11.5px;color:var(--ts);margin-top:2px}
+.sr-mark{background:#fef9c3;color:#92400e;border-radius:3px;padding:0 2px}
+.sr-empty{padding:32px;text-align:center;color:var(--tl);font-size:13px}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sb{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform .25s;width:240px}
+  .sb.open{transform:translateX(0)}
+  .sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199;display:none}
+  .sb-overlay.on{display:block}
+  .main{margin-left:0!important}
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .mb{width:95vw!important;padding:18px}
+  .cnt{padding:14px}
+  .topbar{padding:0 14px}
+  .ph{flex-direction:column;align-items:flex-start;gap:8px}
+  .ha{flex-wrap:wrap}
+  .date-nav{flex-wrap:wrap}
+  .hamburger-btn{display:flex!important}
+  .search-bar{max-width:180px}
+  .tbl-wrap{overflow-x:auto}
+  .tbl td,.tbl th{padding:7px 8px;font-size:12px}
+}
+@media(min-width:769px){
+  .hamburger-btn{display:none!important}
+}
+
+/* ── DARK MODE ── */
+body.dark{
+  --bg:#0f1623;--white:#1a2744;--border:#2d3d6e;
+  --tp:#e2e8f0;--ts:#94a3b8;--tl:#475569;
+  --navy:#3b82f6;--navy-h:#2563eb;
+}
+body.dark .topbar,body.dark .sec,body.dark .stat-card,body.dark .project-card,
+body.dark .mb,body.dark .search-results,body.dark .day-bar{background:#1e2a3e;border-color:#2d3d6e}
+body.dark .cnt{background:#0f1623}
+body.dark .fi,body.dark .fs,body.dark .ft,body.dark .search-bar{background:#1e2a3e;border-color:#2d3d6e;color:#e2e8f0}
+body.dark .tbl th{background:#0f1623}
+body.dark .tbl tr:hover td{background:#243044}
+body.dark .nav-i.on{background:rgba(59,130,246,.2)}
+body.dark .btn-x{background:#1e2a3e;border-color:#2d3d6e;color:#e2e8f0}
+body.dark .progress-bar{background:#2d3d6e}
+body.dark .sr-item:hover{background:#243044}
+body.dark .fc.on{background:#3b82f6}
+body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
+
 /* ── LOGIN ── */
 .login-wrap{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .3s}
 .login-box{background:#fff;border-radius:20px;padding:40px 36px;width:360px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,.35)}
@@ -268,6 +334,16 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
   </div>
 </div>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="search-overlay" onclick="closeSearch()"></div>
+<!-- SEARCH RESULTS -->
+<div class="search-results" id="search-results">
+  <div class="sr-header" id="sr-header">ผลการค้นหา</div>
+  <div id="sr-body"></div>
+</div>
+
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-logo">
@@ -303,9 +379,18 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b></div>
+    </div>
     <div class="tb-r">
+      <div class="search-bar" onclick="openSearch()">
+        <span style="color:var(--tl);font-size:14px">🔍</span>
+        <input type="text" id="search-input" placeholder="ค้นหางาน, Project..." autocomplete="off"
+          oninput="onSearchInput(this.value)" onkeydown="onSearchKey(event)">
+      </div>
       <div class="cs-wrap"><div class="cs-dot ld" id="cs-dot"></div><span id="cs-txt">กำลังโหลด...</span></div>
+      <button onclick="toggleDark()" id="dark-btn" title="Dark mode" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px">🌙</button>
       <button class="btn-add" id="topbar-add-btn" onclick="topbarAdd()">+ เพิ่ม</button>
     </div>
   </div>
@@ -2073,6 +2158,163 @@ function updateDueBadge() {
   if (badge) { badge.textContent=count; badge.style.display=count>0?'':'none'; }
 }
 
+
+// ══════════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════════
+var _searchTimer = null;
+
+function openSearch() {
+  document.getElementById('search-overlay').classList.add('on');
+  document.getElementById('search-input').focus();
+}
+
+function closeSearch() {
+  document.getElementById('search-overlay').classList.remove('on');
+  document.getElementById('search-results').classList.remove('on');
+  document.getElementById('search-input').value = '';
+  document.getElementById('sr-body').innerHTML = '';
+}
+
+function onSearchInput(q) {
+  clearTimeout(_searchTimer);
+  q = q.trim();
+  if (!q) { document.getElementById('search-results').classList.remove('on'); return; }
+  _searchTimer = setTimeout(function(){ doSearch(q); }, 200);
+}
+
+function onSearchKey(e) {
+  if (e.key === 'Escape') { closeSearch(); return; }
+}
+
+function doSearch(q) {
+  var ql = q.toLowerCase();
+  var results = [];
+
+  // ค้นใน Daily Logs
+  S.dailyLogs.forEach(function(l) {
+    if (!currentUser) return;
+    if (!currentUser.isAdmin && l.username !== currentUser.username) return;
+    var score = 0;
+    if ((l.taskName||'').toLowerCase().indexOf(ql) > -1) score += 3;
+    if ((l.description||'').toLowerCase().indexOf(ql) > -1) score += 1;
+    if ((l.category||'').toLowerCase().indexOf(ql) > -1) score += 1;
+    if (score > 0) results.push({ type:'daily', score:score, data:l });
+  });
+
+  // ค้นใน Projects
+  S.projects.forEach(function(p) {
+    var score = 0;
+    if ((p.name||'').toLowerCase().indexOf(ql) > -1) score += 3;
+    if ((p.description||'').toLowerCase().indexOf(ql) > -1) score += 1;
+    if ((p.members||'').toLowerCase().indexOf(ql) > -1) score += 1;
+    if (score > 0) results.push({ type:'project', score:score, data:p });
+  });
+
+  // ค้นใน Steps
+  (S.steps||[]).forEach(function(s) {
+    var score = 0;
+    if ((s.stepName||'').toLowerCase().indexOf(ql) > -1) score += 3;
+    if ((s.description||'').toLowerCase().indexOf(ql) > -1) score += 1;
+    if (score > 0) results.push({ type:'step', score:score, data:s });
+  });
+
+  results.sort(function(a,b){ return b.score - a.score; });
+  results = results.slice(0, 20);
+
+  var body = document.getElementById('sr-body');
+  document.getElementById('sr-header').textContent = 'พบ ' + results.length + ' ผลลัพธ์ สำหรับ "' + escHtml(q) + '"';
+
+  if (!results.length) {
+    body.innerHTML = '<div class="sr-empty">🔍 ไม่พบผลลัพธ์</div>';
+    document.getElementById('search-results').classList.add('on');
+    return;
+  }
+
+  function hl(text, q) {
+    if (!text) return '';
+    var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    return escHtml(text).replace(re, '<span class="sr-mark">$1</span>');
+  }
+
+  body.innerHTML = results.map(function(r) {
+    if (r.type === 'daily') {
+      var l = r.data;
+      var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
+      var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name||l.username;
+      return '<div class="sr-item" onclick="srGoDaily(\'' + escHtml(l.date||'') + '\')">'
+        + '<div class="sr-ic dl">📅</div>'
+        + '<div class="sr-body">'
+        + '<div class="sr-title">' + hl(l.taskName, q) + '</div>'
+        + '<div class="sr-sub">' + escHtml(normDate(l.date)||'') + ' · ' + escHtml(uName) + ' · ' + h + 'ชม. ' + m + 'น.'
+        + (l.description ? ' · ' + hl(l.description.substring(0,60), q) : '') + '</div>'
+        + '</div></div>';
+    }
+    if (r.type === 'project') {
+      var p = r.data;
+      var pid = escHtml(p.id||'');
+      return '<div class="sr-item" onclick="srGoProject(\'' + pid + '\')">'
+        + '<div class="sr-ic pj">🗂️</div>'
+        + '<div class="sr-body">'
+        + '<div class="sr-title">' + hl(p.name, q) + '</div>'
+        + '<div class="sr-sub">Project · ' + escHtml(p.status||'') + ' · ' + (p.progress||0) + '%'
+        + (p.description ? ' · ' + hl(p.description.substring(0,60), q) : '') + '</div>'
+        + '</div></div>';
+    }
+    if (r.type === 'step') {
+      var s = r.data;
+      var prj = S.projects.find(function(x){return x.id===s.projectId;});
+      var sid = escHtml(s.projectId||'');
+      return '<div class="sr-item" onclick="srGoProject(\'' + sid + '\')">'
+        + '<div class="sr-ic st">🔖</div>'
+        + '<div class="sr-body">'
+        + '<div class="sr-title">' + hl(s.stepName, q) + '</div>'
+        + '<div class="sr-sub">Step ใน ' + escHtml((prj&&prj.name)||'Project') + ' · ' + escHtml(s.status||'') + ' · ' + (s.progress||0) + '%</div>'
+        + '</div></div>';
+    }
+    return '';
+  }).join('');
+
+  document.getElementById('search-results').classList.add('on');
+}
+
+function srGoDaily(dateStr) {
+  closeSearch();
+  if (dateStr) {
+    var p = dateStr.split('/');
+    if (p.length >= 3) {
+      var y = parseInt(p[2]); if(y>2400) y-=543;
+      currentDate = new Date(y, parseInt(p[1])-1, parseInt(p[0]));
+    }
+  }
+  navigateTo('daily');
+}
+
+function srGoProject(id) {
+  closeSearch();
+  if (id) { currentProjectId = id; navigateTo('project-detail'); }
+}
+
+// ══════════════════════════════════════════════
+//  MOBILE SIDEBAR
+// ══════════════════════════════════════════════
+function toggleSidebar() {
+  var sb  = document.querySelector('.sb');
+  var ov  = document.getElementById('sb-overlay');
+  var isOpen = sb.classList.contains('open');
+  sb.classList.toggle('open', !isOpen);
+  ov.classList.toggle('on', !isOpen);
+}
+
+// ══════════════════════════════════════════════
+//  DARK MODE
+// ══════════════════════════════════════════════
+function toggleDark() {
+  var isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('gracz_dark', isDark ? '1' : '0');
+  document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+}
+
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
@@ -2080,6 +2322,12 @@ document.body.classList.add('logged-out'); // ซ่อน sidebar จนกว�
 document.getElementById('f-dl-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('f-pj-start').value = new Date().toISOString().split('T')[0];
 if (SCRIPT_URL && document.getElementById('url-input')) document.getElementById('url-input').value = SCRIPT_URL;
+// Dark mode restore
+if (localStorage.getItem('gracz_dark') === '1') {
+  document.body.classList.add('dark');
+  var db = document.getElementById('dark-btn');
+  if (db) db.textContent = '☀️';
+}
 </script>
 </body>
 </html>
