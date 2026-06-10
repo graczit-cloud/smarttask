@@ -1477,7 +1477,15 @@ function renderSteps(projectId) {
       +'</div>'
       +'<div class="step-prog" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
       +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
-      +(s.imageUrl?(function(){if(!window._stepImgs)window._stepImgs={};var sk='si_'+(s.id||Math.random().toString(36).slice(2));window._stepImgs[sk]=s.imageUrl;return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'+('<img src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover" onclick="lightboxKey(\''+sk+'\')" onerror="this.style.display=\'none\'">')+('<button class="bi" style="font-size:10px;padding:1px 5px" onclick="lightboxKey(\''+sk+'\')">🔍</button>')+'</div>';})():'')
+      +(s.imageUrl
+        ? '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'
+          + '<img src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover"'
+          + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)"'
+          + ' onerror="this.parentNode.style.display=\'none\'">'
+          + '<button class="bi" style="font-size:10px;padding:1px 5px"'
+          + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)">🔍</button>'
+          + '</div>'
+        : '')
       +'<button class="bi" onclick="editStep(\''+s.id+'\')">✏️</button>'
       +'</div>'
       +'</div>';
