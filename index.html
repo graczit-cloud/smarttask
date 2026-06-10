@@ -1178,7 +1178,7 @@ function logItemHTML(l) {
   var timeStr = h+'ชม. '+m+'น.';
   var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
   var imgHtml = '';
-  if (l.imageUrl) {
+  if (l.imageUrl && String(l.imageUrl).trim()) {
     // ใช้ data-url attribute แทน global map เพื่อหลีกเลี่ยง key ชนกัน
     var thumbUrl = driveUrl(l.imageUrl);
     var origUrl  = escHtml(l.imageUrl);
@@ -1477,7 +1477,7 @@ function renderSteps(projectId) {
       +'</div>'
       +'<div class="step-prog" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
       +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
-      +(s.imageUrl
+      +(s.imageUrl && String(s.imageUrl).trim()
         ? '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'
           + '<img src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover"'
           + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)"'
@@ -1757,8 +1757,9 @@ function dropFile(e, inputId, previewId, areaId) {
 }
 
 function lightbox(url) {
-  // แปลง Google Drive URL ให้ embed ได้
+  if (!url || url === 'undefined' || url.trim() === '') return;
   var displayUrl = driveUrl(url);
+  if (!displayUrl) return;
   document.getElementById('lightbox-img').src = displayUrl;
   document.getElementById('lightbox').classList.add('on');
 }
