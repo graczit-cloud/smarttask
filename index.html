@@ -1013,7 +1013,7 @@ function loadDashboard() {
 
   var h = Math.floor(totalMins/60), m = totalMins%60;
   document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-  document.getElementById('d-tasks').textContent  = isAdmin ? todayLogs.length+' (ท.ห.)' : todayLogs.length;
+  document.getElementById('d-tasks').textContent  = isAdmin ? todayLogs.length+' (ทั้งหมด)' : todayLogs.length;
   document.getElementById('d-projs').textContent  = myProjs.length;
   document.getElementById('d-active').textContent = activeP.length;
 
