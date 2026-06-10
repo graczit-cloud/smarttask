@@ -326,11 +326,22 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 
       <!-- Daily time bar -->
       <div class="sec">
-        <div class="sec-h"><div class="sec-t">⏱️ เวลาทำงานวันนี้</div><span id="dash-date" style="font-size:12px;color:var(--ts)"></span></div>
+        <div class="sec-h">
+          <div class="sec-t">⏱️ เวลาทำงาน</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="date-nav">
+              <button onclick="dashChangeDate(-1)" title="วันก่อนหน้า">‹</button>
+              <div class="date-lbl" id="dash-date" style="cursor:pointer;min-width:110px;text-align:center" onclick="dashGoToday()" title="คลิกกลับวันนี้">—</div>
+              <button onclick="dashChangeDate(1)" title="วันถัดไป">›</button>
+            </div>
+            <button onclick="dashGoToday()" style="font-size:11px;padding:3px 10px;background:#fff;border:1px solid var(--border);border-radius:7px;cursor:pointer">วันนี้</button>
+            <input type="date" id="dash-date-pick" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:7px;cursor:pointer" onchange="dashPickDate(this.value)">
+          </div>
+        </div>
         <div class="sec-b">
           <div class="day-bar" id="dash-daybar">
             <div class="day-bar-top">
-              <div class="day-bar-label">วันนี้</div>
+              <div class="day-bar-label" id="dash-day-label">วันนี้</div>
               <div class="day-bar-time" id="dash-time-txt">0 ชม. 0 น. / 8 ชม.</div>
             </div>
             <div class="progress-bar"><div class="progress-fill" id="dash-time-bar" style="width:0%"></div></div>
@@ -963,12 +974,35 @@ function loadDemoData() {
 // ══════════════════════════════════════════════
 //  DASHBOARD
 // ══════════════════════════════════════════════
+var dashDate = new Date(); // วันที่ที่ dashboard กำลังแสดง
+
+function dashChangeDate(d) {
+  dashDate = new Date(dashDate);
+  dashDate.setDate(dashDate.getDate() + d);
+  loadDashboard();
+}
+function dashGoToday() {
+  dashDate = new Date();
+  loadDashboard();
+}
+function dashPickDate(isoStr) {
+  if (!isoStr) return;
+  var p = isoStr.split('-');
+  dashDate = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  loadDashboard();
+}
+
 function loadDashboard() {
-  var today = fmt(new Date());
-  // admin เห็นภาพรวมทุกคน, user เห็นแค่ตัวเอง
+  var selDate = fmt(dashDate);
+  var isToday = selDate === fmt(new Date());
+  // อัปเดต date picker
+  document.getElementById('dash-date').textContent = fmtTH(dashDate);
+  document.getElementById('dash-day-label').textContent = isToday ? 'วันนี้' : fmtTH(dashDate);
+  document.getElementById('dash-date-pick').value = dashDate.toISOString().split('T')[0];
+
   var isAdmin = currentUser && currentUser.isAdmin;
   var todayLogs = S.dailyLogs.filter(function(l){
-    var dateOk = normDate(l.date) === today;
+    var dateOk = normDate(l.date) === selDate;
     return isAdmin ? dateOk : (l.username===currentUser.username && dateOk);
   });
   var totalMins = todayLogs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
@@ -978,19 +1012,10 @@ function loadDashboard() {
   var activeP = myProjs.filter(function(p){ return p.status==='กำลังดำเนินการ'; });
 
   var h = Math.floor(totalMins/60), m = totalMins%60;
-  // admin: แสดง label ต่างออกไป
-  if (isAdmin) {
-    document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-    document.getElementById('d-tasks').textContent  = todayLogs.length + ' (ท.ห.)';
-    document.getElementById('d-projs').textContent  = myProjs.length;
-    document.getElementById('d-active').textContent = activeP.length;
-  } else {
-    document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-    document.getElementById('d-tasks').textContent  = todayLogs.length;
-    document.getElementById('d-projs').textContent  = myProjs.length;
-    document.getElementById('d-active').textContent = activeP.length;
-  }
-  document.getElementById('dash-date').textContent = fmtTH(new Date());
+  document.getElementById('d-mins').textContent  = h+'h '+m+'m';
+  document.getElementById('d-tasks').textContent  = isAdmin ? todayLogs.length+' (ท.ห.)' : todayLogs.length;
+  document.getElementById('d-projs').textContent  = myProjs.length;
+  document.getElementById('d-active').textContent = activeP.length;
 
   // time bar
   var pct = Math.min(100, Math.round(totalMins/480*100));
@@ -998,9 +1023,11 @@ function loadDashboard() {
   document.getElementById('dash-time-bar').style.width = pct+'%';
   document.getElementById('dash-time-bar').className = 'progress-fill'+(pct>=100?' gn':pct>=75?' bl':'');
 
-  // today logs
+  // logs list
   var el = document.getElementById('dash-today-logs');
-  el.innerHTML = todayLogs.length ? todayLogs.map(logItemHTML).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false">+ บันทึกงาน</a></div>';
+  el.innerHTML = todayLogs.length
+    ? todayLogs.map(logItemHTML).join('')
+    : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false">+ บันทึกงาน</a></div>';
 
   // active projects
   var pe = document.getElementById('dash-projects');
