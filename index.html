@@ -1091,21 +1091,20 @@ function logItemHTML(l) {
   var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
   var timeStr = h+'ชม. '+m+'น.';
   var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
-  // store in global temp map to avoid inline quote issues
-  if (!window._logImgs) window._logImgs = {};
-  var imgKey = 'li_'+l.id;
   var imgHtml = '';
   if (l.imageUrl) {
-    window._logImgs[imgKey] = l.imageUrl;
-    var imgEl = '<img class="log-img" src="'+driveUrl(l.imageUrl)+'" title="คลิกดูรูป"';
-    imgEl += ' onerror="this.parentNode.style.display=\'none\''+'"';
-    imgEl += ' onclick="lightboxKey(\''+imgKey+'\')">';
-    var btnEl = '<button class="bi" style="font-size:11px;padding:2px 8px" onclick="lightboxKey(\''+imgKey+'\')">🔍 ดูรูป</button>';
-    imgHtml = '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px">'+imgEl+btnEl+'</div>';
+    // ใช้ data-url attribute แทน global map เพื่อหลีกเลี่ยง key ชนกัน
+    var thumbUrl = driveUrl(l.imageUrl);
+    var origUrl  = escHtml(l.imageUrl);
+    imgHtml = '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px">'
+      + '<img class="log-img" src="'+thumbUrl+'" title="คลิกดูรูป"'
+      + ' onerror="this.parentNode.style.display=\'none\'"'
+      + ' data-orig="'+origUrl+'" onclick="lightbox(this.dataset.orig)">'
+      + '<button class="bi" style="font-size:11px;padding:2px 8px"'
+      + ' data-orig="'+origUrl+'" onclick="lightbox(this.dataset.orig)">🔍 ดูรูป</button>'
+      + '</div>';
   }
-  if (!window._logIds) window._logIds = {};
-  var editKey = 'le_'+l.id;
-  window._logIds[editKey] = l.id;
+  // ใช้ data-id สำหรับ edit button
   return '<div class="log-item">'
     +'<div class="log-time">'+timeStr+'</div>'
     +'<div class="log-body">'
@@ -1115,7 +1114,7 @@ function logItemHTML(l) {
     +'</div>'
     +imgHtml
     +'<div class="log-actions">'
-    +'<button class="bi" onclick="editDailyLog(window._logIds[\''+editKey+'\'])">✏️</button>'
+    +'<button class="bi" data-id="'+escHtml(l.id||'')+'" onclick="editDailyLog(this.dataset.id)">✏️</button>'
     +'</div></div>';
 }
 
