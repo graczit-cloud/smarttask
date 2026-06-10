@@ -1742,10 +1742,20 @@ function fmt(d) {
   return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
 }
 function fmtISO(s) {
-  // dd/MM/yyyy → yyyy-MM-dd
-  if(!s) return '';
-  if(s.indexOf('/')>-1){var p=s.split('/');return p[2]+'-'+p[1]+'-'+p[0];}
-  return s;
+  // แปลงทุกรูปแบบ → yyyy-MM-dd สำหรับ input[type=date]
+  if (!s) return '';
+  s = String(s).trim();
+  // dd/MM/yyyy หรือ dd/MM/yyyy HH:mm:ss
+  if (s.indexOf('/') > -1) {
+    var p = s.split(' ')[0].split('/');
+    if (p.length >= 3) {
+      var y = parseInt(p[2]); if (y > 2400) y -= 543;
+      return y + '-' + String(p[1]).padStart(2,'0') + '-' + String(p[0]).padStart(2,'0');
+    }
+  }
+  // yyyy-MM-dd ครบแล้ว
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
+  return '';
 }
 function fmtTHdb(isoStr) {
   // yyyy-MM-dd → dd/MM/yyyy
