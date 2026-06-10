@@ -589,7 +589,7 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 </div><!-- /main -->
 
 <!-- ══ MODAL: DAILY LOG ══ -->
-<div class="mo" id="mo-daily" onclick="cmo(event,'mo-daily')">
+<div class="mo" id="mo-daily">
   <div class="mb">
     <div class="mh"><div class="mt2" id="daily-modal-title">📅 บันทึกงาน</div><button class="mc" onclick="closeModal('mo-daily')">✕</button></div>
     <input type="hidden" id="daily-eid">
@@ -639,7 +639,7 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 </div>
 
 <!-- ══ MODAL: PROJECT ══ -->
-<div class="mo" id="mo-project" onclick="cmo(event,'mo-project')">
+<div class="mo" id="mo-project">
   <div class="mb lg">
     <div class="mh"><div class="mt2" id="proj-modal-title">🗂️ สร้าง Project</div><button class="mc" onclick="closeModal('mo-project')">✕</button></div>
     <input type="hidden" id="proj-eid">
@@ -680,7 +680,7 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 </div>
 
 <!-- ══ MODAL: STEP ══ -->
-<div class="mo" id="mo-step" onclick="cmo(event,'mo-step')">
+<div class="mo" id="mo-step">
   <div class="mb">
     <div class="mh"><div class="mt2" id="step-modal-title">🔖 เพิ่มขั้นตอน</div><button class="mc" onclick="closeModal('mo-step')">✕</button></div>
     <input type="hidden" id="step-eid">
@@ -719,7 +719,7 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 </div>
 
 <!-- ══ MODAL: USER ══ -->
-<div class="mo" id="mo-user" onclick="cmo(event,'mo-user')">
+<div class="mo" id="mo-user">
   <div class="mb" style="width:480px">
     <div class="mh"><div class="mt2" id="user-modal-title">👤 เพิ่มผู้ใช้</div><button class="mc" onclick="closeModal('mo-user')">✕</button></div>
     <input type="hidden" id="user-eid">
@@ -1013,7 +1013,7 @@ function loadDashboard() {
 
   var h = Math.floor(totalMins/60), m = totalMins%60;
   document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-  document.getElementById('d-tasks').textContent  = isAdmin ? todayLogs.length+' (ทั้งหมด)' : todayLogs.length;
+  document.getElementById('d-tasks').textContent  = isAdmin ? todayLogs.length+' (ท.ห.)' : todayLogs.length;
   document.getElementById('d-projs').textContent  = myProjs.length;
   document.getElementById('d-active').textContent = activeP.length;
 
