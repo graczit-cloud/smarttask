@@ -1244,7 +1244,7 @@ function editDailyLog(id) {
   document.getElementById('f-dl-status').value = l.status||'เสร็จแล้ว';
   document.getElementById('f-dl-img-url').value = l.imageUrl||'';
   var prev = document.getElementById('dl-preview');
-  if (l.imageUrl) { prev.src=l.imageUrl; prev.style.display='block'; } else { prev.style.display='none'; }
+  if (l.imageUrl) { prev.src=driveUrl(l.imageUrl); prev.style.display='block'; } else { prev.style.display='none'; }
   document.getElementById('mo-daily').classList.add('on');
 }
 
@@ -1430,7 +1430,7 @@ function editCurrentProject() {
   document.getElementById('f-pj-members').value=p.members||'';
   document.getElementById('f-pj-img-url').value=p.imageUrl||'';
   var prev=document.getElementById('pj-preview');
-  if(p.imageUrl){prev.src=p.imageUrl;prev.style.display='block';}else{prev.style.display='none';}
+  if(p.imageUrl){prev.src=driveUrl(p.imageUrl);prev.style.display='block';}else{prev.style.display='none';}
   document.getElementById('mo-project').classList.add('on');
 }
 
@@ -1510,7 +1510,7 @@ function editStep(id) {
   document.getElementById('step-prog-val').textContent=parseInt(s.progress||0);
   document.getElementById('f-st-img-url').value=s.imageUrl||'';
   var prev=document.getElementById('st-preview');
-  if(s.imageUrl){prev.src=s.imageUrl;prev.style.display='block';}else{prev.style.display='none';}
+  if(s.imageUrl){prev.src=driveUrl(s.imageUrl);prev.style.display='block';}else{prev.style.display='none';}
   document.getElementById('mo-step').classList.add('on');
 }
 
