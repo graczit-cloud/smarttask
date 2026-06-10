@@ -834,7 +834,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 </div>
 
 <!-- IMAGE LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="this.classList.remove('on')">
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('on');document.getElementById('lightbox-img').src=''">
   <img id="lightbox-img" src="">
 </div>
 
@@ -1766,7 +1766,7 @@ function lightbox(url) {
 
 // แปลง Drive URL หลายรูปแบบให้เป็น thumbnail URL ที่ใช้ใน <img> ได้
 function driveUrl(url) {
-  if (!url) return '';
+  if (!url || !String(url).trim()) return '';
   var fileId = '';
   // https://drive.google.com/uc?export=view&id=FILE_ID
   var m1 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
