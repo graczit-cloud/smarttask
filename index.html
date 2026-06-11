@@ -358,6 +358,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="nav-sec nav-user-only">บันทึกงาน</div>
   <div class="nav-i nav-user-only" data-pg="daily"><span class="nav-ic">📅</span><span>งานประจำวัน</span></div>
   <div class="nav-i nav-user-only" data-pg="projects"><span class="nav-ic">🗂️</span><span>Projects</span> <span id="due-badge" class="nav-badge" style="display:none">0</span></div>
+  <div class="nav-i nav-user-only" data-pg="team-board"><span class="nav-ic">👥</span><span>งานทีม</span></div>
   <div class="nav-sec nav-admin-only" style="display:none">จัดการ</div>
   <div class="nav-i nav-admin-only" data-pg="users" style="display:none"><span class="nav-ic">👥</span><span>ผู้ใช้งาน</span></div>
   <div class="nav-i nav-admin-only" data-pg="settings" style="display:none"><span class="nav-ic">⚙️</span><span>ตั้งค่าระบบ</span></div>
@@ -671,6 +672,40 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       </div>
     </div>
 
+
+    <!-- ══ TEAM BOARD ══ -->
+    <div id="pg-team-board" class="pg">
+      <div class="ph">
+        <div class="pt">👥 งานทีม</div>
+        <div class="ha">
+          <select class="fi" id="tb-filter-proj" style="width:160px;font-size:13px;padding:7px 10px" onchange="renderTeamBoard()">
+            <option value="">— ทุก Project —</option>
+          </select>
+          <select class="fi" id="tb-filter-status" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderTeamBoard()">
+            <option value="">— ทุกสถานะ —</option>
+            <option value="รออยู่">⏳ รออยู่</option>
+            <option value="กำลังทำ">🔵 กำลังทำ</option>
+            <option value="เสร็จแล้ว">✅ เสร็จแล้ว</option>
+          </select>
+        </div>
+      </div>
+      <!-- Kanban columns -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start" id="team-kanban">
+        <div class="sec">
+          <div class="sec-h" style="background:#fef9c3"><div class="sec-t">⏳ รออยู่ <span class="badge" id="tb-cnt-pending" style="background:#92400e">0</span></div></div>
+          <div class="sec-b" id="tb-col-pending" style="display:flex;flex-direction:column;gap:8px;min-height:100px"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-h" style="background:#dbeafe"><div class="sec-t">🔵 กำลังทำ <span class="badge" id="tb-cnt-doing" style="background:#1d4ed8">0</span></div></div>
+          <div class="sec-b" id="tb-col-doing" style="display:flex;flex-direction:column;gap:8px;min-height:100px"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-h" style="background:#dcfce7"><div class="sec-t">✅ เสร็จแล้ว <span class="badge" id="tb-cnt-done" style="background:#15803d">0</span></div></div>
+          <div class="sec-b" id="tb-col-done" style="display:flex;flex-direction:column;gap:8px;min-height:100px"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /cnt -->
 </div><!-- /main -->
 
@@ -749,6 +784,19 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       </div>
     </div>
     <div class="fg"><label class="fl">สมาชิก (username คั่นด้วย ,)</label><input class="fi" id="f-pj-members" placeholder="user1,user2,user3"></div>
+    <div class="fg">
+      <label class="fl">การมองเห็น</label>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px">
+          <input type="radio" name="pj-visibility" id="f-pj-vis-private" value="private" checked>
+          🔒 Private — เฉพาะสมาชิก
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px">
+          <input type="radio" name="pj-visibility" id="f-pj-vis-public" value="public">
+          🌐 Public — ทุกคนในทีมเห็น
+        </label>
+      </div>
+    </div>
     <div class="fg"><label class="fl">รูปภาพ Project (ถ้ามี)</label>
       <div class="upload-area" onclick="document.getElementById('f-pj-img').click()">
         <div>📎 คลิกหรือลากรูปมาวางที่นี่</div>
@@ -986,6 +1034,7 @@ function onEnter(pg) {
   if (pg === 'users')          loadUsers();
   if (pg === 'settings')         initSettings();
   if (pg === 'project-detail')   loadProjectDetail(currentProjectId);
+  if (pg === 'team-board')       initTeamBoard();
   if (pg === 'report-logs')      initReportLogs();
   if (pg === 'report-summary')   initReportSummary();
 }
@@ -1521,6 +1570,10 @@ function editCurrentProject() {
   document.getElementById('f-pj-status').value=p.status||'กำลังดำเนินการ';
   document.getElementById('f-pj-owner').value=p.owner||'';
   document.getElementById('f-pj-members').value=p.members||'';
+  var vis = p.visibility||'private';
+  var visPriv = document.getElementById('f-pj-vis-private');
+  var visPub  = document.getElementById('f-pj-vis-public');
+  if(visPriv && visPub){ visPriv.checked=(vis!=='public'); visPub.checked=(vis==='public'); }
   document.getElementById('f-pj-img-url').value=p.imageUrl||'';
   var prev=document.getElementById('pj-preview');
   if(p.imageUrl){prev.src=driveUrl(p.imageUrl);prev.style.display='block';}else{prev.style.display='none';}
@@ -1531,12 +1584,14 @@ function saveProject() {
   var name=document.getElementById('f-pj-name').value.trim();
   if(!name){showToast('⚠️ กรุณากรอกชื่อ Project','er');return;}
   var eid=document.getElementById('proj-eid').value;
+  var visEl = document.querySelector('input[name="pj-visibility"]:checked');
   var d={name:name,description:document.getElementById('f-pj-desc').value,
     owner:document.getElementById('f-pj-owner').value,members:document.getElementById('f-pj-members').value,
     status:document.getElementById('f-pj-status').value,
     startDate:fmtTHdb(document.getElementById('f-pj-start').value),
     dueDate:fmtTHdb(document.getElementById('f-pj-due').value),
     imageUrl:document.getElementById('f-pj-img-url').value,
+    visibility: visEl ? visEl.value : 'private',
   };
   if(eid) d.id=eid;
   var btn=document.getElementById('pj-save-btn'); btn.disabled=true; btn.innerHTML='<div class="spin"></div>';
@@ -2323,6 +2378,103 @@ function toggleDark() {
   var isDark = document.body.classList.toggle('dark');
   localStorage.setItem('gracz_dark', isDark ? '1' : '0');
   document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+}
+
+
+// ══════════════════════════════════════════════
+//  TEAM BOARD — แสดง Public Projects + Steps
+// ══════════════════════════════════════════════
+function initTeamBoard() {
+  // โหลด steps ของทุก public project
+  var pubProjs = S.projects.filter(function(p){
+    return String(p.visibility||'private') === 'public';
+  });
+
+  // fill project filter dropdown
+  var sel = document.getElementById('tb-filter-proj');
+  sel.innerHTML = '<option value="">— ทุก Project —</option>'
+    + pubProjs.map(function(p){
+        return '<option value="'+p.id+'">'+escHtml(p.name)+'</option>';
+      }).join('');
+
+  // โหลด steps จาก server ถ้าไม่มีในหน่วยความจำ
+  if (SCRIPT_URL && pubProjs.length) {
+    var loaded = 0;
+    pubProjs.forEach(function(p){
+      var existing = (S.steps||[]).filter(function(s){return s.projectId===p.id;});
+      if (existing.length) { loaded++; if(loaded===pubProjs.length) renderTeamBoard(); return; }
+      jsonp('getSteps',{projectId:p.id}).then(function(d){
+        S.steps = (S.steps||[]).filter(function(s){return s.projectId!==p.id;}).concat(d||[]);
+        loaded++;
+        if (loaded===pubProjs.length) renderTeamBoard();
+      }).catch(function(){ loaded++; if(loaded===pubProjs.length) renderTeamBoard(); });
+    });
+    if (!pubProjs.length) renderTeamBoard();
+  } else {
+    renderTeamBoard();
+  }
+}
+
+function renderTeamBoard() {
+  var filterProj   = document.getElementById('tb-filter-proj').value;
+  var filterStatus = document.getElementById('tb-filter-status').value;
+
+  var pubProjs = S.projects.filter(function(p){
+    return String(p.visibility||'private') === 'public'
+      && (!filterProj || p.id === filterProj);
+  });
+
+  // รวม steps ของ public projects
+  var pubProjIds = pubProjs.map(function(p){ return p.id; });
+  var steps = (S.steps||[]).filter(function(s){
+    return pubProjIds.indexOf(s.projectId) > -1
+      && (!filterStatus || s.status === filterStatus);
+  });
+
+  var pending = steps.filter(function(s){ return s.status==='รออยู่'; });
+  var doing   = steps.filter(function(s){ return s.status==='กำลังทำ'; });
+  var done    = steps.filter(function(s){ return s.status==='เสร็จแล้ว'; });
+
+  document.getElementById('tb-cnt-pending').textContent = pending.length;
+  document.getElementById('tb-cnt-doing').textContent   = doing.length;
+  document.getElementById('tb-cnt-done').textContent    = done.length;
+
+  function renderCol(steps) {
+    if (!steps.length) return '<div class="emp" style="padding:16px"><div class="emp-i" style="font-size:20px">📋</div>ไม่มีงาน</div>';
+    return steps.map(function(s){
+      var prj = S.projects.find(function(p){ return p.id===s.projectId; });
+      var prog = parseInt(s.progress||0);
+      var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[s.status]||'pending';
+      var sid = escHtml(s.id||'');
+      return '<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:box-shadow .15s" '
+        + 'onclick="openTeamStepModal(\'' + sid + '\')" '
+        + 'onmouseover="this.style.boxShadow=\'0 4px 12px rgba(0,0,0,.1)\'" '
+        + 'onmouseout="this.style.boxShadow=\'\'">'
+        + '<div style="font-size:13px;font-weight:600;margin-bottom:4px">'+escHtml(s.stepName||'')+'</div>'
+        + '<div style="font-size:11.5px;color:var(--ts);margin-bottom:8px">'
+        + '🗂️ '+escHtml((prj&&prj.name)||'')
+        + (s.assignee?' · 👤 '+escHtml(s.assignee):'')
+        + (s.dueDate?' · 📅 '+escHtml(normDate(s.dueDate)):'')
+        + '</div>'
+        + '<div class="progress-bar"><div class="progress-fill bl" style="width:'+prog+'%"></div></div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">'
+        + '<span style="font-size:11px;color:var(--ts)">'+prog+'%</span>'
+        + '<span class="badge '+stCls+'">'+s.status+'</span>'
+        + '</div></div>';
+    }).join('');
+  }
+
+  document.getElementById('tb-col-pending').innerHTML = renderCol(pending);
+  document.getElementById('tb-col-doing').innerHTML   = renderCol(doing);
+  document.getElementById('tb-col-done').innerHTML    = renderCol(done);
+}
+
+function openTeamStepModal(id) {
+  var s = (S.steps||[]).find(function(x){ return x.id===id; });
+  if (!s) return;
+  // ใช้ editStep เดิม
+  currentProjectId = s.projectId;
+  editStep(id);
 }
 
 // ══════════════════════════════════════════════
