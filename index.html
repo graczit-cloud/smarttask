@@ -1227,7 +1227,7 @@ function logItemHTML(l) {
   var timeStr = h+'ชม. '+m+'น.';
   var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
   var imgHtml = '';
-  if (l.imageUrl && String(l.imageUrl).trim()) {
+  if (isValidImgUrl(l.imageUrl)) {
     // ใช้ data-url attribute แทน global map เพื่อหลีกเลี่ยง key ชนกัน
     var thumbUrl = driveUrl(l.imageUrl);
     var origUrl  = escHtml(l.imageUrl);
@@ -1456,7 +1456,7 @@ function projCardHTML(p) {
   var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
   var prog = parseInt(p.progress||0);
   // wrapper คงที่ ป้องกัน layout แตก
-  var imgInner = p.imageUrl
+  var imgInner = isValidImgUrl(p.imageUrl)
     ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
     : '';
   var imgHtml = '<div style="width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;flex-shrink:0">'
@@ -1496,7 +1496,7 @@ function loadProjectDetail(id) {
   document.getElementById('detail-prog-pct').textContent = prog+'%';
   document.getElementById('detail-prog-bar').style.width = prog+'%';
   var imgEl = document.getElementById('detail-proj-image');
-  imgEl.innerHTML = p.imageUrl ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;border-radius:8px;cursor:zoom-in" onclick="lightbox(\''+escHtml(p.imageUrl)+'\')" onerror="this.style.display=\'none\'">' : '';
+  imgEl.innerHTML = isValidImgUrl(p.imageUrl) ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;border-radius:8px;cursor:zoom-in" onclick="lightbox(\''+escHtml(p.imageUrl)+'\')" onerror="this.style.display=\'none\'">' : '';
   // load steps
   if (SCRIPT_URL) {
     jsonp('getSteps',{projectId:id}).then(function(d){
@@ -1504,6 +1504,15 @@ function loadProjectDetail(id) {
       renderSteps(id);
     }).catch(function(){ renderSteps(id); });
   } else { renderSteps(id); }
+}
+
+function isValidImgUrl(url) {
+  if (!url) return false;
+  var s = String(url).trim();
+  if (!s) return false;
+  if (s === 'false' || s === 'null' || s === 'undefined') return false;
+  // ต้องเป็น URL ที่ขึ้นต้นด้วย http
+  return s.indexOf('http') === 0;
 }
 
 function renderSteps(projectId) {
@@ -1526,11 +1535,12 @@ function renderSteps(projectId) {
       +'</div>'
       +'<div class="step-prog" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
       +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
-      +(s.imageUrl && String(s.imageUrl).trim()
+      +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
+      +(isValidImgUrl(s.imageUrl)
         ? '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'
           + '<img src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover"'
           + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)"'
-          + ' onerror="this.parentNode.style.display=\'none\'">'
+          + ' onerror="this.parentNode.style.display=\'none\'">' 
           + '<button class="bi" style="font-size:10px;padding:1px 5px"'
           + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)">🔍</button>'
           + '</div>'
