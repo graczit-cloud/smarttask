@@ -1084,7 +1084,7 @@ function loadDashboard() {
   // อัปเดต date picker
   document.getElementById('dash-date').textContent = fmtTH(dashDate);
   document.getElementById('dash-day-label').textContent = isToday ? 'วันนี้' : fmtTH(dashDate);
-  document.getElementById('dash-date-pick').value = dashDate.toISOString().split('T')[0];
+  document.getElementById('dash-date-pick').value = fmtISO(fmt(dashDate));
 
   var isAdmin = currentUser && currentUser.isAdmin;
   var todayLogs = S.dailyLogs.filter(function(l){
@@ -2329,8 +2329,8 @@ function toggleDark() {
 //  INIT
 // ══════════════════════════════════════════════
 document.body.classList.add('logged-out'); // ซ่อน sidebar จนกว่าจะ login
-document.getElementById('f-dl-date').value = new Date().toISOString().split('T')[0];
-document.getElementById('f-pj-start').value = new Date().toISOString().split('T')[0];
+document.getElementById('f-dl-date').value = fmtISO(fmt(new Date()));
+document.getElementById('f-pj-start').value = fmtISO(fmt(new Date()));
 if (SCRIPT_URL && document.getElementById('url-input')) document.getElementById('url-input').value = SCRIPT_URL;
 // Dark mode restore
 if (localStorage.getItem('gracz_dark') === '1') {
