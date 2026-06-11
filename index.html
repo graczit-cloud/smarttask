@@ -1358,7 +1358,9 @@ function openDailyModal(id) {
   document.getElementById('f-dl-desc').value = '';
   document.getElementById('f-dl-status').value = 'เสร็จแล้ว';
   document.getElementById('dl-preview').style.display = 'none';
+  document.getElementById('dl-preview').src = '';
   document.getElementById('f-dl-img-url').value = '';
+  document.getElementById('f-dl-img').value = '';
   document.getElementById('mo-daily').classList.add('on');
 }
 
@@ -1562,7 +1564,9 @@ function openProjectModal() {
   document.getElementById('f-pj-status').value = 'กำลังดำเนินการ';
   document.getElementById('f-pj-owner').value = currentUser.username;
   document.getElementById('pj-preview').style.display='none';
+  document.getElementById('pj-preview').src='';
   document.getElementById('f-pj-img-url').value='';
+  document.getElementById('f-pj-img').value='';
   document.getElementById('mo-project').classList.add('on');
 }
 
@@ -1647,7 +1651,9 @@ function openStepModal() {
   document.getElementById('f-st-order').value=steps.length+1;
   document.getElementById('f-st-assignee').value=currentUser.username;
   document.getElementById('st-preview').style.display='none';
+  document.getElementById('st-preview').src='';
   document.getElementById('f-st-img-url').value='';
+  document.getElementById('f-st-img').value='';
   document.getElementById('mo-step').classList.add('on');
 }
 
