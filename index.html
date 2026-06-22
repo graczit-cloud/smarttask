@@ -1015,11 +1015,15 @@ function doLogin() {
 
   if (!SCRIPT_URL) { tryLocalLogin(); return; }
 
-  // ลอง login จาก Sheet
+  // ลอง login จาก Sheet — timeout 15 วิ (มือถือ network ช้ากว่า)
   var cb = '_lcb', sc = document.createElement('script'), done = false;
   var timer = setTimeout(function(){
-    if (!done) { done=true; sc.remove(); tryLocalLogin(); }
-  }, 8000);
+    if (!done) {
+      done=true; sc.remove();
+      errEl.textContent = '❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่อีกครั้ง';
+      btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
+    }
+  }, 15000);
 
   window[cb] = function(d) {
     if (done) return; done=true; clearTimeout(timer); delete window[cb]; sc.remove();
