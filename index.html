@@ -203,6 +203,29 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 .cal-day.has-log::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--green)}
 .cal-day.selected.has-log::after{background:var(--gold)}
 
+/* ── WEEK/MONTH VIEW ── */
+.week-col{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden;min-height:80px}
+.week-col-hdr{padding:7px 10px;font-size:11.5px;font-weight:600;text-align:center;border-bottom:1px solid var(--border);background:var(--bg)}
+.week-col-hdr.today{background:var(--navy);color:#fff}
+.week-col-hdr.has-log{border-bottom:3px solid var(--green)}
+.week-col-body{padding:6px;display:flex;flex-direction:column;gap:4px;min-height:60px}
+.week-task{background:var(--bg);border-radius:6px;padding:4px 7px;font-size:11.5px;cursor:pointer;transition:background .12s;border-left:3px solid var(--blue)}
+.week-task:hover{background:var(--border)}
+.week-task.weekly{border-left-color:var(--purple)}
+.week-task.monthly{border-left-color:var(--orange)}
+.month-cell{background:#fff;border-radius:8px;border:1px solid var(--border);padding:5px;min-height:70px;cursor:pointer;transition:all .12s;position:relative}
+.month-cell:hover{border-color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.month-cell.today{border-color:var(--gold);border-width:2px}
+.month-cell.other-month{background:var(--bg);opacity:.6}
+.month-cell.has-log::after{content:'';position:absolute;bottom:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--green)}
+.month-day-num{font-size:11.5px;font-weight:600;margin-bottom:3px;color:var(--ts)}
+.month-cell.today .month-day-num{color:var(--gold)}
+.month-task-dot{display:flex;align-items:center;gap:4px;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tp);margin-bottom:2px}
+.type-badge{display:inline-flex;padding:1px 6px;border-radius:20px;font-size:10px;font-weight:600;margin-right:4px;flex-shrink:0}
+.type-daily{background:#eff6ff;color:#1d4ed8}
+.type-weekly{background:#faf5ff;color:#7e22ce}
+.type-monthly{background:#fff7ed;color:#c2410c}
+
 /* ── SEARCH ── */
 .search-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;transition:border-color .15s;flex:1;max-width:320px}
 .search-bar:focus-within{border-color:var(--navy)}
@@ -451,55 +474,113 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ DAILY LOG ══ -->
     <div id="pg-daily" class="pg">
       <div class="ph">
-        <div class="pt">📅 งานประจำวัน</div>
+        <div class="pt">📅 บันทึกงาน</div>
         <div class="ha">
-          <div class="date-nav">
-            <button onclick="changeDate(-1)" title="วันก่อนหน้า">‹</button>
-            <div class="date-lbl" id="daily-date-lbl" onclick="toggleCalendar()" style="cursor:pointer;user-select:none" title="คลิกเพื่อเลือกวัน">—</div>
-            <button onclick="changeDate(1)" title="วันถัดไป">›</button>
-            <button onclick="goToday()" style="font-size:11px;padding:0 8px;width:auto" title="วันนี้">วันนี้</button>
-          </div>
           <button class="btn-add" onclick="openDailyModal()">+ บันทึกงาน</button>
         </div>
       </div>
 
-      <!-- Calendar Picker -->
-      <div id="calendar-wrap" style="display:none;margin-bottom:14px">
-        <div class="sec" style="margin-bottom:0">
-          <div class="sec-h" style="padding:10px 16px">
-            <div class="sec-t" style="font-size:13px">
-              <button onclick="calPrevMonth()" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 6px">‹</button>
-              <span id="cal-month-label" style="min-width:120px;text-align:center;display:inline-block"></span>
-              <button onclick="calNextMonth()" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 6px">›</button>
-            </div>
-            <button class="mc" onclick="toggleCalendar()">✕</button>
+      <!-- View Tabs -->
+      <div class="tabs" id="daily-tabs">
+        <div class="tab on" onclick="switchDailyView('day',this)">📅 รายวัน</div>
+        <div class="tab" onclick="switchDailyView('week',this)">📆 รายสัปดาห์</div>
+        <div class="tab" onclick="switchDailyView('month',this)">🗓️ รายเดือน</div>
+      </div>
+
+      <!-- ── DAY VIEW ── -->
+      <div id="dv-day">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="date-nav">
+            <button onclick="changeDate(-1)" title="วันก่อนหน้า">‹</button>
+            <div class="date-lbl" id="daily-date-lbl" onclick="toggleCalendar()" style="cursor:pointer;user-select:none" title="คลิกเพื่อเลือกวัน">—</div>
+            <button onclick="changeDate(1)" title="วันถัดไป">›</button>
+            <button onclick="goToday()" style="font-size:11px;padding:0 8px;width:auto">วันนี้</button>
           </div>
-          <div class="sec-b" style="padding:10px 14px">
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11.5px;font-weight:600;color:var(--ts);margin-bottom:6px">
-              <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+        </div>
+        <!-- Calendar Picker -->
+        <div id="calendar-wrap" style="display:none;margin-bottom:14px">
+          <div class="sec" style="margin-bottom:0">
+            <div class="sec-h" style="padding:10px 16px">
+              <div class="sec-t" style="font-size:13px">
+                <button onclick="calPrevMonth()" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 6px">‹</button>
+                <span id="cal-month-label" style="min-width:120px;text-align:center;display:inline-block"></span>
+                <button onclick="calNextMonth()" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 6px">›</button>
+              </div>
+              <button class="mc" onclick="toggleCalendar()">✕</button>
             </div>
-            <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center"></div>
+            <div class="sec-b" style="padding:10px 14px">
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11.5px;font-weight:600;color:var(--ts);margin-bottom:6px">
+                <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+              </div>
+              <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center"></div>
+            </div>
           </div>
+        </div>
+        <div class="day-bar">
+          <div class="day-bar-top">
+            <div class="day-bar-label" id="daily-sum-label">วันนี้</div>
+            <div class="day-bar-time" id="daily-sum-time">0 ชม. 0 น. / 8 ชม.</div>
+          </div>
+          <div class="progress-bar" style="height:12px">
+            <div class="progress-fill" id="daily-sum-bar" style="width:0%;height:12px"></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-h">
+            <div class="sec-t">รายการงาน <span id="daily-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div>
+          </div>
+          <div class="sec-b" id="daily-list"><div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div></div>
         </div>
       </div>
 
-      <!-- Time summary bar -->
-      <div class="day-bar" id="daily-summary-bar">
-        <div class="day-bar-top">
-          <div class="day-bar-label" id="daily-sum-label">วันนี้</div>
-          <div class="day-bar-time" id="daily-sum-time">0 ชม. 0 น. / 8 ชม.</div>
+      <!-- ── WEEK VIEW ── -->
+      <div id="dv-week" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="date-nav">
+            <button onclick="changeWeek(-1)">‹</button>
+            <div class="date-lbl" id="week-label" style="min-width:180px;text-align:center">—</div>
+            <button onclick="changeWeek(1)">›</button>
+            <button onclick="goThisWeek()" style="font-size:11px;padding:0 8px;width:auto">สัปดาห์นี้</button>
+          </div>
         </div>
-        <div class="progress-bar" style="height:12px">
-          <div class="progress-fill" id="daily-sum-bar" style="width:0%;height:12px"></div>
+        <div id="week-summary" class="day-bar" style="margin-bottom:12px">
+          <div class="day-bar-top">
+            <div class="day-bar-label" id="week-sum-label">สัปดาห์นี้</div>
+            <div class="day-bar-time" id="week-sum-time">0 ชม. 0 น.</div>
+          </div>
+          <div class="progress-bar" style="height:10px"><div class="progress-fill bl" id="week-sum-bar" style="width:0%;height:10px"></div></div>
         </div>
+        <div id="week-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px"></div>
       </div>
 
-      <div class="sec">
-        <div class="sec-h">
-          <div class="sec-t">รายการงาน <span id="daily-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div>
+      <!-- ── MONTH VIEW ── -->
+      <div id="dv-month" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="date-nav">
+            <button onclick="changeMonth(-1)">‹</button>
+            <div class="date-lbl" id="month-label" style="min-width:140px;text-align:center">—</div>
+            <button onclick="changeMonth(1)">›</button>
+            <button onclick="goThisMonth()" style="font-size:11px;padding:0 8px;width:auto">เดือนนี้</button>
+          </div>
         </div>
-        <div class="sec-b" id="daily-list">
-          <div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div>
+        <div id="month-summary" class="day-bar" style="margin-bottom:12px">
+          <div class="day-bar-top">
+            <div class="day-bar-label" id="month-sum-label">เดือนนี้</div>
+            <div class="day-bar-time" id="month-sum-time">0 ชม. 0 น.</div>
+          </div>
+          <div class="progress-bar" style="height:10px"><div class="progress-fill gn" id="month-sum-bar" style="width:0%;height:10px"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:11.5px;font-weight:600;color:var(--ts);margin-bottom:6px">
+          <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+        </div>
+        <div id="month-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
+        <!-- Day detail popup -->
+        <div class="sec" id="month-day-detail" style="margin-top:14px;display:none">
+          <div class="sec-h">
+            <div class="sec-t" id="month-day-title">รายการงาน</div>
+            <button class="mc" onclick="document.getElementById('month-day-detail').style.display='none'">✕</button>
+          </div>
+          <div class="sec-b" id="month-day-list"></div>
         </div>
       </div>
     </div>
@@ -735,12 +816,21 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       </div>
     </div>
     <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="f-dl-desc" placeholder="บันทึกรายละเอียดงาน..."></textarea></div>
-    <div class="fg"><label class="fl">สถานะ</label>
-      <select class="fs" id="f-dl-status">
-        <option value="เสร็จแล้ว">✅ เสร็จแล้ว</option>
-        <option value="กำลังทำ">🔵 กำลังทำ</option>
-        <option value="รออยู่">⏳ รออยู่</option>
-      </select>
+    <div class="form-grid">
+      <div class="fg"><label class="fl">ประเภทงาน</label>
+        <select class="fs" id="f-dl-type">
+          <option value="daily">📅 งานประจำวัน</option>
+          <option value="weekly">📆 งานประจำสัปดาห์</option>
+          <option value="monthly">🗓️ งานประจำเดือน</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="f-dl-status">
+          <option value="เสร็จแล้ว">✅ เสร็จแล้ว</option>
+          <option value="กำลังทำ">🔵 กำลังทำ</option>
+          <option value="รออยู่">⏳ รออยู่</option>
+        </select>
+      </div>
     </div>
     <div class="fg"><label class="fl">รูปภาพ (ถ้ามี)</label>
       <div class="upload-area" id="dl-upload-area" onclick="document.getElementById('f-dl-img').click()" ondragover="dragOver(event,'dl-upload-area')" ondrop="dropFile(event,'f-dl-img','dl-preview','dl-upload-area')">
@@ -1182,9 +1272,15 @@ function loadDailyPage() {
     jsonp('getDailyLogs', lp).then(function(d){
       S.dailyLogs = d||[];
       setCS('ok','เชื่อมต่อแล้ว');
-      renderDailyList();
-    }).catch(function(e){ showToast('❌ โหลดไม่ได้: '+e.message,'er'); renderDailyList(); });
-  } else { renderDailyList(); }
+      renderCurrentDailyView();
+    }).catch(function(e){ showToast('❌ โหลดไม่ได้: '+e.message,'er'); renderCurrentDailyView(); });
+  } else { renderCurrentDailyView(); }
+}
+
+function renderCurrentDailyView() {
+  if (currentDailyView==='day')   renderDailyList();
+  if (currentDailyView==='week')  renderWeekView();
+  if (currentDailyView==='month') renderMonthView();
 }
 
 function renderDailyDate() {
@@ -1226,6 +1322,7 @@ function logItemHTML(l) {
   var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
   var timeStr = h+'ชม. '+m+'น.';
   var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
+  var tBadge = typeBadge(l.type||'daily');
   var imgHtml = '';
   if (isValidImgUrl(l.imageUrl)) {
     // ใช้ data-url attribute แทน global map เพื่อหลีกเลี่ยง key ชนกัน
@@ -1244,7 +1341,7 @@ function logItemHTML(l) {
     +'<div class="log-time">'+timeStr+'</div>'
     +'<div class="log-body">'
     +'<div class="log-name">'+escHtml(l.taskName||'')+'</div>'
-    +'<div class="log-cat">'+escHtml(l.category||'')+' · <span class="badge '+stCls+'">'+l.status+'</span></div>'
+    +'<div class="log-cat">'+tBadge+escHtml(l.category||'')+' · <span class="badge '+stCls+'">'+l.status+'</span></div>'
     +(l.description?'<div class="log-desc">'+escHtml(l.description)+'</div>':'')
     +'</div>'
     +imgHtml
@@ -1357,6 +1454,7 @@ function openDailyModal(id) {
   document.getElementById('f-dl-mins').value = 0;
   document.getElementById('f-dl-desc').value = '';
   document.getElementById('f-dl-status').value = 'เสร็จแล้ว';
+  document.getElementById('f-dl-type').value = 'daily';
   document.getElementById('dl-preview').style.display = 'none';
   document.getElementById('dl-preview').src = '';
   document.getElementById('f-dl-img-url').value = '';
@@ -1399,6 +1497,7 @@ function saveDailyLog() {
     description:document.getElementById('f-dl-desc').value,
     status:document.getElementById('f-dl-status').value,
     imageUrl:document.getElementById('f-dl-img-url').value,
+    type:document.getElementById('f-dl-type').value||'daily',
   };
   if (eid) d.id = eid;
 
@@ -1946,6 +2045,207 @@ function showToast(msg,type){
 }
 
 
+
+// ══════════════════════════════════════════════
+//  DAILY VIEW TABS
+// ══════════════════════════════════════════════
+var currentDailyView = 'day';
+var currentWeekDate  = new Date(); // วันในสัปดาห์ที่ดูอยู่
+var currentMonthDate = new Date(); // เดือนที่ดูอยู่
+
+function switchDailyView(view, el) {
+  currentDailyView = view;
+  // tab highlight
+  document.querySelectorAll('#daily-tabs .tab').forEach(function(t){ t.classList.remove('on'); });
+  if (el) el.classList.add('on');
+  // show/hide views
+  document.getElementById('dv-day').style.display   = view==='day'   ? '' : 'none';
+  document.getElementById('dv-week').style.display  = view==='week'  ? '' : 'none';
+  document.getElementById('dv-month').style.display = view==='month' ? '' : 'none';
+  // render
+  if (view==='day')   renderDailyList();
+  if (view==='week')  renderWeekView();
+  if (view==='month') renderMonthView();
+}
+
+// ── WEEK VIEW ──────────────────────────────────
+function changeWeek(d) {
+  currentWeekDate = new Date(currentWeekDate);
+  currentWeekDate.setDate(currentWeekDate.getDate() + d*7);
+  renderWeekView();
+}
+function goThisWeek() {
+  currentWeekDate = new Date();
+  renderWeekView();
+}
+
+function getWeekStart(d) {
+  var date = new Date(d);
+  var day  = date.getDay(); // 0=อา
+  date.setDate(date.getDate() - day); // เริ่มจากวันอาทิตย์
+  date.setHours(0,0,0,0);
+  return date;
+}
+
+function renderWeekView() {
+  var weekStart = getWeekStart(currentWeekDate);
+  var weekEnd   = new Date(weekStart); weekEnd.setDate(weekEnd.getDate()+6);
+  var thDays = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  var thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  // label
+  document.getElementById('week-label').textContent =
+    weekStart.getDate()+' '+thMonths[weekStart.getMonth()]+' - '+
+    weekEnd.getDate()+' '+thMonths[weekEnd.getMonth()]+' '+(weekEnd.getFullYear()+543);
+
+  var todayStr = fmt(new Date());
+  var myLogs   = S.dailyLogs.filter(function(l){ return l.username===currentUser.username; });
+
+  // สรุปเวลา
+  var weekMins = 0;
+  var grid = document.getElementById('week-grid');
+  var html = '';
+
+  for (var i=0; i<7; i++) {
+    var d = new Date(weekStart); d.setDate(d.getDate()+i);
+    var ds = fmt(d);
+    var dayLogs = myLogs.filter(function(l){ return normDate(l.date)===ds; });
+    var mins = dayLogs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60+parseInt(l.minutes||0)); },0);
+    weekMins += mins;
+    var isToday = ds===todayStr;
+    var hasLog  = dayLogs.length > 0;
+
+    html += '<div class="week-col">';
+    html += '<div class="week-col-hdr'+(isToday?' today':'')+(hasLog?' has-log':'')+'" onclick="weekSelectDay(\''+ds+'\')">';
+    html += thDays[d.getDay()]+'<br><span style="font-size:13px;font-weight:700">'+d.getDate()+'</span>';
+    if (mins>0) html += '<br><span style="font-size:10px;opacity:.8">'+Math.floor(mins/60)+'h'+(mins%60?mins%60+'m':'')+'</span>';
+    html += '</div>';
+    html += '<div class="week-col-body">';
+    dayLogs.forEach(function(l){
+      var typeClass = l.type==='weekly'?'weekly':l.type==='monthly'?'monthly':'';
+      html += '<div class="week-task '+typeClass+'" onclick="editDailyLog(\''+l.id+'\')" title="'+escHtml(l.taskName||'')+'">'
+        + typeBadge(l.type)
+        + escHtml((l.taskName||'').substring(0,20))
+        + '</div>';
+    });
+    if (!dayLogs.length) html += '<div style="font-size:11px;color:var(--tl);text-align:center;padding:8px">-</div>';
+    html += '</div></div>';
+  }
+  grid.innerHTML = html;
+
+  // summary bar (40h/week = 8h*5days)
+  var wh = Math.floor(weekMins/60), wm = weekMins%60;
+  document.getElementById('week-sum-label').textContent = 'สัปดาห์นี้';
+  document.getElementById('week-sum-time').textContent  = wh+' ชม. '+wm+' น. / 40 ชม.';
+  var wpct = Math.min(100, Math.round(weekMins/2400*100));
+  document.getElementById('week-sum-bar').style.width = wpct+'%';
+}
+
+function weekSelectDay(ds) {
+  // คลิกวันใน week view → เปิดฟอร์มบันทึกงาน
+  var p = ds.split('/');
+  currentDate = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  openDailyModal();
+}
+
+// ── MONTH VIEW ──────────────────────────────────
+function changeMonth(d) {
+  currentMonthDate = new Date(currentMonthDate);
+  currentMonthDate.setMonth(currentMonthDate.getMonth()+d);
+  renderMonthView();
+}
+function goThisMonth() {
+  currentMonthDate = new Date();
+  renderMonthView();
+}
+
+function renderMonthView() {
+  var thM = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+             'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  var y  = currentMonthDate.getFullYear();
+  var mo = currentMonthDate.getMonth();
+  document.getElementById('month-label').textContent = thM[mo]+' '+(y+543);
+
+  var todayStr = fmt(new Date());
+  var myLogs   = S.dailyLogs.filter(function(l){ return l.username===currentUser.username; });
+
+  // สรุปเวลาทั้งเดือน
+  var first    = new Date(y, mo, 1);
+  var last     = new Date(y, mo+1, 0);
+  var monthMins = 0;
+  myLogs.forEach(function(l){
+    var nd = normDate(l.date);
+    if (nd.indexOf('/') > -1) {
+      var p = nd.split('/');
+      if (parseInt(p[1])-1 === mo && parseInt(p[2]) === y)
+        monthMins += parseInt(l.hours||0)*60+parseInt(l.minutes||0);
+    }
+  });
+  var mh = Math.floor(monthMins/60), mm = monthMins%60;
+  document.getElementById('month-sum-label').textContent = thM[mo]+' '+(y+543);
+  document.getElementById('month-sum-time').textContent  = mh+' ชม. '+mm+' น.';
+  var mpct = Math.min(100, Math.round(monthMins/(last.getDate()*8*60)*100));
+  document.getElementById('month-sum-bar').style.width = mpct+'%';
+
+  // สร้าง calendar grid
+  var startDow = first.getDay();
+  var cells = [];
+
+  // blank ก่อน
+  for (var i=0; i<startDow; i++) {
+    var pd = new Date(y, mo, -(startDow-1-i));
+    cells.push({date:pd, ds:fmt(pd), inMonth:false});
+  }
+  for (var d=1; d<=last.getDate(); d++) {
+    var pd2 = new Date(y, mo, d);
+    cells.push({date:pd2, ds:fmt(pd2), inMonth:true});
+  }
+  var endDow = last.getDay();
+  for (var j=endDow+1; j<=6; j++) {
+    var nd2 = new Date(y, mo+1, j-endDow);
+    cells.push({date:nd2, ds:fmt(nd2), inMonth:false});
+  }
+
+  var html = cells.map(function(c){
+    var dayLogs = myLogs.filter(function(l){ return normDate(l.date)===c.ds; });
+    var isToday = c.ds===todayStr;
+    var cls = 'month-cell'+(c.inMonth?'':' other-month')+(isToday?' today':'')+(dayLogs.length?' has-log':'');
+    var tasksHtml = dayLogs.slice(0,2).map(function(l){
+      return '<div class="month-task-dot">'+typeBadge(l.type)+escHtml((l.taskName||'').substring(0,10))+'</div>';
+    }).join('');
+    if (dayLogs.length>2) tasksHtml += '<div style="font-size:10px;color:var(--tl)">+'+( dayLogs.length-2)+' อื่นๆ</div>';
+    return '<div class="'+cls+'" onclick="monthSelectDay(\''+c.ds+'\')">'
+      +'<div class="month-day-num">'+c.date.getDate()+'</div>'
+      +tasksHtml
+      +'</div>';
+  }).join('');
+
+  document.getElementById('month-grid').innerHTML = html;
+  document.getElementById('month-day-detail').style.display = 'none';
+}
+
+function monthSelectDay(ds) {
+  var myLogs = S.dailyLogs.filter(function(l){
+    return l.username===currentUser.username && normDate(l.date)===ds;
+  });
+  var p = ds.split('/');
+  var d = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  currentDate = d;
+  document.getElementById('month-day-title').textContent = fmtTH(d) + ' (' + myLogs.length + ' รายการ)';
+  document.getElementById('month-day-list').innerHTML = myLogs.length
+    ? myLogs.map(logItemHTML).join('')
+    : '<div class="emp"><div class="emp-i">📋</div>ไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false">+ บันทึกงาน</a></div>';
+  document.getElementById('month-day-detail').style.display = '';
+}
+
+function typeBadge(type) {
+  var map = {
+    'weekly':  '<span class="type-badge type-weekly">สัปดาห์</span>',
+    'monthly': '<span class="type-badge type-monthly">เดือน</span>',
+  };
+  return map[type] || '';
+}
+
 // ══════════════════════════════════════════════
 //  REPORT: LOG ทุกคน (Admin)
 // ══════════════════════════════════════════════
@@ -2006,6 +2306,7 @@ function renderReportLogs() {
   tbody.innerHTML = logs.map(function(l){
     var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
     var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
+  var tBadge = typeBadge(l.type||'daily');
     var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name || l.username;
     return '<tr>'
       +'<td style="white-space:nowrap">'+escHtml(normDate(l.date))+'</td>'
