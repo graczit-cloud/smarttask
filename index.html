@@ -1112,36 +1112,58 @@ function setVisibility(v) {
   $('f-pj-vis-public').checked = v === 'public';
 }
 
+function normalizeUserText(v) {
+  return String(v || '').trim().toLowerCase();
+}
+
+function isSameUserValue(a, b) {
+  return normalizeUserText(a) === normalizeUserText(b);
+}
+
+function isCurrentUserValue(v) {
+  if (!currentUser) return false;
+
+  return (
+    isSameUserValue(v, currentUser.username) ||
+    isSameUserValue(v, currentUser.name)
+  );
+}
+
 function membersArr(members) {
   return String(members || '')
     .split(',')
-    .map(function(v){ return v.trim(); })
+    .map(function(v) {
+      return v.trim();
+    })
     .filter(Boolean);
 }
 
+function projectHasCurrentUserInMembers(p) {
+  var members = membersArr(p.members);
+
+  return members.some(function(m) {
+    return isCurrentUserValue(m);
+  });
+}
+
 function canSeeProject(p) {
-  if (!currentUser) return false;
+  if (!currentUser || !p) return false;
+
   if (currentUser.isAdmin) return true;
 
-  var username = String(currentUser.username || '');
-  var isOwner = String(p.owner || '') === username;
-  var isMember = membersArr(p.members).indexOf(username) > -1;
-  var isPublic = String(p.visibility || 'private') === 'public';
+  var isOwner = isCurrentUserValue(p.owner);
+  var isMember = projectHasCurrentUserInMembers(p);
+  var isPublic = String(p.visibility || 'private').trim().toLowerCase() === 'public';
 
   return isOwner || isMember || isPublic;
 }
 
   function canSeeProjectInTeamBoard(p) {
-  if (!currentUser) return false;
+  if (!p) return false;
 
-  var username = String(currentUser.username || '');
-  var isOwner = String(p.owner || '') === username;
-  var isMember = membersArr(p.members).indexOf(username) > -1;
-  var isPublic = String(p.visibility || 'private') === 'public';
-
-  // หน้า "งานทีม" ไม่ให้ admin เห็น private project อัตโนมัติ
-  // ต้องเป็น owner/member หรือ public เท่านั้น
-  return isOwner || isMember || isPublic;
+  // หน้า "งานทีม" ให้แสดงเฉพาะ Project ที่ตั้งเป็น Public เท่านั้น
+  // Private จะไม่แสดงในงานทีม แม้เป็น admin / owner / member
+  return String(p.visibility || 'private').trim().toLowerCase() === 'public';
 }
   
 function canEditProject(p) {
@@ -1271,14 +1293,19 @@ function loadAll() {
 }
 
 function loadAllSteps() {
-  var visibleProjects = S.projects.filter(canSeeProject);
+  var teamProjects = S.projects.filter(canSeeProjectInTeamBoard);
 
-  var tasks = visibleProjects.map(function(p) {
+  if (!teamProjects.length) {
+    S.allSteps = [];
+    return Promise.resolve();
+  }
+
+  var tasks = teamProjects.map(function(p) {
     return jsonp('getSteps', { projectId: p.id })
       .then(function(steps) {
         return (steps || []).map(function(s) {
           s.projectId = s.projectId || p.id;
-          s.projectName = p.name;
+          s.projectName = p.name || '';
           s.projectVisibility = p.visibility || 'private';
           s.projectOwner = p.owner || '';
           s.projectMembers = p.members || '';
@@ -1316,10 +1343,28 @@ function reloadProjects() {
       renderTeamBoard();
     });
 }
-  function normalizeProjectRow(p) {
+ function normalizeProjectRow(p) {
   p = p || {};
-  p.visibility = p.visibility || 'private';
+
+  p.id = String(p.id || '').trim();
+  p.name = String(p.name || '').trim();
+  p.description = String(p.description || '');
+  p.owner = String(p.owner || '').trim();
+  p.members = String(p.members || '').trim();
+  p.status = String(p.status || 'กำลังดำเนินการ').trim();
+  p.startDate = normalizeDateKey(p.startDate);
+  p.dueDate = normalizeDateKey(p.dueDate);
   p.progress = Number(p.progress || 0);
+  p.imageUrl = String(p.imageUrl || '').trim();
+
+  var vis = String(p.visibility || '').trim().toLowerCase();
+
+  if (vis !== 'public' && vis !== 'private') {
+    vis = 'private';
+  }
+
+  p.visibility = vis;
+
   return p;
 }
 
@@ -1535,7 +1580,24 @@ function goToday() {
   selectedDate = new Date();
   renderDaily();
 }
+function openDailyByDate(dateInputValue) {
+  selectedDate = fromInputDate(dateInputValue);
+  dailyView = 'day';
 
+  document.querySelectorAll('#daily-tabs .tab').forEach(function(t) {
+    t.classList.remove('on');
+  });
+
+  var firstTab = document.querySelector('#daily-tabs .tab');
+  if (firstTab) firstTab.classList.add('on');
+
+  $('dv-day').style.display = '';
+  $('dv-week').style.display = 'none';
+  $('dv-month').style.display = 'none';
+
+  navigateTo('daily');
+  renderDaily();
+}
 function renderWeek() {
   var start = new Date(weekDate);
   start.setDate(start.getDate() - start.getDay());
@@ -1546,24 +1608,44 @@ function renderWeek() {
   for (var i = 0; i < 7; i++) {
     var d = new Date(start);
     d.setDate(start.getDate() + i);
+
     var k = dateKey(d);
+    var inputVal = inputDate(d);
+
     var logs = S.logs.filter(function(r) {
-      return normalizeDateKey(r.date) === k && (!currentUser.isAdmin ? r.username === currentUser.username : true);
+      return normalizeDateKey(r.date) === k &&
+        (!currentUser.isAdmin ? r.username === currentUser.username : true);
     });
+
     var m = sumMins(logs);
     total += m;
 
-    html += '<div class="sec"><div class="sec-h"><div class="sec-t">' + thaiDate(d) + '</div></div><div class="sec-b">' +
-      (logs.length ? logs.map(function(r){ return '<div style="font-size:12px;margin-bottom:6px">• ' + esc(r.taskName) + '</div>'; }).join('') : '<div class="emp" style="padding:12px">ไม่มีงาน</div>') +
-      '</div></div>';
+    html +=
+      '<div class="sec" onclick="openDailyByDate(\'' + inputVal + '\')" style="cursor:pointer">' +
+        '<div class="sec-h">' +
+          '<div class="sec-t">' + thaiDate(d) + '</div>' +
+          '<div style="font-size:12px;color:var(--ts)">' + minsToText(m) + '</div>' +
+        '</div>' +
+        '<div class="sec-b">' +
+          (
+            logs.length
+              ? logs.map(function(r) {
+                  return '<div style="font-size:12px;margin-bottom:6px">• ' + esc(r.taskName || '-') + '</div>';
+                }).join('')
+              : '<div class="emp" style="padding:12px">ไม่มีงาน</div>'
+          ) +
+        '</div>' +
+      '</div>';
   }
 
-  $('week-label').textContent = thaiDate(start) + ' - ' + thaiDate(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6));
+  $('week-label').textContent =
+    thaiDate(start) + ' - ' +
+    thaiDate(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6));
+
   $('week-sum-time').textContent = minsToText(total);
   $('week-sum-bar').style.width = Math.min(100, Math.round(total / (480 * 5) * 100)) + '%';
   $('week-grid').innerHTML = html;
 }
-
 function changeWeek(n) {
   weekDate.setDate(weekDate.getDate() + n * 7);
   renderWeek();
@@ -1578,24 +1660,52 @@ function renderMonth() {
   var y = monthDate.getFullYear();
   var m = monthDate.getMonth();
   var days = new Date(y, m + 1, 0).getDate();
+
   var total = 0;
   var html = '';
 
   for (var d = 1; d <= days; d++) {
     var dt = new Date(y, m, d);
     var k = dateKey(dt);
+    var inputVal = inputDate(dt);
+
     var logs = S.logs.filter(function(r) {
-      return normalizeDateKey(r.date) === k && (!currentUser.isAdmin ? r.username === currentUser.username : true);
+      return normalizeDateKey(r.date) === k &&
+        (!currentUser.isAdmin ? r.username === currentUser.username : true);
     });
+
     var mins = sumMins(logs);
     total += mins;
 
-    html += '<div class="sec"><div class="sec-h"><div class="sec-t">' + d + '</div></div><div class="sec-b" style="font-size:12px">' +
-      (logs.length ? logs.length + ' งาน · ' + minsToText(mins) : '<span style="color:var(--tl)">ไม่มีงาน</span>') +
-      '</div></div>';
+    html +=
+      '<div class="sec" onclick="openDailyByDate(\'' + inputVal + '\')" style="cursor:pointer">' +
+        '<div class="sec-h">' +
+          '<div class="sec-t">' + d + '</div>' +
+          '<div style="font-size:12px;color:var(--ts)">' + minsToText(mins) + '</div>' +
+        '</div>' +
+        '<div class="sec-b" style="font-size:12px">' +
+          (
+            logs.length
+              ? logs.slice(0, 3).map(function(r) {
+                  return '<div style="margin-bottom:5px">• ' + esc(r.taskName || '-') + '</div>';
+                }).join('') +
+                (
+                  logs.length > 3
+                    ? '<div style="color:var(--ts)">+' + (logs.length - 3) + ' รายการเพิ่มเติม</div>'
+                    : ''
+                )
+              : '<span style="color:var(--tl)">ไม่มีงาน</span>'
+          ) +
+        '</div>' +
+      '</div>';
   }
 
-  $('month-label').textContent = monthDate.toLocaleDateString('th-TH', { month:'long', year:'numeric' });
+  $('month-label').textContent =
+    monthDate.toLocaleDateString('th-TH', {
+      month: 'long',
+      year: 'numeric'
+    });
+
   $('month-sum-time').textContent = minsToText(total);
   $('month-sum-bar').style.width = Math.min(100, Math.round(total / (480 * 22) * 100)) + '%';
   $('month-grid').innerHTML = html;
@@ -2352,6 +2462,7 @@ function renderTeamBoard() {
 
   if (!projSel || !statusSel) return;
 
+  // งานทีม = เฉพาะ Public Project เท่านั้น
   var visibleProjects = S.projects.filter(canSeeProjectInTeamBoard);
 
   var currentValue = projSel.value;
@@ -2362,7 +2473,9 @@ function renderTeamBoard() {
       return '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>';
     }).join('');
 
-  if (visibleProjects.some(function(p) { return String(p.id) === String(currentValue); })) {
+  if (visibleProjects.some(function(p) {
+    return String(p.id) === String(currentValue);
+  })) {
     projSel.value = currentValue;
   } else {
     projSel.value = '';
