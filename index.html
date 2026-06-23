@@ -1016,24 +1016,32 @@ function doLogin() {
   if (!SCRIPT_URL) { tryLocalLogin(); return; }
 
   // ลอง login จาก Sheet — timeout 15 วิ (มือถือ network ช้ากว่า)
-  var cb = '_lcb', sc = document.createElement('script'), done = false;
+  var cb = '_lcb_'+(++_ci), sc = document.createElement('script'), done = false;
   var timer = setTimeout(function(){
     if (!done) {
-      done=true; sc.remove();
+      done=true;
+      if (sc.parentNode) sc.parentNode.removeChild(sc);
+      delete window[cb];
       errEl.textContent = '❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่อีกครั้ง';
       btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
     }
   }, 15000);
 
   window[cb] = function(d) {
-    if (done) return; done=true; clearTimeout(timer); delete window[cb]; sc.remove();
+    if (done) return; done=true; clearTimeout(timer); delete window[cb];
+    if (sc.parentNode) sc.parentNode.removeChild(sc);
     btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
     if (d.ok && d.data && d.data.success) {
       loginSuccess(d.data);
     } else {
-      // Sheet ตอบแต่ login ผิด → ไม่ fallback local
       errEl.textContent = '❌ ' + ((d.data && d.data.error) || d.error || 'เข้าสู่ระบบไม่สำเร็จ');
     }
+  };
+  sc.onerror = function() {
+    if (done) return; done=true; clearTimeout(timer); delete window[cb];
+    if (sc.parentNode) sc.parentNode.removeChild(sc);
+    errEl.textContent = '❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่';
+    btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
   };
   sc.src = SCRIPT_URL + '?action=login&username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p) + '&callback=' + cb + '&_=' + Date.now();
   document.head.appendChild(sc);
