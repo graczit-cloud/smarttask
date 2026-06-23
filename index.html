@@ -1271,7 +1271,7 @@ function loadAll() {
 }
 
 function loadAllSteps() {
-  var visibleProjects = S.projects.filter(canSeeProjectInTeamBoard);
+  var visibleProjects = S.projects.filter(canSeeProject);
 
   var tasks = visibleProjects.map(function(p) {
     return jsonp('getSteps', { projectId: p.id })
@@ -2352,29 +2352,44 @@ function renderTeamBoard() {
 
   if (!projSel || !statusSel) return;
 
-  var visibleProjects = S.projects.filter(canSeeProject);
+  var visibleProjects = S.projects.filter(canSeeProjectInTeamBoard);
 
   var currentValue = projSel.value;
-  projSel.innerHTML = '<option value="">— ทุก Project —</option>' + visibleProjects.map(function(p) {
-    return '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>';
-  }).join('');
-  projSel.value = currentValue;
+
+  projSel.innerHTML =
+    '<option value="">— ทุก Project —</option>' +
+    visibleProjects.map(function(p) {
+      return '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>';
+    }).join('');
+
+  if (visibleProjects.some(function(p) { return String(p.id) === String(currentValue); })) {
+    projSel.value = currentValue;
+  } else {
+    projSel.value = '';
+  }
+
+  var allowedProjectIds = visibleProjects.map(function(p) {
+    return String(p.id);
+  });
 
   var steps = S.allSteps.filter(function(s) {
-    var allowedProjectIds = visibleProjects.map(function(p) {
-  return String(p.id);
-});
+    if (allowedProjectIds.indexOf(String(s.projectId)) === -1) return false;
+    if (projSel.value && String(s.projectId) !== String(projSel.value)) return false;
+    if (statusSel.value && String(s.status) !== String(statusSel.value)) return false;
+    return true;
+  });
 
-var steps = S.allSteps.filter(function(s) {
-  if (allowedProjectIds.indexOf(String(s.projectId)) === -1) return false;
-  if (projSel.value && String(s.projectId) !== String(projSel.value)) return false;
-  if (statusSel.value && s.status !== statusSel.value) return false;
-  return true;
-});
+  var pending = steps.filter(function(s) {
+    return String(s.status) === 'รออยู่';
+  });
 
-  var pending = steps.filter(function(s){ return s.status === 'รออยู่'; });
-  var doing = steps.filter(function(s){ return s.status === 'กำลังทำ'; });
-  var done = steps.filter(function(s){ return s.status === 'เสร็จแล้ว'; });
+  var doing = steps.filter(function(s) {
+    return String(s.status) === 'กำลังทำ';
+  });
+
+  var done = steps.filter(function(s) {
+    return String(s.status) === 'เสร็จแล้ว';
+  });
 
   $('tb-cnt-pending').textContent = pending.length;
   $('tb-cnt-doing').textContent = doing.length;
@@ -2384,7 +2399,6 @@ var steps = S.allSteps.filter(function(s) {
   $('tb-col-doing').innerHTML = kanbanHTML(doing);
   $('tb-col-done').innerHTML = kanbanHTML(done);
 }
-
 function kanbanHTML(list) {
   return list.length
     ? list.map(function(s) {
