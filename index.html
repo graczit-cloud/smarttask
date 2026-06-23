@@ -1011,6 +1011,37 @@ function dateKey(d) {
   return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
 }
 
+  function normalizeLogRow(r) {
+  r = r || {};
+  r.date = normalizeDateKey(r.date);
+  r.hours = Number(r.hours || 0);
+  r.minutes = Number(r.minutes || 0);
+  return r;
+}
+  function normalizeDateKey(v) {
+  if (!v) return '';
+
+  var s = String(v).trim();
+
+  // รองรับ dd/MM/yyyy HH:mm:ss -> dd/MM/yyyy
+  var dm = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (dm) {
+    return pad(Number(dm[1])) + '/' + pad(Number(dm[2])) + '/' + dm[3];
+  }
+
+  // รองรับ yyyy-MM-dd หรือ yyyy-MM-ddTHH:mm:ss
+  var ym = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (ym) {
+    return pad(Number(ym[3])) + '/' + pad(Number(ym[2])) + '/' + ym[1];
+  }
+
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    return dateKey(d);
+  }
+
+  return s;
+}
 function inputDate(d) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
@@ -1100,6 +1131,19 @@ function canSeeProject(p) {
   return isOwner || isMember || isPublic;
 }
 
+  function canSeeProjectInTeamBoard(p) {
+  if (!currentUser) return false;
+
+  var username = String(currentUser.username || '');
+  var isOwner = String(p.owner || '') === username;
+  var isMember = membersArr(p.members).indexOf(username) > -1;
+  var isPublic = String(p.visibility || 'private') === 'public';
+
+  // หน้า "งานทีม" ไม่ให้ admin เห็น private project อัตโนมัติ
+  // ต้องเป็น owner/member หรือ public เท่านั้น
+  return isOwner || isMember || isPublic;
+}
+  
 function canEditProject(p) {
   if (!currentUser) return false;
   if (currentUser.isAdmin) return true;
@@ -1209,8 +1253,8 @@ function loadAll() {
   ])
   .then(function(res) {
     S.users = res[0] || [];
-    S.logs = res[1] || [];
-    S.projects = res[2] || [];
+  S.logs = (res[1] || []).map(normalizeLogRow);
+    S.projects = (res[2] || []).map(normalizeProjectRow);
 
     return loadAllSteps();
   })
@@ -1227,14 +1271,23 @@ function loadAll() {
 }
 
 function loadAllSteps() {
-  var visibleProjects = S.projects.filter(canSeeProject);
+  var visibleProjects = S.projects.filter(canSeeProjectInTeamBoard);
+
   var tasks = visibleProjects.map(function(p) {
     return jsonp('getSteps', { projectId: p.id })
       .then(function(steps) {
-        (steps || []).forEach(function(s){ s.projectName = p.name; });
-        return steps || [];
+        return (steps || []).map(function(s) {
+          s.projectId = s.projectId || p.id;
+          s.projectName = p.name;
+          s.projectVisibility = p.visibility || 'private';
+          s.projectOwner = p.owner || '';
+          s.projectMembers = p.members || '';
+          return s;
+        });
       })
-      .catch(function(){ return []; });
+      .catch(function() {
+        return [];
+      });
   });
 
   return Promise.all(tasks).then(function(groups) {
@@ -1245,7 +1298,7 @@ function loadAllSteps() {
 function loadMyLogs() {
   return jsonp('getDailyLogs', currentUser.isAdmin ? {} : { username: currentUser.username })
     .then(function(logs) {
-      S.logs = logs || [];
+      S.logs = (logs || []).map(normalizeLogRow);
       renderDaily();
       renderDashboard();
     });
@@ -1254,7 +1307,7 @@ function loadMyLogs() {
 function reloadProjects() {
   return jsonp('getProjects')
     .then(function(projects) {
-      S.projects = projects || [];
+      S.projects = (projects || []).map(normalizeProjectRow);
       return loadAllSteps();
     })
     .then(function() {
@@ -1262,6 +1315,12 @@ function reloadProjects() {
       renderDashboard();
       renderTeamBoard();
     });
+}
+  function normalizeProjectRow(p) {
+  p = p || {};
+  p.visibility = p.visibility || 'private';
+  p.progress = Number(p.progress || 0);
+  return p;
 }
 
 /* ============================================================
@@ -1355,10 +1414,10 @@ function toggleDark() {
 function renderDashboard() {
   var today = dateKey(dashDate);
   var logs = S.logs.filter(function(r) {
-    return r.date === today && (!currentUser.isAdmin ? r.username === currentUser.username : true);
+    return normalizeDateKey(r.date) === today && (!currentUser.isAdmin ? r.username === currentUser.username : true);
   });
 
-  var visibleProjects = S.projects.filter(canSeeProject);
+ var visibleProjects = S.projects.filter(canSeeProjectInTeamBoard);
   var myProjects = visibleProjects.filter(function(p) {
     return canSeeProject(p);
   });
@@ -1413,7 +1472,7 @@ function renderDaily() {
 
   var key = dateKey(selectedDate);
   var logs = S.logs.filter(function(r) {
-    return r.date === key && (!currentUser.isAdmin ? r.username === currentUser.username : true);
+    return normalizeDateKey(r.date) === key && (!currentUser.isAdmin ? r.username === currentUser.username : true);
   });
 
   var total = sumMins(logs);
@@ -1489,7 +1548,7 @@ function renderWeek() {
     d.setDate(start.getDate() + i);
     var k = dateKey(d);
     var logs = S.logs.filter(function(r) {
-      return r.date === k && (!currentUser.isAdmin ? r.username === currentUser.username : true);
+      return normalizeDateKey(r.date) === k && (!currentUser.isAdmin ? r.username === currentUser.username : true);
     });
     var m = sumMins(logs);
     total += m;
@@ -1526,7 +1585,7 @@ function renderMonth() {
     var dt = new Date(y, m, d);
     var k = dateKey(dt);
     var logs = S.logs.filter(function(r) {
-      return r.date === k && (!currentUser.isAdmin ? r.username === currentUser.username : true);
+      return normalizeDateKey(r.date) === k && (!currentUser.isAdmin ? r.username === currentUser.username : true);
     });
     var mins = sumMins(logs);
     total += mins;
@@ -2302,10 +2361,16 @@ function renderTeamBoard() {
   projSel.value = currentValue;
 
   var steps = S.allSteps.filter(function(s) {
-    if (projSel.value && s.projectId !== projSel.value) return false;
-    if (statusSel.value && s.status !== statusSel.value) return false;
-    return true;
-  });
+    var allowedProjectIds = visibleProjects.map(function(p) {
+  return String(p.id);
+});
+
+var steps = S.allSteps.filter(function(s) {
+  if (allowedProjectIds.indexOf(String(s.projectId)) === -1) return false;
+  if (projSel.value && String(s.projectId) !== String(projSel.value)) return false;
+  if (statusSel.value && s.status !== statusSel.value) return false;
+  return true;
+});
 
   var pending = steps.filter(function(s){ return s.status === 'รออยู่'; });
   var doing = steps.filter(function(s){ return s.status === 'กำลังทำ'; });
