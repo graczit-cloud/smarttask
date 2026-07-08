@@ -405,7 +405,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.10</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.11</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1915,14 +1915,33 @@ function deleteUser(){
 // ══════════════════════════════════════════════
 function uploadImage(file, callback) {
   if (!SCRIPT_URL) { showToast('⚠️ ไม่มี URL — ไม่สามารถอัปโหลดรูปได้','er'); callback(null); return; }
+  if (file.size > 5*1024*1024) { showToast('⚠️ รูปใหญ่เกิน 5MB','er'); callback(null); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
-    var base64 = e.target.result.split(',')[1];
+    var base64   = e.target.result.split(',')[1];
     var mimeType = file.type || 'image/jpeg';
     showToast('⏳ กำลังอัปโหลดรูป...','');
-    api({action:'uploadImage', filename:file.name, base64:base64, mimeType:mimeType})
-      .then(function(res){ callback(res.url); })
-      .catch(function(err){ showToast('❌ อัปโหลดรูปไม่ได้: '+err.message,'er'); callback(null); });
+    // ใช้ fetch POST โดยตรง — base64 ใหญ่เกินสำหรับ JSONP GET
+    fetch(SCRIPT_URL, {
+      method  : 'POST',
+      headers : { 'Content-Type': 'text/plain' },
+      body    : JSON.stringify({
+        action   : 'uploadImage',
+        data     : { filename: file.name, base64: base64, mimeType: mimeType }
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok && d.data && d.data.url) {
+        callback(d.data.url);
+      } else {
+        throw new Error(d.error || 'อัปโหลดไม่สำเร็จ');
+      }
+    })
+    .catch(function(err){
+      showToast('❌ อัปโหลดรูปไม่ได้: '+err.message,'er');
+      callback(null);
+    });
   };
   reader.readAsDataURL(file);
 }
