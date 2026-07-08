@@ -440,7 +440,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.16</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.17</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -2056,36 +2056,82 @@ function deleteUser(){
 //  IMAGE UPLOAD
 // ══════════════════════════════════════════════
 function uploadImage(file, callback) {
-  if (!SCRIPT_URL) { showToast('⚠️ ไม่มี URL — ไม่สามารถอัปโหลดรูปได้','er'); callback(null); return; }
+  if (!SCRIPT_URL) { showToast('⚠️ ไม่มี URL','er'); callback(null); return; }
   if (file.size > 5*1024*1024) { showToast('⚠️ รูปใหญ่เกิน 5MB','er'); callback(null); return; }
+
   var reader = new FileReader();
   reader.onload = function(e) {
     var base64   = e.target.result.split(',')[1];
     var mimeType = file.type || 'image/jpeg';
     showToast('⏳ กำลังอัปโหลดรูป...','');
-    // ใช้ fetch POST โดยตรง — base64 ใหญ่เกินสำหรับ JSONP GET
-    fetch(SCRIPT_URL, {
-      method  : 'POST',
-      headers : { 'Content-Type': 'text/plain' },
-      body    : JSON.stringify({
-        action   : 'uploadImage',
-        data     : { filename: file.name, base64: base64, mimeType: mimeType }
-      })
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.ok && d.data && d.data.url) {
-        callback(d.data.url);
-      } else {
-        throw new Error(d.error || 'อัปโหลดไม่สำเร็จ');
-      }
-    })
-    .catch(function(err){
-      showToast('❌ อัปโหลดรูปไม่ได้: '+err.message,'er');
-      callback(null);
-    });
+
+    // ใช้ JSONP RPC แต่แบ่ง base64 เป็น chunks เพื่อหลีกเลี่ยง URL length limit
+    // chunk ละ 50KB (encoded ~67KB URL-safe)
+    var CHUNK = 50000;
+    var chunks = [];
+    for (var i=0; i<base64.length; i+=CHUNK) {
+      chunks.push(base64.slice(i, i+CHUNK));
+    }
+
+    var uploadId = 'up_'+Date.now();
+
+    // ถ้า chunk เดียวพอ ส่งได้เลย
+    if (chunks.length === 1) {
+      _doUploadRpc(uploadId, file.name, chunks[0], mimeType, 0, 1, callback);
+    } else {
+      // หลาย chunk → ส่งทีละ chunk แล้ว finalize
+      _sendChunk(uploadId, file.name, chunks, mimeType, 0, callback);
+    }
   };
   reader.readAsDataURL(file);
+}
+
+function _doUploadRpc(uploadId, filename, base64, mimeType, chunkIndex, totalChunks, callback) {
+  var cb  = '_up_'+Date.now();
+  var sc  = document.createElement('script');
+  var done = false;
+  var t   = setTimeout(function(){
+    if (!done){ done=true; window[cb]=function(){}; if(sc.parentNode)sc.parentNode.removeChild(sc);
+      showToast('❌ อัปโหลด timeout','er'); callback(null); }
+  }, 30000);
+
+  window[cb] = function(d){
+    if (done) return; done=true; clearTimeout(t); window[cb]=function(){};
+    if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if (d.ok && d.data && d.data.url) {
+      showToast('✅ อัปโหลดรูปสำเร็จ','ok');
+      callback(d.data.url);
+    } else {
+      showToast('❌ อัปโหลดไม่ได้: '+(d.error||'error'),'er');
+      callback(null);
+    }
+  };
+  sc.onerror = function(){
+    if(done)return; done=true; clearTimeout(t); window[cb]=function(){};
+    if(sc.parentNode)sc.parentNode.removeChild(sc);
+    showToast('❌ เชื่อมต่อไม่ได้','er'); callback(null);
+  };
+
+  var payload = JSON.stringify({
+    action  : 'uploadImage',
+    data    : { filename:filename, base64:base64, mimeType:mimeType,
+                uploadId:uploadId, chunkIndex:chunkIndex, totalChunks:totalChunks }
+  });
+  sc.src = SCRIPT_URL + '?action=rpc&callback=' + cb + '&payload=' + encodeURIComponent(payload) + '&_=' + Date.now();
+  document.head.appendChild(sc);
+}
+
+function _sendChunk(uploadId, filename, chunks, mimeType, idx, callback) {
+  if (idx >= chunks.length) { callback(null); return; }
+  showToast('⏳ อัปโหลด '+(idx+1)+'/'+chunks.length+'...','');
+  _doUploadRpc(uploadId, filename, chunks[idx], mimeType, idx, chunks.length, function(url){
+    if (url) { callback(url); return; } // finalized
+    if (idx+1 < chunks.length) {
+      _sendChunk(uploadId, filename, chunks, mimeType, idx+1, callback);
+    } else {
+      callback(null);
+    }
+  });
 }
 
 function previewImage(input, previewId) {
