@@ -440,7 +440,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.14</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.15</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1907,8 +1907,8 @@ function openStepModal() {
   ['f-st-name','f-st-desc'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('f-st-due').value='';
   document.getElementById('f-st-status').value='รออยู่';
-  document.getElementById('f-st-progress').value=0;
-  document.getElementById('st-prog-val').textContent='0%';
+  document.getElementById('f-st-prog').value=0;
+  document.getElementById('step-prog-val').textContent='0%';
   var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
   document.getElementById('f-st-order').value=steps.length+1;
   document.getElementById('f-st-assignee').value=currentUser.username;
@@ -1934,8 +1934,8 @@ function editStep(id) {
   document.getElementById('f-st-due').value=fmtISO(s.dueDate||'');
   document.getElementById('f-st-order').value=s.order||1;
   document.getElementById('f-st-status').value=s.status||'รออยู่';
-  document.getElementById('f-st-progress').value=parseInt(s.progress||0);
-  document.getElementById('st-prog-val').textContent=parseInt(s.progress||0)+'%';
+  document.getElementById('f-st-prog').value=parseInt(s.progress||0);
+  document.getElementById('step-prog-val').textContent=parseInt(s.progress||0)+'%';
   document.getElementById('f-st-img-url').value=isValidImgUrl(s.imageUrl)?s.imageUrl:'';
   var prev=document.getElementById('st-preview');
   if(isValidImgUrl(s.imageUrl)){prev.src=driveUrl(s.imageUrl);prev.style.display='block';}else{prev.src='';prev.style.display='none';}
@@ -1949,7 +1949,7 @@ function saveStep() {
   var d={projectId:currentProjectId,stepName:name,description:document.getElementById('f-st-desc').value,
     assignee:document.getElementById('f-st-assignee').value,dueDate:fmtTHdb(document.getElementById('f-st-due').value),
     order:document.getElementById('f-st-order').value,status:document.getElementById('f-st-status').value,
-    progress:document.getElementById('f-st-progress').value,imageUrl:document.getElementById('f-st-img-url').value,};
+    progress:document.getElementById('f-st-prog').value,imageUrl:document.getElementById('f-st-img-url').value,};
   if(eid) d.id=eid;
   var btn=document.getElementById('st-save-btn'); btn.disabled=true; btn.innerHTML='<div class="spin"></div>';
 
