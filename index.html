@@ -405,7 +405,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.9</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.10</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1469,13 +1469,12 @@ function openDailyModal(id) {
   document.getElementById('daily-modal-title').textContent = '📅 บันทึกงาน';
   document.getElementById('dl-del-btn').style.display = 'none';
   document.getElementById('f-dl-name').value = '';
-  document.getElementById('f-dl-date').value = fmt(currentDate);
+  document.getElementById('f-dl-date').value = fmtISO(fmt(currentDate));
   document.getElementById('f-dl-cat').value = 'ประชุม';
   document.getElementById('f-dl-hours').value = 0;
   document.getElementById('f-dl-mins').value = 0;
   document.getElementById('f-dl-desc').value = '';
   document.getElementById('f-dl-status').value = 'เสร็จแล้ว';
-  document.getElementById('f-dl-type').value=l.type||'daily';
   document.getElementById('f-dl-type').value = 'daily';
   document.getElementById('dl-preview').style.display = 'none';
   document.getElementById('dl-preview').src = '';
