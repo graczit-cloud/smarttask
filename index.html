@@ -226,6 +226,40 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 .type-weekly{background:#faf5ff;color:#7e22ce}
 .type-monthly{background:#fff7ed;color:#c2410c}
 
+/* ── PROJECT LIST VIEW ── */
+.proj-list-item{background:#fff;border-radius:10px;border:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.proj-list-item:hover{box-shadow:0 3px 10px rgba(0,0,0,.08);border-color:var(--navy)}
+.proj-list-img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.proj-list-body{flex:1;min-width:0}
+.proj-list-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proj-list-desc{font-size:12px;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.proj-list-meta{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}
+.proj-list-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;min-width:80px}
+.prog-red .progress-fill{background:var(--red)!important}
+.prog-yellow .progress-fill{background:var(--gold)!important}
+.prog-green .progress-fill{background:var(--green)!important}
+.view-toggle{display:flex;gap:4px;background:var(--bg);border-radius:8px;padding:3px}
+.view-toggle button{width:30px;height:30px;border:none;background:none;border-radius:6px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.view-toggle button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.view-toggle button:hover{background:rgba(255,255,255,.7)}
+
+/* ── PROJECT LIST VIEW ── */
+.proj-list-item{background:#fff;border-radius:10px;border:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.proj-list-item:hover{box-shadow:0 3px 10px rgba(0,0,0,.08);border-color:var(--navy)}
+.proj-list-img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.proj-list-body{flex:1;min-width:0}
+.proj-list-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proj-list-desc{font-size:12px;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.proj-list-meta{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}
+.proj-list-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;min-width:80px}
+.prog-red .progress-fill{background:var(--red)!important}
+.prog-yellow .progress-fill{background:var(--gold)!important}
+.prog-green .progress-fill{background:var(--green)!important}
+.view-toggle{display:flex;gap:4px;background:var(--bg);border-radius:8px;padding:3px}
+.view-toggle button{width:30px;height:30px;border:none;background:none;border-radius:6px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.view-toggle button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.view-toggle button:hover{background:rgba(255,255,255,.7)}
+
 /* ── SEARCH ── */
 .search-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;transition:border-color .15s;flex:1;max-width:320px}
 .search-bar:focus-within{border-color:var(--navy)}
@@ -406,7 +440,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.13</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.14</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -591,18 +625,38 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <div class="ph">
         <div class="pt">🗂️ Projects</div>
         <div class="ha">
-          <select class="fi" id="proj-filter" style="width:130px;padding:7px 10px;font-size:13px" onchange="renderProjects()">
-            <option value="">ทั้งหมด</option>
+          <!-- Search -->
+          <div class="search-bar" style="max-width:200px;min-width:140px">
+            <span style="color:var(--tl);font-size:13px">🔍</span>
+            <input type="text" id="proj-search" placeholder="ค้นหา Project..." style="font-size:13px" oninput="renderProjects()">
+          </div>
+          <!-- Filter Status -->
+          <select class="fi" id="proj-filter" style="width:140px;padding:7px 10px;font-size:13px" onchange="renderProjects()">
+            <option value="">ทุกสถานะ</option>
             <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
             <option value="เสร็จสิ้น">เสร็จสิ้น</option>
             <option value="รออยู่">รออยู่</option>
             <option value="ระงับ">ระงับ</option>
           </select>
+          <!-- Sort -->
+          <select class="fi" id="proj-sort" style="width:140px;padding:7px 10px;font-size:13px" onchange="renderProjects()">
+            <option value="date">วันที่สร้าง</option>
+            <option value="name">ชื่อ A-Z</option>
+            <option value="progress">ความคืบหน้า</option>
+          </select>
+          <!-- View toggle -->
+          <div class="view-toggle">
+            <button id="btn-grid-view" class="on" onclick="setProjView('grid')" title="Grid">⊞</button>
+            <button id="btn-list-view" onclick="setProjView('list')" title="List">≡</button>
+          </div>
           <button class="btn-add" onclick="openProjectModal()">+ สร้าง Project</button>
         </div>
       </div>
-      <div class="grid-3" id="project-list">
-        <div class="emp" style="grid-column:1/-1"><div class="emp-i">⏳</div>กำลังโหลด...</div>
+      <!-- summary bar -->
+      <div id="proj-summary" style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap"></div>
+      <!-- list -->
+      <div id="project-list">
+        <div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div>
       </div>
     </div>
 
@@ -1563,39 +1617,124 @@ function deleteDailyLog() {
 //  PROJECTS
 // ══════════════════════════════════════════════
 function loadProjects() {
+  // restore view mode
+  var saved = localStorage.getItem('gracz_proj_view') || 'grid';
+  projViewMode = saved;
+  var bg = document.getElementById('btn-grid-view');
+  var bl = document.getElementById('btn-list-view');
+  if (bg) { bg.classList.toggle('on', saved==='grid'); }
+  if (bl) { bl.classList.toggle('on', saved==='list'); }
+
   if (SCRIPT_URL) {
     jsonp('getProjects').then(function(d){ S.projects=d||[]; renderProjects(); }).catch(function(){ renderProjects(); });
   } else { renderProjects(); }
 }
 
+var projViewMode = localStorage.getItem('gracz_proj_view') || 'grid';
+
+function setProjView(mode) {
+  projViewMode = mode;
+  localStorage.setItem('gracz_proj_view', mode);
+  var bg = document.getElementById('btn-grid-view');
+  var bl = document.getElementById('btn-list-view');
+  if (bg) bg.classList.toggle('on', mode==='grid');
+  if (bl) bl.classList.toggle('on', mode==='list');
+  renderProjects();
+}
+
+function progColor(prog) {
+  return prog < 30 ? 'prog-red' : prog < 70 ? 'prog-yellow' : 'prog-green';
+}
+
 function renderProjects() {
   var filter = document.getElementById('proj-filter').value;
-  var list   = S.projects.filter(function(p){
+  var sortEl = document.getElementById('proj-sort');
+  var sortBy = sortEl ? sortEl.value : 'date';
+  var srchEl = document.getElementById('proj-search');
+  var search = srchEl ? srchEl.value.toLowerCase().trim() : '';
+
+  var list = S.projects.filter(function(p){
     var mine = p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1||currentUser.isAdmin;
-    return mine && (!filter || p.status===filter);
+    if (!mine) return false;
+    if (filter && p.status!==filter) return false;
+    if (search && (p.name||'').toLowerCase().indexOf(search)<0 && (p.description||'').toLowerCase().indexOf(search)<0) return false;
+    return true;
   });
+
+  list = list.slice().sort(function(a,b){
+    if (sortBy==='name') return (a.name||'').localeCompare(b.name||'');
+    if (sortBy==='progress') return (parseInt(b.progress||0))-(parseInt(a.progress||0));
+    return 0;
+  });
+
+  // summary bar
+  var total=list.length, doing=0, done2=0, sumProg=0;
+  list.forEach(function(p){
+    if(p.status==='กำลังดำเนินการ') doing++;
+    if(p.status==='เสร็จสิ้น') done2++;
+    sumProg+=parseInt(p.progress||0);
+  });
+  var avgProg = total ? Math.round(sumProg/total) : 0;
+  var sumEl = document.getElementById('proj-summary');
+  if (sumEl) sumEl.innerHTML =
+    '<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic bl" style="width:32px;height:32px;font-size:14px">🗂️</div><div><div class="stat-n" style="font-size:18px">'+total+'</div><div class="stat-l">ทั้งหมด</div></div></div>'
+   +'<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic am" style="width:32px;height:32px;font-size:14px">🔵</div><div><div class="stat-n" style="font-size:18px">'+doing+'</div><div class="stat-l">กำลังดำเนินการ</div></div></div>'
+   +'<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic gn" style="width:32px;height:32px;font-size:14px">✅</div><div><div class="stat-n" style="font-size:18px">'+done2+'</div><div class="stat-l">เสร็จสิ้น</div></div></div>'
+   +'<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic pu" style="width:32px;height:32px;font-size:14px">📈</div><div><div class="stat-n" style="font-size:18px">'+avgProg+'%</div><div class="stat-l">เฉลี่ย</div></div></div>';
+
   var el = document.getElementById('project-list');
-  el.innerHTML = list.length ? list.map(projCardHTML).join('') : '<div class="emp" style="grid-column:1/-1"><div class="emp-i">🗂️</div>ยังไม่มี Project</div>';
+  if (!list.length) {
+    el.className = '';
+    el.innerHTML = '<div class="emp"><div class="emp-i">🗂️</div>ยังไม่มี Project</div>';
+    return;
+  }
+  if (projViewMode === 'list') {
+    el.className = '';
+    el.innerHTML = list.map(projListHTML).join('');
+  } else {
+    el.className = 'grid-3';
+    el.innerHTML = list.map(projCardHTML).join('');
+  }
 }
 
 function projCardHTML(p) {
   var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
   var prog = parseInt(p.progress||0);
-  // wrapper คงที่ ป้องกัน layout แตก
   var imgInner = isValidImgUrl(p.imageUrl)
     ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
     : '';
   var imgHtml = '<div style="width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;flex-shrink:0">'
-    + imgInner
-    + (p.imageUrl ? '' : '🗂️')
-    + '</div>';
-  return '<div class="project-card" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">' 
+    + imgInner + (isValidImgUrl(p.imageUrl)?'':'🗂️') + '</div>';
+  return '<div class="project-card '+progColor(prog)+'" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">'
     +imgHtml
     +'<div class="project-body">'
     +'<div class="project-name">'+escHtml(p.name||'')+'</div>'
     +'<div class="project-desc">'+escHtml(p.description||'ไม่มีคำอธิบาย')+'</div>'
     +'<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill bl" style="width:'+prog+'%"></div></div></div>'
     +'<div class="project-meta"><span class="badge '+stCls+'">'+p.status+'</span><span>'+prog+'%</span></div>'
+    +'</div></div>';
+}
+
+function projListHTML(p) {
+  var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
+  var prog = parseInt(p.progress||0);
+  var imgHtml = isValidImgUrl(p.imageUrl)
+    ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">' 
+    : '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px">🗂️</div>';
+  var owner = (S.users.find(function(u){return u.username===p.owner;})||{}).name||p.owner||'-';
+  return '<div class="proj-list-item '+progColor(prog)+'" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">'
+    +'<div class="proj-list-img">'+imgHtml+'</div>'
+    +'<div class="proj-list-body">'
+    +'<div class="proj-list-name">'+escHtml(p.name||'')+'</div>'
+    +'<div class="proj-list-desc">'+escHtml(p.description||'ไม่มีคำอธิบาย')+'</div>'
+    +'<div class="proj-list-meta">'
+    +'<span class="badge '+stCls+'">'+p.status+'</span>'
+    +'<span style="font-size:11.5px;color:var(--ts)">👤 '+escHtml(owner)+'</span>'
+    +(p.dueDate?'<span style="font-size:11.5px;color:var(--ts)">📅 '+escHtml(p.dueDate)+'</span>':'')
+    +'</div></div>'
+    +'<div class="proj-list-right">'
+    +'<span style="font-size:14px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
+    +'<div style="width:100px"><div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:'+prog+'%;height:6px"></div></div></div>'
     +'</div></div>';
 }
 
