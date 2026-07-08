@@ -405,7 +405,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.8</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.9</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1026,7 +1026,13 @@ function doLogin() {
       done=true;
       if (sc.parentNode) sc.parentNode.removeChild(sc);
       delete window[cb];
-      errEl.textContent = '❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่อีกครั้ง';
+      // timeout — ลอง local fallback ก่อน แล้วค่อยแสดง error
+      var found = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
+      if (found) {
+        loginSuccess(found);
+      } else {
+        errEl.textContent = '❌ เชื่อมต่อช้า กรุณาลองใหม่อีกครั้ง';
+      }
       btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
     }
   }, 15000);
@@ -1194,7 +1200,7 @@ function loadAll() {
     fillUserDropdowns();
     loadDashboard();
     updateDueBadge();
-  }).catch(function(e){ setCS('er','โหลดไม่ได้'); showToast('❌ '+e.message,'er'); loadDemoData(); });
+  }).catch(function(e){ setCS('er','เชื่อมต่อไม่ได้'); showToast('❌ โหลดข้อมูลไม่สำเร็จ: '+e.message,'er'); loadDemoData(); });
 }
 
 function loadDemoData() {
@@ -1469,6 +1475,7 @@ function openDailyModal(id) {
   document.getElementById('f-dl-mins').value = 0;
   document.getElementById('f-dl-desc').value = '';
   document.getElementById('f-dl-status').value = 'เสร็จแล้ว';
+  document.getElementById('f-dl-type').value=l.type||'daily';
   document.getElementById('f-dl-type').value = 'daily';
   document.getElementById('dl-preview').style.display = 'none';
   document.getElementById('dl-preview').src = '';
@@ -1491,6 +1498,7 @@ function editDailyLog(id) {
   document.getElementById('f-dl-mins').value = parseInt(l.minutes||0);
   document.getElementById('f-dl-desc').value = l.description||'';
   document.getElementById('f-dl-status').value = l.status||'เสร็จแล้ว';
+  document.getElementById('f-dl-type').value = l.type||'daily';
   document.getElementById('f-dl-img-url').value = l.imageUrl||'';
   var prev = document.getElementById('dl-preview');
   if (l.imageUrl) { prev.src=driveUrl(l.imageUrl); prev.style.display='block'; } else { prev.style.display='none'; }
@@ -1527,7 +1535,7 @@ function saveDailyLog() {
         var idx=S.dailyLogs.findIndex(function(x){return x.id===eid;});
         if(idx>-1) S.dailyLogs[idx]=Object.assign(S.dailyLogs[idx],d);
       } else {
-        d.id=res.id; S.dailyLogs.unshift(d);
+        d.id=(res&&res.id)||('DL_'+Date.now()); S.dailyLogs.unshift(d);
       }
       closeModal('mo-daily'); showToast('✅ บันทึกงานสำเร็จ','ok');
       renderDailyList(); loadDashboard();
@@ -1729,7 +1737,7 @@ function saveProject() {
     var action=eid?'updateProject':'createProject';
     api({action:action,data:d}).then(function(res){
       if(eid){var idx=S.projects.findIndex(function(x){return x.id===eid;});if(idx>-1)S.projects[idx]=Object.assign(S.projects[idx],d);}
-      else{d.id=res.id;d.progress=0;S.projects.unshift(d);}
+      else{d.id=(res&&res.id)||d.id||('PRJ_'+Date.now());d.progress=0;S.projects.unshift(d);}
       closeModal('mo-project'); showToast('✅ บันทึก Project สำเร็จ','ok'); renderProjects();
       if(eid) loadProjectDetail(eid);
     }).catch(function(e){showToast('❌ '+e.message,'er');})
@@ -1758,8 +1766,8 @@ function openStepModal() {
   ['f-st-name','f-st-desc'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('f-st-due').value='';
   document.getElementById('f-st-status').value='รออยู่';
-  document.getElementById('f-st-prog').value=0;
-  document.getElementById('step-prog-val').textContent='0';
+  document.getElementById('f-st-progress').value=0;
+  document.getElementById('st-prog-val').textContent='0%';
   var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
   document.getElementById('f-st-order').value=steps.length+1;
   document.getElementById('f-st-assignee').value=currentUser.username;
@@ -1785,8 +1793,8 @@ function editStep(id) {
   document.getElementById('f-st-due').value=fmtISO(s.dueDate||'');
   document.getElementById('f-st-order').value=s.order||1;
   document.getElementById('f-st-status').value=s.status||'รออยู่';
-  document.getElementById('f-st-prog').value=parseInt(s.progress||0);
-  document.getElementById('step-prog-val').textContent=parseInt(s.progress||0);
+  document.getElementById('f-st-progress').value=parseInt(s.progress||0);
+  document.getElementById('st-prog-val').textContent=parseInt(s.progress||0)+'%';
   document.getElementById('f-st-img-url').value=isValidImgUrl(s.imageUrl)?s.imageUrl:'';
   var prev=document.getElementById('st-preview');
   if(isValidImgUrl(s.imageUrl)){prev.src=driveUrl(s.imageUrl);prev.style.display='block';}else{prev.src='';prev.style.display='none';}
@@ -1800,7 +1808,7 @@ function saveStep() {
   var d={projectId:currentProjectId,stepName:name,description:document.getElementById('f-st-desc').value,
     assignee:document.getElementById('f-st-assignee').value,dueDate:fmtTHdb(document.getElementById('f-st-due').value),
     order:document.getElementById('f-st-order').value,status:document.getElementById('f-st-status').value,
-    progress:document.getElementById('f-st-prog').value,imageUrl:document.getElementById('f-st-img-url').value,};
+    progress:document.getElementById('f-st-progress').value,imageUrl:document.getElementById('f-st-img-url').value,};
   if(eid) d.id=eid;
   var btn=document.getElementById('st-save-btn'); btn.disabled=true; btn.innerHTML='<div class="spin"></div>';
 
@@ -1810,7 +1818,7 @@ function saveStep() {
     if(imageUrl) d.imageUrl=imageUrl;
     var action=eid?'updateStep':'saveStep';
     api({action:action,data:d}).then(function(res){
-      if(!eid){d.id=res.id; S.steps=S.steps||[]; S.steps.push(d);}
+      if(!eid){d.id=(res&&res.id)||('STP_'+Date.now()); S.steps=S.steps||[]; S.steps.push(d);}
       else{var idx=(S.steps||[]).findIndex(function(x){return x.id===eid;});if(idx>-1)S.steps[idx]=Object.assign(S.steps[idx],d);}
       // recalc progress locally
       var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
