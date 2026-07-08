@@ -405,7 +405,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.11</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.12</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1025,7 +1025,7 @@ function doLogin() {
     if (!done) {
       done=true;
       if (sc.parentNode) sc.parentNode.removeChild(sc);
-      delete window[cb];
+      window[cb]=function(){};
       // timeout — ลอง local fallback ก่อน แล้วค่อยแสดง error
       var found = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
       if (found) {
@@ -1038,7 +1038,8 @@ function doLogin() {
   }, 15000);
 
   window[cb] = function(d) {
-    if (done) return; done=true; clearTimeout(timer); delete window[cb];
+    if (done) return; done=true; clearTimeout(timer);
+    window[cb] = function(){}; // noop ป้องกัน browser เรียกซ้ำ
     if (sc.parentNode) sc.parentNode.removeChild(sc);
     btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
     if (d.ok && d.data && d.data.success) {
@@ -1048,7 +1049,8 @@ function doLogin() {
     }
   };
   sc.onerror = function() {
-    if (done) return; done=true; clearTimeout(timer); delete window[cb];
+    if (done) return; done=true; clearTimeout(timer);
+    window[cb] = function(){};
     if (sc.parentNode) sc.parentNode.removeChild(sc);
     errEl.textContent = '❌ เชื่อมต่อไม่ได้ กรุณาลองใหม่';
     btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
@@ -1161,7 +1163,7 @@ function jsonp(action, extra) {
     var cb = '_cb'+(++_ci), sc = document.createElement('script'), done = false;
     var t = setTimeout(function(){ cleanup(); reject(new Error('Timeout')); }, 15000);
     window[cb] = function(d){ cleanup(); d.ok ? resolve(d.data) : reject(new Error(d.error||'Error')); };
-    function cleanup(){ if(done)return; done=true; clearTimeout(t); delete window[cb]; if(sc.parentNode) sc.parentNode.removeChild(sc); }
+    function cleanup(){ if(done)return; done=true; clearTimeout(t); window[cb]=function(){}; if(sc.parentNode) sc.parentNode.removeChild(sc); }
     sc.onerror = function(){ cleanup(); reject(new Error('Network error')); };
     var qs = '?action='+action+'&callback='+cb+'&_='+Date.now();
     if (extra) Object.keys(extra).forEach(function(k){ qs += '&'+k+'='+encodeURIComponent(extra[k]||''); });
@@ -2013,7 +2015,7 @@ function saveUrl() {
   SCRIPT_URL = url;
   var cb='_tcb', sc=document.createElement('script'), done=false;
   var timer=setTimeout(function(){if(!done){done=true;res.innerHTML='<span style="color:var(--red)">❌ Timeout</span>';sc.remove();}},10000);
-  window[cb]=function(d){if(done)return;done=true;clearTimeout(timer);delete window[cb];sc.remove();
+  window[cb]=function(d){if(done)return;done=true;clearTimeout(timer);window[cb]=function(){};sc.remove();
     if(d.ok){localStorage.setItem('gracz_task_url',url);res.innerHTML='<span style="color:var(--green)">✅ เชื่อมต่อสำเร็จ!</span>';setCS('ok','เชื่อมต่อแล้ว');loadAll();}
     else{res.innerHTML='<span style="color:var(--red)">❌ '+d.error+'</span>';}};
   sc.src=url+'?action=ping&callback=_tcb&_='+Date.now();
