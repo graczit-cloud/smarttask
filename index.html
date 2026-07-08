@@ -226,23 +226,6 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 .type-weekly{background:#faf5ff;color:#7e22ce}
 .type-monthly{background:#fff7ed;color:#c2410c}
 
-/* ── PROJECT LIST VIEW ── */
-.proj-list-item{background:#fff;border-radius:10px;border:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;margin-bottom:8px}
-.proj-list-item:hover{box-shadow:0 3px 10px rgba(0,0,0,.08);border-color:var(--navy)}
-.proj-list-img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
-.proj-list-body{flex:1;min-width:0}
-.proj-list-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.proj-list-desc{font-size:12px;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.proj-list-meta{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}
-.proj-list-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;min-width:80px}
-.prog-red .progress-fill{background:var(--red)!important}
-.prog-yellow .progress-fill{background:var(--gold)!important}
-.prog-green .progress-fill{background:var(--green)!important}
-.view-toggle{display:flex;gap:4px;background:var(--bg);border-radius:8px;padding:3px}
-.view-toggle button{width:30px;height:30px;border:none;background:none;border-radius:6px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.view-toggle button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.view-toggle button:hover{background:rgba(255,255,255,.7)}
-
 /* ── SEARCH ── */
 .search-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;transition:border-color .15s;flex:1;max-width:320px}
 .search-bar:focus-within{border-color:var(--navy)}
@@ -365,7 +348,6 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <div class="login-logo">✅</div>
     <div class="login-title">Gracz Task</div>
     <div class="login-sub">IT Gracz — บันทึกงานประจำวัน & Projects</div>
-    <div id="login-status" style="font-size:11.5px;color:var(--tl);text-align:center;margin-bottom:8px;min-height:16px"></div>
     <label class="login-fl">Username</label>
     <input class="login-fi" id="login-user" placeholder="กรอก username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
     <label class="login-fl">รหัสผ่าน</label>
@@ -423,7 +405,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.18</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.12</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -608,38 +590,18 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <div class="ph">
         <div class="pt">🗂️ Projects</div>
         <div class="ha">
-          <!-- Search -->
-          <div class="search-bar" style="max-width:200px;min-width:140px">
-            <span style="color:var(--tl);font-size:13px">🔍</span>
-            <input type="text" id="proj-search" placeholder="ค้นหา Project..." style="font-size:13px" oninput="renderProjects()">
-          </div>
-          <!-- Filter Status -->
-          <select class="fi" id="proj-filter" style="width:140px;padding:7px 10px;font-size:13px" onchange="renderProjects()">
-            <option value="">ทุกสถานะ</option>
+          <select class="fi" id="proj-filter" style="width:130px;padding:7px 10px;font-size:13px" onchange="renderProjects()">
+            <option value="">ทั้งหมด</option>
             <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
             <option value="เสร็จสิ้น">เสร็จสิ้น</option>
             <option value="รออยู่">รออยู่</option>
             <option value="ระงับ">ระงับ</option>
           </select>
-          <!-- Sort -->
-          <select class="fi" id="proj-sort" style="width:140px;padding:7px 10px;font-size:13px" onchange="renderProjects()">
-            <option value="date">วันที่สร้าง</option>
-            <option value="name">ชื่อ A-Z</option>
-            <option value="progress">ความคืบหน้า</option>
-          </select>
-          <!-- View toggle -->
-          <div class="view-toggle">
-            <button id="btn-grid-view" class="on" onclick="setProjView('grid')" title="Grid">⊞</button>
-            <button id="btn-list-view" onclick="setProjView('list')" title="List">≡</button>
-          </div>
           <button class="btn-add" onclick="openProjectModal()">+ สร้าง Project</button>
         </div>
       </div>
-      <!-- summary bar -->
-      <div id="proj-summary" style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap"></div>
-      <!-- list -->
-      <div id="project-list">
-        <div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div>
+      <div class="grid-3" id="project-list">
+        <div class="emp" style="grid-column:1/-1"><div class="emp-i">⏳</div>กำลังโหลด...</div>
       </div>
     </div>
 
@@ -1192,114 +1154,28 @@ function onEnter(pg) {
 }
 
 // ══════════════════════════════════════════════
-//  API - ใช้ JSONP สำหรับทุกการเรียก
+//  API
 // ══════════════════════════════════════════════
 var _ci = 0;
-
-// ใช้ jsonp สำหรับ GET requests
 function jsonp(action, extra) {
   return new Promise(function(resolve, reject) {
     if (!SCRIPT_URL) { reject(new Error('ยังไม่ได้ตั้งค่า URL')); return; }
-    var cb = '_cb'+(++_ci);
-    var sc = document.createElement('script');
-    var done = false;
-    // เพิ่ม timeout เป็น 30 วินาที
-    var timer = setTimeout(function() {
-      if (!done) { 
-        done = true; 
-        cleanup(); 
-        console.error('❌ jsonp timeout:', action);
-        reject(new Error('Timeout - ' + action)); 
-      }
-    }, 30000);
-    
-    window[cb] = function(d) {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      console.log('📡 jsonp response for', action, ':', d ? 'ok=' + d.ok : 'null');
-      if (d && d.ok) {
-        resolve(d.data);
-      } else {
-        reject(new Error((d && d.error) || 'Error in ' + action));
-      }
-    };
-    
-    function cleanup() {
-      window[cb] = function() {};
-      if (sc.parentNode) sc.parentNode.removeChild(sc);
-    }
-    
-    sc.onerror = function() {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      console.error('❌ jsonp network error:', action);
-      reject(new Error('Network error - ' + action));
-    };
-    
-    var qs = '?action=' + action + '&callback=' + cb + '&_=' + Date.now();
-    if (extra) {
-      Object.keys(extra).forEach(function(k) {
-        if (extra[k] !== undefined && extra[k] !== null) {
-          qs += '&' + k + '=' + encodeURIComponent(extra[k]);
-        }
-      });
-    }
-    console.log('📡 jsonp request:', SCRIPT_URL + qs);
+    var cb = '_cb'+(++_ci), sc = document.createElement('script'), done = false;
+    var t = setTimeout(function(){ cleanup(); reject(new Error('Timeout')); }, 15000);
+    window[cb] = function(d){ cleanup(); d.ok ? resolve(d.data) : reject(new Error(d.error||'Error')); };
+    function cleanup(){ if(done)return; done=true; clearTimeout(t); window[cb]=function(){}; if(sc.parentNode) sc.parentNode.removeChild(sc); }
+    sc.onerror = function(){ cleanup(); reject(new Error('Network error')); };
+    var qs = '?action='+action+'&callback='+cb+'&_='+Date.now();
+    if (extra) Object.keys(extra).forEach(function(k){ qs += '&'+k+'='+encodeURIComponent(extra[k]||''); });
     sc.src = SCRIPT_URL + qs;
     document.head.appendChild(sc);
   });
 }
 
-// ใช้ JSONP สำหรับการส่งข้อมูล (POST แบบ JSONP)
-function apiRequest(action, data) {
-  return new Promise(function(resolve, reject) {
-    if (!SCRIPT_URL) { reject(new Error('ยังไม่ได้ตั้งค่า URL')); return; }
-    var cb = '_apicb_' + (++_ci);
-    var sc = document.createElement('script');
-    var done = false;
-    var timer = setTimeout(function() {
-      if (!done) { done = true; cleanup(); reject(new Error('Timeout')); }
-    }, 30000);
-    
-    window[cb] = function(d) {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      if (d && d.ok) {
-        resolve(d.data);
-      } else {
-        reject(new Error((d && d.error) || 'Error'));
-      }
-    };
-    
-    function cleanup() {
-      window[cb] = function() {};
-      if (sc.parentNode) sc.parentNode.removeChild(sc);
-    }
-    
-    sc.onerror = function() {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      reject(new Error('Network error'));
-    };
-    
-    var payload = JSON.stringify({
-      action: action,
-      data: data
-    });
-    
-    var qs = '?action=rpc&callback=' + cb + '&_=' + Date.now();
-    qs += '&payload=' + encodeURIComponent(payload);
-    sc.src = SCRIPT_URL + qs;
-    document.head.appendChild(sc);
-  });
+function api(body) {
+  if (!SCRIPT_URL) return Promise.reject(new Error('ยังไม่ได้ตั้งค่า URL'));
+  // ใช้ JSONP RPC แทน fetch POST เพราะ GitHub Pages ถูก CORS block
+  return jsonp('rpc', { payload: JSON.stringify(body) });
 }
 
 function setCS(cls, txt) {
@@ -1416,17 +1292,11 @@ function loadDailyPage() {
   if (SCRIPT_URL) {
     setCS('ld','กำลังโหลด...');
     var lp = currentUser.isAdmin ? {} : {username:currentUser.username};
-    console.log('🔍 loadDailyPage - calling getDailyLogs with:', lp);
     jsonp('getDailyLogs', lp).then(function(d){
-      console.log('✅ getDailyLogs response:', d ? d.length : 0, 'items');
-      S.dailyLogs = d || [];
+      S.dailyLogs = d||[];
       setCS('ok','เชื่อมต่อแล้ว');
       renderCurrentDailyView();
-    }).catch(function(e){ 
-      console.error('❌ loadDailyPage error:', e);
-      showToast('❌ โหลดไม่ได้: '+e.message,'er'); 
-      renderCurrentDailyView(); 
-    });
+    }).catch(function(e){ showToast('❌ โหลดไม่ได้: '+e.message,'er'); renderCurrentDailyView(); });
   } else { renderCurrentDailyView(); }
 }
 
@@ -1454,24 +1324,9 @@ function normDate(s) {
 
 function renderDailyList() {
   var dateStr = fmt(currentDate);
-  console.log('📅 renderDailyList - dateStr:', dateStr);
-  console.log('📋 S.dailyLogs length:', S.dailyLogs.length);
-  
-  // กรอง logs ของ user ปัจจุบัน
-  var userLogs = S.dailyLogs.filter(function(l){
-    return l.username === currentUser.username;
+  var logs = S.dailyLogs.filter(function(l){
+    return l.username===currentUser.username && normDate(l.date)===dateStr;
   });
-  console.log('👤 userLogs length:', userLogs.length);
-  
-  // กรองตามวันที่
-  var logs = userLogs.filter(function(l){
-    var logDate = normDate(l.date);
-    console.log('🔍 logDate:', logDate, 'dateStr:', dateStr, 'match:', logDate === dateStr);
-    return logDate === dateStr;
-  });
-  
-  console.log('✅ logs for date:', logs.length);
-  
   var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
   var h = Math.floor(totalMins/60), m = totalMins%60;
   var pct = Math.min(100, Math.round(totalMins/480*100));
@@ -1483,11 +1338,7 @@ function renderDailyList() {
   document.getElementById('daily-count').textContent = '('+logs.length+' รายการ · รวม '+h+' ชม. '+m+' น.)';
 
   var el = document.getElementById('daily-list');
-  if (logs.length) {
-    el.innerHTML = logs.map(logItemHTML).join('');
-  } else {
-    el.innerHTML = '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false" style="color:var(--navy)">+ บันทึกงาน</a></div>';
-  }
+  el.innerHTML = logs.length ? logs.map(logItemHTML).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false" style="color:var(--navy)">+ บันทึกงาน</a></div>';
 }
 
 function logItemHTML(l) {
@@ -1680,8 +1531,7 @@ function saveDailyLog() {
   var imgFile = document.getElementById('f-dl-img').files[0];
   var doSave = function(imageUrl) {
     if(imageUrl) d.imageUrl = imageUrl;
-    var action = eid ? 'updateDailyLog' : 'saveDailyLog';
-    apiRequest(action, d).then(function(res){
+    api({action:'saveDailyLog',data:d}).then(function(res){
       if (eid) {
         var idx=S.dailyLogs.findIndex(function(x){return x.id===eid;});
         if(idx>-1) S.dailyLogs[idx]=Object.assign(S.dailyLogs[idx],d);
@@ -1689,7 +1539,7 @@ function saveDailyLog() {
         d.id=(res&&res.id)||('DL_'+Date.now()); S.dailyLogs.unshift(d);
       }
       closeModal('mo-daily'); showToast('✅ บันทึกงานสำเร็จ','ok');
-      renderCurrentDailyView(); loadDashboard();
+      renderDailyList(); loadDashboard();
     }).catch(function(e){ showToast('❌ '+e.message,'er'); })
       .finally(function(){ btn.disabled=false; btn.innerHTML='💾 บันทึก'; });
   };
@@ -1702,9 +1552,9 @@ function saveDailyLog() {
 function deleteDailyLog() {
   var id = document.getElementById('daily-eid').value;
   if (!id || !confirm('ลบงานนี้ใช่หรือไม่?')) return;
-  apiRequest('deleteDailyLog', {id:id}).then(function(){
+  api({action:'deleteDailyLog',id:id}).then(function(){
     S.dailyLogs = S.dailyLogs.filter(function(x){return x.id!==id;});
-    closeModal('mo-daily'); showToast('🗑️ ลบแล้ว',''); renderCurrentDailyView(); loadDashboard();
+    closeModal('mo-daily'); showToast('🗑️ ลบแล้ว',''); renderDailyList(); loadDashboard();
   }).catch(function(e){ showToast('❌ '+e.message,'er'); });
 }
 
@@ -1712,124 +1562,39 @@ function deleteDailyLog() {
 //  PROJECTS
 // ══════════════════════════════════════════════
 function loadProjects() {
-  // restore view mode
-  var saved = localStorage.getItem('gracz_proj_view') || 'grid';
-  projViewMode = saved;
-  var bg = document.getElementById('btn-grid-view');
-  var bl = document.getElementById('btn-list-view');
-  if (bg) { bg.classList.toggle('on', saved==='grid'); }
-  if (bl) { bl.classList.toggle('on', saved==='list'); }
-
   if (SCRIPT_URL) {
     jsonp('getProjects').then(function(d){ S.projects=d||[]; renderProjects(); }).catch(function(){ renderProjects(); });
   } else { renderProjects(); }
 }
 
-var projViewMode = localStorage.getItem('gracz_proj_view') || 'grid';
-
-function setProjView(mode) {
-  projViewMode = mode;
-  localStorage.setItem('gracz_proj_view', mode);
-  var bg = document.getElementById('btn-grid-view');
-  var bl = document.getElementById('btn-list-view');
-  if (bg) bg.classList.toggle('on', mode==='grid');
-  if (bl) bl.classList.toggle('on', mode==='list');
-  renderProjects();
-}
-
-function progColor(prog) {
-  return prog < 30 ? 'prog-red' : prog < 70 ? 'prog-yellow' : 'prog-green';
-}
-
 function renderProjects() {
   var filter = document.getElementById('proj-filter').value;
-  var sortEl = document.getElementById('proj-sort');
-  var sortBy = sortEl ? sortEl.value : 'date';
-  var srchEl = document.getElementById('proj-search');
-  var search = srchEl ? srchEl.value.toLowerCase().trim() : '';
-
-  var list = S.projects.filter(function(p){
+  var list   = S.projects.filter(function(p){
     var mine = p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1||currentUser.isAdmin;
-    if (!mine) return false;
-    if (filter && p.status!==filter) return false;
-    if (search && (p.name||'').toLowerCase().indexOf(search)<0 && (p.description||'').toLowerCase().indexOf(search)<0) return false;
-    return true;
+    return mine && (!filter || p.status===filter);
   });
-
-  list = list.slice().sort(function(a,b){
-    if (sortBy==='name') return (a.name||'').localeCompare(b.name||'');
-    if (sortBy==='progress') return (parseInt(b.progress||0))-(parseInt(a.progress||0));
-    return 0;
-  });
-
-  // summary bar
-  var total=list.length, doing=0, done2=0, sumProg=0;
-  list.forEach(function(p){
-    if(p.status==='กำลังดำเนินการ') doing++;
-    if(p.status==='เสร็จสิ้น') done2++;
-    sumProg+=parseInt(p.progress||0);
-  });
-  var avgProg = total ? Math.round(sumProg/total) : 0;
-  var sumEl = document.getElementById('proj-summary');
-  if (sumEl) sumEl.innerHTML =
-    '<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic bl" style="width:32px;height:32px;font-size:14px">🗂️</div><div><div class="stat-n" style="font-size:18px">'+total+'</div><div class="stat-l">ทั้งหมด</div></div></div>'
-   +'<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic am" style="width:32px;height:32px;font-size:14px">🔵</div><div><div class="stat-n" style="font-size:18px">'+doing+'</div><div class="stat-l">กำลังดำเนินการ</div></div></div>'
-   +'<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic gn" style="width:32px;height:32px;font-size:14px">✅</div><div><div class="stat-n" style="font-size:18px">'+done2+'</div><div class="stat-l">เสร็จสิ้น</div></div></div>'
-   +'<div class="stat-card" style="padding:8px 14px;flex:none"><div class="stat-ic pu" style="width:32px;height:32px;font-size:14px">📈</div><div><div class="stat-n" style="font-size:18px">'+avgProg+'%</div><div class="stat-l">เฉลี่ย</div></div></div>';
-
   var el = document.getElementById('project-list');
-  if (!list.length) {
-    el.className = '';
-    el.innerHTML = '<div class="emp"><div class="emp-i">🗂️</div>ยังไม่มี Project</div>';
-    return;
-  }
-  if (projViewMode === 'list') {
-    el.className = '';
-    el.innerHTML = list.map(projListHTML).join('');
-  } else {
-    el.className = 'grid-3';
-    el.innerHTML = list.map(projCardHTML).join('');
-  }
+  el.innerHTML = list.length ? list.map(projCardHTML).join('') : '<div class="emp" style="grid-column:1/-1"><div class="emp-i">🗂️</div>ยังไม่มี Project</div>';
 }
 
 function projCardHTML(p) {
   var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
   var prog = parseInt(p.progress||0);
+  // wrapper คงที่ ป้องกัน layout แตก
   var imgInner = isValidImgUrl(p.imageUrl)
     ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
     : '';
   var imgHtml = '<div style="width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;flex-shrink:0">'
-    + imgInner + (isValidImgUrl(p.imageUrl)?'':'🗂️') + '</div>';
-  return '<div class="project-card '+progColor(prog)+'" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">'
+    + imgInner
+    + (p.imageUrl ? '' : '🗂️')
+    + '</div>';
+  return '<div class="project-card" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">' 
     +imgHtml
     +'<div class="project-body">'
     +'<div class="project-name">'+escHtml(p.name||'')+'</div>'
     +'<div class="project-desc">'+escHtml(p.description||'ไม่มีคำอธิบาย')+'</div>'
     +'<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill bl" style="width:'+prog+'%"></div></div></div>'
     +'<div class="project-meta"><span class="badge '+stCls+'">'+p.status+'</span><span>'+prog+'%</span></div>'
-    +'</div></div>';
-}
-
-function projListHTML(p) {
-  var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
-  var prog = parseInt(p.progress||0);
-  var imgHtml = isValidImgUrl(p.imageUrl)
-    ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">' 
-    : '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px">🗂️</div>';
-  var owner = (S.users.find(function(u){return u.username===p.owner;})||{}).name||p.owner||'-';
-  return '<div class="proj-list-item '+progColor(prog)+'" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">'
-    +'<div class="proj-list-img">'+imgHtml+'</div>'
-    +'<div class="proj-list-body">'
-    +'<div class="proj-list-name">'+escHtml(p.name||'')+'</div>'
-    +'<div class="proj-list-desc">'+escHtml(p.description||'ไม่มีคำอธิบาย')+'</div>'
-    +'<div class="proj-list-meta">'
-    +'<span class="badge '+stCls+'">'+p.status+'</span>'
-    +'<span style="font-size:11.5px;color:var(--ts)">👤 '+escHtml(owner)+'</span>'
-    +(p.dueDate?'<span style="font-size:11.5px;color:var(--ts)">📅 '+escHtml(p.dueDate)+'</span>':'')
-    +'</div></div>'
-    +'<div class="proj-list-right">'
-    +'<span style="font-size:14px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
-    +'<div style="width:100px"><div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:'+prog+'%;height:6px"></div></div></div>'
     +'</div></div>';
 }
 
@@ -1971,7 +1736,7 @@ function saveProject() {
   var doSave=function(imageUrl){
     if(imageUrl) d.imageUrl=imageUrl;
     var action=eid?'updateProject':'createProject';
-    apiRequest(action, d).then(function(res){
+    api({action:action,data:d}).then(function(res){
       if(eid){var idx=S.projects.findIndex(function(x){return x.id===eid;});if(idx>-1)S.projects[idx]=Object.assign(S.projects[idx],d);}
       else{d.id=(res&&res.id)||d.id||('PRJ_'+Date.now());d.progress=0;S.projects.unshift(d);}
       closeModal('mo-project'); showToast('✅ บันทึก Project สำเร็จ','ok'); renderProjects();
@@ -1979,13 +1744,13 @@ function saveProject() {
     }).catch(function(e){showToast('❌ '+e.message,'er');})
       .finally(function(){btn.disabled=false;btn.innerHTML='💾 บันทึก';});
   };
-  if(imgFile&&!document.getElementById('f-pj-img-url').value) uploadImage(imgFile,doSave); else doSave(null);
+  if(stImgFile&&!document.getElementById('f-st-img-url').value) uploadImage(stImgFile,doSave); else doSave(null);
 }
 
 function deleteProject() {
   var id=document.getElementById('proj-eid').value;
   if(!id||!confirm('ลบ Project นี้ใช่หรือไม่? (รวมถึงขั้นตอนทั้งหมด)'))return;
-  apiRequest('deleteProject', {id:id}).then(function(){
+  api({action:'deleteProject',id:id}).then(function(){
     S.projects=S.projects.filter(function(x){return x.id!==id;});
     closeModal('mo-project'); showToast('🗑️ ลบ Project แล้ว',''); navigateTo('projects');
   }).catch(function(e){showToast('❌ '+e.message,'er');});
@@ -2002,8 +1767,8 @@ function openStepModal() {
   ['f-st-name','f-st-desc'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('f-st-due').value='';
   document.getElementById('f-st-status').value='รออยู่';
-  document.getElementById('f-st-prog').value=0;
-  document.getElementById('step-prog-val').textContent='0%';
+  document.getElementById('f-st-progress').value=0;
+  document.getElementById('st-prog-val').textContent='0%';
   var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
   document.getElementById('f-st-order').value=steps.length+1;
   document.getElementById('f-st-assignee').value=currentUser.username;
@@ -2011,6 +1776,7 @@ function openStepModal() {
   document.getElementById('st-preview').src='';
   document.getElementById('f-st-img-url').value='';
   document.getElementById('f-st-img').value='';
+  document.getElementById('f-st-img-url').value='';
   var sp=document.getElementById('st-preview'); sp.src=''; sp.style.display='none';
   document.getElementById('mo-step').classList.add('on');
 }
@@ -2028,8 +1794,8 @@ function editStep(id) {
   document.getElementById('f-st-due').value=fmtISO(s.dueDate||'');
   document.getElementById('f-st-order').value=s.order||1;
   document.getElementById('f-st-status').value=s.status||'รออยู่';
-  document.getElementById('f-st-prog').value=parseInt(s.progress||0);
-  document.getElementById('step-prog-val').textContent=parseInt(s.progress||0)+'%';
+  document.getElementById('f-st-progress').value=parseInt(s.progress||0);
+  document.getElementById('st-prog-val').textContent=parseInt(s.progress||0)+'%';
   document.getElementById('f-st-img-url').value=isValidImgUrl(s.imageUrl)?s.imageUrl:'';
   var prev=document.getElementById('st-preview');
   if(isValidImgUrl(s.imageUrl)){prev.src=driveUrl(s.imageUrl);prev.style.display='block';}else{prev.src='';prev.style.display='none';}
@@ -2043,15 +1809,16 @@ function saveStep() {
   var d={projectId:currentProjectId,stepName:name,description:document.getElementById('f-st-desc').value,
     assignee:document.getElementById('f-st-assignee').value,dueDate:fmtTHdb(document.getElementById('f-st-due').value),
     order:document.getElementById('f-st-order').value,status:document.getElementById('f-st-status').value,
-    progress:document.getElementById('f-st-prog').value,imageUrl:document.getElementById('f-st-img-url').value,};
+    progress:document.getElementById('f-st-progress').value,imageUrl:document.getElementById('f-st-img-url').value,};
   if(eid) d.id=eid;
   var btn=document.getElementById('st-save-btn'); btn.disabled=true; btn.innerHTML='<div class="spin"></div>';
 
+  // upload รูปก่อน save (ถ้ามี)
   var stImgFile = document.getElementById('f-st-img').files[0];
   var doSave=function(imageUrl){
     if(imageUrl) d.imageUrl=imageUrl;
     var action=eid?'updateStep':'saveStep';
-    apiRequest(action, d).then(function(res){
+    api({action:action,data:d}).then(function(res){
       if(!eid){d.id=(res&&res.id)||('STP_'+Date.now()); S.steps=S.steps||[]; S.steps.push(d);}
       else{var idx=(S.steps||[]).findIndex(function(x){return x.id===eid;});if(idx>-1)S.steps[idx]=Object.assign(S.steps[idx],d);}
       // recalc progress locally
@@ -2071,7 +1838,7 @@ function saveStep() {
 function deleteStep() {
   var id=document.getElementById('step-eid').value;
   if(!id||!confirm('ลบขั้นตอนนี้ใช่หรือไม่?'))return;
-  apiRequest('deleteStep', {id:id}).then(function(){
+  api({action:'deleteStep',id:id}).then(function(){
     S.steps=(S.steps||[]).filter(function(x){return x.id!==id;});
     closeModal('mo-step'); showToast('🗑️ ลบขั้นตอนแล้ว',''); renderSteps(currentProjectId);
   }).catch(function(e){showToast('❌ '+e.message,'er');});
@@ -2129,7 +1896,7 @@ function saveUser(){
     role:document.getElementById('f-u-role').value,department:document.getElementById('f-u-dept').value,status:document.getElementById('f-u-status').value};
   if(eid) d.id=eid;
   var action=eid?'updateUser':'createUser';
-  apiRequest(action, d).then(function(res){
+  api({action:action,data:d}).then(function(res){
     if(!eid){d.id=res.id;S.users.push(d);}
     else{var idx=S.users.findIndex(function(x){return x.id===eid;});if(idx>-1)S.users[idx]=Object.assign(S.users[idx],d);}
     closeModal('mo-user'); showToast('✅ บันทึกผู้ใช้สำเร็จ','ok'); renderUsers(); fillUserDropdowns();
@@ -2139,7 +1906,7 @@ function saveUser(){
 function deleteUser(){
   var id=document.getElementById('user-eid').value;
   if(!id||!confirm('ลบผู้ใช้นี้ใช่หรือไม่?'))return;
-  apiRequest('deleteUser', {id:id}).then(function(){
+  api({action:'deleteUser',id:id}).then(function(){
     S.users=S.users.filter(function(x){return x.id!==id;});
     closeModal('mo-user'); showToast('🗑️ ลบผู้ใช้แล้ว',''); renderUsers();
   }).catch(function(e){showToast('❌ '+e.message,'er');});
@@ -2149,66 +1916,34 @@ function deleteUser(){
 //  IMAGE UPLOAD
 // ══════════════════════════════════════════════
 function uploadImage(file, callback) {
-  if (!SCRIPT_URL) { showToast('⚠️ ไม่มี URL','er'); callback(null); return; }
+  if (!SCRIPT_URL) { showToast('⚠️ ไม่มี URL — ไม่สามารถอัปโหลดรูปได้','er'); callback(null); return; }
   if (file.size > 5*1024*1024) { showToast('⚠️ รูปใหญ่เกิน 5MB','er'); callback(null); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
-    var base64 = e.target.result.split(',')[1];
+    var base64   = e.target.result.split(',')[1];
     var mimeType = file.type || 'image/jpeg';
     showToast('⏳ กำลังอัปโหลดรูป...','');
-    
-    var cb = '_up_' + (++_ci);
-    var sc = document.createElement('script');
-    var done = false;
-    var timer = setTimeout(function() {
-      if (!done) { done = true; cleanup();
-        showToast('❌ อัปโหลด timeout','er');
-        callback(null);
-      }
-    }, 30000);
-    
-    window[cb] = function(res) {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      if (res && res.ok && res.data && res.data.url) {
-        showToast('✅ อัปโหลดสำเร็จ','ok');
-        callback(res.data.url);
+    // ใช้ fetch POST โดยตรง — base64 ใหญ่เกินสำหรับ JSONP GET
+    fetch(SCRIPT_URL, {
+      method  : 'POST',
+      headers : { 'Content-Type': 'text/plain' },
+      body    : JSON.stringify({
+        action   : 'uploadImage',
+        data     : { filename: file.name, base64: base64, mimeType: mimeType }
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok && d.data && d.data.url) {
+        callback(d.data.url);
       } else {
-        showToast('❌ ' + ((res && res.error) || 'อัปโหลดไม่สำเร็จ'),'er');
-        callback(null);
+        throw new Error(d.error || 'อัปโหลดไม่สำเร็จ');
       }
-    };
-    
-    function cleanup() {
-      window[cb] = function() {};
-      if (sc.parentNode) sc.parentNode.removeChild(sc);
-    }
-    
-    sc.onerror = function() {
-      if (!done) {
-        done = true;
-        clearTimeout(timer);
-        cleanup();
-        showToast('❌ Network error','er');
-        callback(null);
-      }
-    };
-    
-    var payload = JSON.stringify({
-      action: 'uploadImage',
-      data: {
-        filename: file.name,
-        base64: base64,
-        mimeType: mimeType
-      }
+    })
+    .catch(function(err){
+      showToast('❌ อัปโหลดรูปไม่ได้: '+err.message,'er');
+      callback(null);
     });
-    
-    var qs = '?action=rpc&callback=' + cb + '&_=' + Date.now();
-    qs += '&payload=' + encodeURIComponent(payload);
-    sc.src = SCRIPT_URL + qs;
-    document.head.appendChild(sc);
   };
   reader.readAsDataURL(file);
 }
@@ -2283,7 +2018,7 @@ function saveUrl() {
   window[cb]=function(d){if(done)return;done=true;clearTimeout(timer);window[cb]=function(){};sc.remove();
     if(d.ok){localStorage.setItem('gracz_task_url',url);res.innerHTML='<span style="color:var(--green)">✅ เชื่อมต่อสำเร็จ!</span>';setCS('ok','เชื่อมต่อแล้ว');loadAll();}
     else{res.innerHTML='<span style="color:var(--red)">❌ '+d.error+'</span>';}};
-  sc.src=url+'?action=ping&callback='+cb+'&_='+Date.now();
+  sc.src=url+'?action=ping&callback=_tcb&_='+Date.now();
   document.head.appendChild(sc);
 }
 
@@ -3108,34 +2843,6 @@ function openTeamStepModal(id) {
 //  INIT
 // ══════════════════════════════════════════════
 document.body.classList.add('logged-out'); // ซ่อน sidebar จนกว่าจะ login
-
-// Ping Script ตั้งแต่เปิดหน้าเพื่อ wake up Google Apps Script
-// ทำให้ login ครั้งแรกเร็วขึ้นมาก
-(function pingScript() {
-  if (!SCRIPT_URL) return;
-  var statusEl = document.getElementById('login-status');
-  if (statusEl) statusEl.textContent = '⏳ กำลังเชื่อมต่อ...';
-  var cb = '_ping_'+Date.now();
-  var sc = document.createElement('script');
-  var t  = setTimeout(function(){
-    window[cb]=function(){};
-    if(sc.parentNode) sc.parentNode.removeChild(sc);
-    if (statusEl) statusEl.textContent = '';
-  }, 12000);
-  window[cb] = function(d){
-    clearTimeout(t); window[cb]=function(){};
-    if(sc.parentNode) sc.parentNode.removeChild(sc);
-    if (statusEl) statusEl.textContent = d.ok ? '✅ เชื่อมต่อแล้ว พร้อมใช้งาน' : '';
-    setTimeout(function(){ if(statusEl) statusEl.textContent=''; }, 3000);
-  };
-  sc.onerror = function(){
-    clearTimeout(t); window[cb]=function(){};
-    if(sc.parentNode) sc.parentNode.removeChild(sc);
-    if (statusEl) statusEl.textContent = '⚠️ เชื่อมต่อช้า';
-  };
-  sc.src = SCRIPT_URL + '?action=ping&callback=' + cb + '&_=' + Date.now();
-  document.head.appendChild(sc);
-})();
 document.getElementById('f-dl-date').value = fmtISO(fmt(new Date()));
 document.getElementById('f-pj-start').value = fmtISO(fmt(new Date()));
 if (SCRIPT_URL && document.getElementById('url-input')) document.getElementById('url-input').value = SCRIPT_URL;
@@ -3144,30 +2851,6 @@ if (localStorage.getItem('gracz_dark') === '1') {
   document.body.classList.add('dark');
   var db = document.getElementById('dark-btn');
   if (db) db.textContent = '☀️';
-}
-  // ══════════════════════════════════════════════
-//  DEBUG FUNCTIONS
-// ══════════════════════════════════════════════
-function debugDaily() {
-  console.log('🔍 DEBUG DAILY');
-  console.log('currentUser:', currentUser);
-  console.log('S.dailyLogs:', S.dailyLogs);
-  console.log('currentDate:', currentDate, 'fmt:', fmt(currentDate));
-  
-  var logs = S.dailyLogs.filter(function(l){
-    return l.username === currentUser.username;
-  });
-  console.log('user logs:', logs);
-  
-  logs.forEach(function(l) {
-    console.log('  -', l.date, '→ normDate:', normDate(l.date), 'task:', l.taskName);
-  });
-  
-  var dateStr = fmt(currentDate);
-  var dayLogs = logs.filter(function(l){
-    return normDate(l.date) === dateStr;
-  });
-  console.log('today logs:', dayLogs);
 }
 </script>
 </body>
