@@ -1203,19 +1203,26 @@ function jsonp(action, extra) {
     var cb = '_cb'+(++_ci);
     var sc = document.createElement('script');
     var done = false;
+    // เพิ่ม timeout เป็น 30 วินาที
     var timer = setTimeout(function() {
-      if (!done) { done = true; cleanup(); reject(new Error('Timeout')); }
-    }, 15000);
+      if (!done) { 
+        done = true; 
+        cleanup(); 
+        console.error('❌ jsonp timeout:', action);
+        reject(new Error('Timeout - ' + action)); 
+      }
+    }, 30000);
     
     window[cb] = function(d) {
       if (done) return;
       done = true;
       clearTimeout(timer);
       cleanup();
+      console.log('📡 jsonp response for', action, ':', d ? 'ok=' + d.ok : 'null');
       if (d && d.ok) {
         resolve(d.data);
       } else {
-        reject(new Error((d && d.error) || 'Error'));
+        reject(new Error((d && d.error) || 'Error in ' + action));
       }
     };
     
@@ -1229,7 +1236,8 @@ function jsonp(action, extra) {
       done = true;
       clearTimeout(timer);
       cleanup();
-      reject(new Error('Network error'));
+      console.error('❌ jsonp network error:', action);
+      reject(new Error('Network error - ' + action));
     };
     
     var qs = '?action=' + action + '&callback=' + cb + '&_=' + Date.now();
@@ -1240,6 +1248,7 @@ function jsonp(action, extra) {
         }
       });
     }
+    console.log('📡 jsonp request:', SCRIPT_URL + qs);
     sc.src = SCRIPT_URL + qs;
     document.head.appendChild(sc);
   });
@@ -1407,11 +1416,17 @@ function loadDailyPage() {
   if (SCRIPT_URL) {
     setCS('ld','กำลังโหลด...');
     var lp = currentUser.isAdmin ? {} : {username:currentUser.username};
+    console.log('🔍 loadDailyPage - calling getDailyLogs with:', lp);
     jsonp('getDailyLogs', lp).then(function(d){
-      S.dailyLogs = d||[];
+      console.log('✅ getDailyLogs response:', d ? d.length : 0, 'items');
+      S.dailyLogs = d || [];
       setCS('ok','เชื่อมต่อแล้ว');
       renderCurrentDailyView();
-    }).catch(function(e){ showToast('❌ โหลดไม่ได้: '+e.message,'er'); renderCurrentDailyView(); });
+    }).catch(function(e){ 
+      console.error('❌ loadDailyPage error:', e);
+      showToast('❌ โหลดไม่ได้: '+e.message,'er'); 
+      renderCurrentDailyView(); 
+    });
   } else { renderCurrentDailyView(); }
 }
 
@@ -1439,9 +1454,24 @@ function normDate(s) {
 
 function renderDailyList() {
   var dateStr = fmt(currentDate);
-  var logs = S.dailyLogs.filter(function(l){
-    return l.username===currentUser.username && normDate(l.date)===dateStr;
+  console.log('📅 renderDailyList - dateStr:', dateStr);
+  console.log('📋 S.dailyLogs length:', S.dailyLogs.length);
+  
+  // กรอง logs ของ user ปัจจุบัน
+  var userLogs = S.dailyLogs.filter(function(l){
+    return l.username === currentUser.username;
   });
+  console.log('👤 userLogs length:', userLogs.length);
+  
+  // กรองตามวันที่
+  var logs = userLogs.filter(function(l){
+    var logDate = normDate(l.date);
+    console.log('🔍 logDate:', logDate, 'dateStr:', dateStr, 'match:', logDate === dateStr);
+    return logDate === dateStr;
+  });
+  
+  console.log('✅ logs for date:', logs.length);
+  
   var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
   var h = Math.floor(totalMins/60), m = totalMins%60;
   var pct = Math.min(100, Math.round(totalMins/480*100));
@@ -1453,7 +1483,11 @@ function renderDailyList() {
   document.getElementById('daily-count').textContent = '('+logs.length+' รายการ · รวม '+h+' ชม. '+m+' น.)';
 
   var el = document.getElementById('daily-list');
-  el.innerHTML = logs.length ? logs.map(logItemHTML).join('') : '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false" style="color:var(--navy)">+ บันทึกงาน</a></div>';
+  if (logs.length) {
+    el.innerHTML = logs.map(logItemHTML).join('');
+  } else {
+    el.innerHTML = '<div class="emp"><div class="emp-i">📋</div>ยังไม่มีงานวันนี้ — <a href="#" onclick="openDailyModal();return false" style="color:var(--navy)">+ บันทึกงาน</a></div>';
+  }
 }
 
 function logItemHTML(l) {
@@ -3110,6 +3144,30 @@ if (localStorage.getItem('gracz_dark') === '1') {
   document.body.classList.add('dark');
   var db = document.getElementById('dark-btn');
   if (db) db.textContent = '☀️';
+}
+  // ══════════════════════════════════════════════
+//  DEBUG FUNCTIONS
+// ══════════════════════════════════════════════
+function debugDaily() {
+  console.log('🔍 DEBUG DAILY');
+  console.log('currentUser:', currentUser);
+  console.log('S.dailyLogs:', S.dailyLogs);
+  console.log('currentDate:', currentDate, 'fmt:', fmt(currentDate));
+  
+  var logs = S.dailyLogs.filter(function(l){
+    return l.username === currentUser.username;
+  });
+  console.log('user logs:', logs);
+  
+  logs.forEach(function(l) {
+    console.log('  -', l.date, '→ normDate:', normDate(l.date), 'task:', l.taskName);
+  });
+  
+  var dateStr = fmt(currentDate);
+  var dayLogs = logs.filter(function(l){
+    return normDate(l.date) === dateStr;
+  });
+  console.log('today logs:', dayLogs);
 }
 </script>
 </body>
