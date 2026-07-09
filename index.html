@@ -260,6 +260,20 @@ body.logged-out .sb, body.logged-out .main { visibility:hidden; }
 .view-toggle button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 .view-toggle button:hover{background:rgba(255,255,255,.7)}
 
+/* ── STAFF HISTORY ── */
+.sh-tl-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.sh-tl-item:last-child{border-bottom:none}
+.sh-tl-date{flex-shrink:0;width:90px;font-size:12px;color:var(--ts);font-weight:600}
+.sh-tl-body{flex:1;min-width:0}
+.sh-tl-name{font-size:13.5px;font-weight:600}
+.sh-tl-meta{font-size:11.5px;color:var(--ts);margin-top:2px}
+.sh-tl-time{flex-shrink:0;font-size:12px;font-weight:600;color:var(--navy)}
+.sh-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sh-bar-label{flex-shrink:0;width:120px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-bar-track{flex:1;height:20px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative}
+.sh-bar-fill{height:100%;background:var(--navy);border-radius:6px;transition:width .3s}
+.sh-bar-val{flex-shrink:0;width:70px;text-align:right;font-size:12px;font-weight:600;color:var(--ts)}
+
 /* ── SEARCH ── */
 .search-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;transition:border-color .15s;flex:1;max-width:320px}
 .search-bar:focus-within{border-color:var(--navy)}
@@ -423,6 +437,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="nav-sec nav-admin-only" style="display:none">รายงาน</div>
   <div class="nav-i nav-admin-only" data-pg="report-logs" style="display:none"><span class="nav-ic">📋</span><span>Log ทุกคน</span></div>
   <div class="nav-i nav-admin-only" data-pg="report-summary" style="display:none"><span class="nav-ic">📈</span><span>สรุปเวลา</span></div>
+  <div class="nav-i nav-mgr-only" data-pg="staff-history" style="display:none"><span class="nav-ic">👔</span><span>ประวัติรายคน</span></div>
   <div class="sb-user">
     <div class="u-row">
       <div class="u-av" id="sb-av">G</div>
@@ -440,7 +455,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.20</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.21</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -842,6 +857,64 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       </div>
     </div>
 
+
+    <!-- ══ STAFF HISTORY (Manager) ══ -->
+    <div id="pg-staff-history" class="pg">
+      <div class="ph">
+        <div class="pt">👔 ประวัติการทำงานรายคน</div>
+        <div class="ha">
+          <select class="fi" id="sh-emp" style="width:200px;font-size:13px;padding:7px 10px" onchange="renderStaffHistory()">
+            <option value="">— เลือกพนักงาน —</option>
+          </select>
+          <select class="fi" id="sh-range" style="width:130px;font-size:13px;padding:7px 10px" onchange="renderStaffHistory()">
+            <option value="7">7 วันล่าสุด</option>
+            <option value="30" selected>30 วันล่าสุด</option>
+            <option value="90">90 วันล่าสุด</option>
+            <option value="365">1 ปีล่าสุด</option>
+          </select>
+          <button class="btn-x" onclick="exportStaffHistoryCSV()" style="font-size:13px">📥 Export</button>
+        </div>
+      </div>
+
+      <div id="sh-empty" class="emp"><div class="emp-i">👔</div>เลือกพนักงานเพื่อดูประวัติการทำงาน</div>
+
+      <div id="sh-content" style="display:none">
+        <!-- Summary cards -->
+        <div class="grid-4" id="sh-cards" style="margin-bottom:16px"></div>
+
+        <!-- กราฟชั่วโมงทำงาน -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="sec-t">📊 ชั่วโมงทำงาน</div>
+            <div style="display:flex;gap:4px">
+              <button class="sh-gtab tab on" onclick="setStaffChart('day',this)" style="font-size:11.5px;padding:4px 12px">รายวัน</button>
+              <button class="sh-gtab tab" onclick="setStaffChart('week',this)" style="font-size:11.5px;padding:4px 12px">รายสัปดาห์</button>
+              <button class="sh-gtab tab" onclick="setStaffChart('month',this)" style="font-size:11.5px;padding:4px 12px">รายเดือน</button>
+            </div>
+          </div>
+          <div class="sec-b"><div id="sh-chart" style="min-height:200px"></div></div>
+        </div>
+
+        <!-- สรุปตามหมวดหมู่ + ประเภท -->
+        <div class="grid-2">
+          <div class="sec">
+            <div class="sec-h"><div class="sec-t">📁 ตามหมวดหมู่</div></div>
+            <div class="sec-b"><div id="sh-by-cat"></div></div>
+          </div>
+          <div class="sec">
+            <div class="sec-h"><div class="sec-t">🏷️ ตามประเภทงาน</div></div>
+            <div class="sec-b"><div id="sh-by-type"></div></div>
+          </div>
+        </div>
+
+        <!-- Timeline รายการงาน -->
+        <div class="sec">
+          <div class="sec-h"><div class="sec-t">📜 Timeline รายการงาน <span id="sh-tl-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div></div>
+          <div class="sec-b" id="sh-timeline"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /cnt -->
 </div><!-- /main -->
 
@@ -1123,14 +1196,23 @@ function loginSuccess(user) {
   // แสดง/ซ่อน เมนูตาม role
   var adminEls = document.querySelectorAll('.nav-admin-only');
   var userEls  = document.querySelectorAll('.nav-user-only');
+  var mgrEls = document.querySelectorAll('.nav-mgr-only');
+  var isManager = !user.isAdmin && (String(user.role||'').indexOf('Manager')>-1 || String(user.role||'').indexOf('ผู้จัดการ')>-1);
   if (user.isAdmin) {
-    // admin: เห็นเมนูจัดการ ไม่เห็นเมนูบันทึกงาน
+    // admin: เห็นทุกเมนู รวม manager
     adminEls.forEach(function(el){ el.style.display=''; });
     userEls.forEach(function(el){ el.style.display='none'; });
-  } else {
-    // user: เห็นเมนูบันทึกงาน ไม่เห็นเมนูจัดการ
+    mgrEls.forEach(function(el){ el.style.display=''; });
+  } else if (isManager) {
+    // manager: เห็นเมนูบันทึกงาน + ประวัติรายคน
     adminEls.forEach(function(el){ el.style.display='none'; });
     userEls.forEach(function(el){ el.style.display=''; });
+    mgrEls.forEach(function(el){ el.style.display=''; });
+  } else {
+    // user: เห็นเมนูบันทึกงานอย่างเดียว
+    adminEls.forEach(function(el){ el.style.display='none'; });
+    userEls.forEach(function(el){ el.style.display=''; });
+    mgrEls.forEach(function(el){ el.style.display='none'; });
   }
 
   // ซ่อน login screen
@@ -1161,7 +1243,9 @@ function doLogout() {
 // ══════════════════════════════════════════════
 var pgLabels = {
   'dashboard':'ภาพรวม','daily':'งานประจำ','projects':'Projects',
-  'project-detail':'รายละเอียด Project','users':'ผู้ใช้งาน','settings':'ตั้งค่าระบบ'
+  'project-detail':'รายละเอียด Project','users':'ผู้ใช้งาน','settings':'ตั้งค่าระบบ',
+  'team-board':'งานทีม','report-logs':'Log ทุกคน','report-summary':'สรุปเวลา',
+  'staff-history':'ประวัติการทำงานรายคน'
 };
 var addActions = {
   'dashboard': function(){ openDailyModal(); },
@@ -1206,6 +1290,7 @@ function onEnter(pg) {
   if (pg === 'team-board')       initTeamBoard();
   if (pg === 'report-logs')      initReportLogs();
   if (pg === 'report-summary')   initReportSummary();
+  if (pg === 'staff-history')    initStaffHistory();
 }
 
 // ══════════════════════════════════════════════
@@ -2457,6 +2542,243 @@ function typeBadge(type) {
     'monthly': '<span class="type-badge type-monthly">เดือน</span>',
   };
   return map[type] || '';
+}
+
+
+// ══════════════════════════════════════════════
+//  STAFF HISTORY (Manager)
+// ══════════════════════════════════════════════
+var shChartMode = 'day';
+
+function initStaffHistory() {
+  // เติม dropdown พนักงาน
+  var sel = document.getElementById('sh-emp');
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">— เลือกพนักงาน —</option>'
+    + S.users.map(function(u){
+        return '<option value="'+escHtml(u.username)+'">'+escHtml(u.name||u.username)+'</option>';
+      }).join('');
+  if (cur) sel.value = cur;
+
+  // โหลด log ทั้งหมด (ถ้ายังไม่มี)
+  if (SCRIPT_URL && (!S.dailyLogs || !S.dailyLogs.length)) {
+    jsonp('getDailyLogs', {}).then(function(d){ S.dailyLogs = d||[]; renderStaffHistory(); }).catch(function(){});
+  }
+}
+
+function shGetFilteredLogs() {
+  var username = document.getElementById('sh-emp').value;
+  var range    = parseInt(document.getElementById('sh-range').value)||30;
+  if (!username) return null;
+
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - range);
+  cutoff.setHours(0,0,0,0);
+
+  return S.dailyLogs.filter(function(l){
+    if (l.username !== username) return false;
+    var d = parseDateStr(normDate(l.date));
+    return d && d >= cutoff;
+  });
+}
+
+function renderStaffHistory() {
+  var username = document.getElementById('sh-emp').value;
+  if (!username) {
+    document.getElementById('sh-empty').style.display = '';
+    document.getElementById('sh-content').style.display = 'none';
+    return;
+  }
+  document.getElementById('sh-empty').style.display = 'none';
+  document.getElementById('sh-content').style.display = '';
+
+  var logs = shGetFilteredLogs() || [];
+
+  // ── summary cards ──
+  var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60+parseInt(l.minutes||0)); }, 0);
+  var totalTasks = logs.length;
+  var days = {};
+  logs.forEach(function(l){ days[normDate(l.date)] = true; });
+  var workDays = Object.keys(days).length;
+  var avgPerDay = workDays ? Math.round(totalMins/workDays) : 0;
+
+  document.getElementById('sh-cards').innerHTML =
+    shCard('⏱️','bl', fmtHM(totalMins), 'เวลารวม')
+   +shCard('📋','am', totalTasks, 'จำนวนงาน')
+   +shCard('📅','gn', workDays+' วัน', 'วันที่ทำงาน')
+   +shCard('📊','pu', fmtHM(avgPerDay), 'เฉลี่ย/วัน');
+
+  // ── chart ──
+  renderStaffChart(logs);
+
+  // ── by category ──
+  renderStaffByCategory(logs);
+
+  // ── by type ──
+  renderStaffByType(logs);
+
+  // ── timeline ──
+  renderStaffTimeline(logs);
+}
+
+function shCard(icon, cls, num, label) {
+  return '<div class="stat-card"><div class="stat-ic '+cls+'">'+icon+'</div>'
+    +'<div><div class="stat-n">'+num+'</div><div class="stat-l">'+label+'</div></div></div>';
+}
+
+function fmtHM(mins) {
+  var h = Math.floor(mins/60), m = mins%60;
+  return h+'ช '+m+'น';
+}
+
+function setStaffChart(mode, el) {
+  shChartMode = mode;
+  document.querySelectorAll('.sh-gtab').forEach(function(t){ t.classList.remove('on'); });
+  if (el) el.classList.add('on');
+  var logs = shGetFilteredLogs() || [];
+  renderStaffChart(logs);
+}
+
+function renderStaffChart(logs) {
+  // จัดกลุ่มตาม mode
+  var groups = {};
+  logs.forEach(function(l){
+    var d = parseDateStr(normDate(l.date));
+    if (!d) return;
+    var key;
+    if (shChartMode === 'day') {
+      key = normDate(l.date);
+    } else if (shChartMode === 'week') {
+      var ws = new Date(d); ws.setDate(d.getDate()-d.getDay());
+      key = fmt(ws);
+    } else {
+      key = (d.getMonth()+1)+'/'+(d.getFullYear()+543);
+    }
+    var mins = parseInt(l.hours||0)*60+parseInt(l.minutes||0);
+    groups[key] = (groups[key]||0) + mins;
+  });
+
+  var keys = Object.keys(groups);
+  // sort by date
+  keys.sort(function(a,b){
+    var da = shChartMode==='month' ? parseMonthKey(a) : parseDateStr(a);
+    var db = shChartMode==='month' ? parseMonthKey(b) : parseDateStr(b);
+    return (da||0)-(db||0);
+  });
+  keys = keys.slice(-14); // แสดงล่าสุด 14 จุด
+
+  if (!keys.length) {
+    document.getElementById('sh-chart').innerHTML = '<div class="emp"><div class="emp-i">📊</div>ไม่มีข้อมูล</div>';
+    return;
+  }
+
+  var maxMins = Math.max.apply(null, keys.map(function(k){ return groups[k]; }));
+  var html = keys.map(function(k){
+    var mins = groups[k];
+    var pct = maxMins ? Math.round(mins/maxMins*100) : 0;
+    var label = shChartMode==='day' ? k.substring(0,5) : k;
+    return '<div class="sh-bar-row">'
+      +'<div class="sh-bar-label">'+escHtml(label)+'</div>'
+      +'<div class="sh-bar-track"><div class="sh-bar-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="sh-bar-val">'+fmtHM(mins)+'</div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('sh-chart').innerHTML = html;
+}
+
+function parseMonthKey(k) {
+  var p = k.split('/');
+  if (p.length<2) return 0;
+  return new Date(parseInt(p[1])-543, parseInt(p[0])-1, 1).getTime();
+}
+
+function renderStaffByCategory(logs) {
+  var cats = {};
+  logs.forEach(function(l){
+    var c = l.category || 'ไม่ระบุ';
+    cats[c] = (cats[c]||0) + (parseInt(l.hours||0)*60+parseInt(l.minutes||0));
+  });
+  renderBarList('sh-by-cat', cats);
+}
+
+function renderStaffByType(logs) {
+  var types = { daily:0, weekly:0, monthly:0 };
+  logs.forEach(function(l){
+    var t = l.type || 'daily';
+    types[t] = (types[t]||0) + (parseInt(l.hours||0)*60+parseInt(l.minutes||0));
+  });
+  var labels = { daily:'📅 งานประจำวัน', weekly:'📆 งานสัปดาห์', monthly:'🗓️ งานประจำเดือน' };
+  var named = {};
+  Object.keys(types).forEach(function(k){ if(types[k]>0) named[labels[k]||k] = types[k]; });
+  renderBarList('sh-by-type', named);
+}
+
+function renderBarList(elId, data) {
+  var keys = Object.keys(data).sort(function(a,b){ return data[b]-data[a]; });
+  if (!keys.length) {
+    document.getElementById(elId).innerHTML = '<div class="emp" style="padding:16px"><div class="emp-i" style="font-size:20px">📭</div>ไม่มีข้อมูล</div>';
+    return;
+  }
+  var max = Math.max.apply(null, keys.map(function(k){ return data[k]; }));
+  document.getElementById(elId).innerHTML = keys.map(function(k){
+    var pct = max ? Math.round(data[k]/max*100) : 0;
+    return '<div class="sh-bar-row">'
+      +'<div class="sh-bar-label">'+escHtml(k)+'</div>'
+      +'<div class="sh-bar-track"><div class="sh-bar-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="sh-bar-val">'+fmtHM(data[k])+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderStaffTimeline(logs) {
+  // เรียงวันที่ล่าสุดก่อน
+  var sorted = logs.slice().sort(function(a,b){
+    var da = parseDateStr(normDate(a.date)), db = parseDateStr(normDate(b.date));
+    return (db||0)-(da||0);
+  });
+
+  document.getElementById('sh-tl-count').textContent = '('+sorted.length+' รายการ)';
+
+  if (!sorted.length) {
+    document.getElementById('sh-timeline').innerHTML = '<div class="emp"><div class="emp-i">📜</div>ไม่มีรายการงาน</div>';
+    return;
+  }
+
+  document.getElementById('sh-timeline').innerHTML = sorted.map(function(l){
+    var mins = parseInt(l.hours||0)*60+parseInt(l.minutes||0);
+    var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
+    return '<div class="sh-tl-item">'
+      +'<div class="sh-tl-date">'+escHtml(normDate(l.date))+'</div>'
+      +'<div class="sh-tl-body">'
+      +'<div class="sh-tl-name">'+typeBadge(l.type)+escHtml(l.taskName||'')+'</div>'
+      +'<div class="sh-tl-meta">'+escHtml(l.category||'')+' · <span class="badge '+stCls+'">'+l.status+'</span>'
+      +(l.description?' · '+escHtml(l.description.substring(0,50)):'')+'</div>'
+      +'</div>'
+      +'<div class="sh-tl-time">'+fmtHM(mins)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function exportStaffHistoryCSV() {
+  var username = document.getElementById('sh-emp').value;
+  if (!username) { showToast('⚠️ เลือกพนักงานก่อน','er'); return; }
+  var logs = shGetFilteredLogs() || [];
+  if (!logs.length) { showToast('⚠️ ไม่มีข้อมูล','er'); return; }
+
+  var uName = (S.users.find(function(u){return u.username===username;})||{}).name || username;
+  var rows = [['วันที่','ชื่องาน','หมวดหมู่','ประเภท','ชั่วโมง','นาที','สถานะ','รายละเอียด']];
+  logs.slice().sort(function(a,b){
+    var da=parseDateStr(normDate(a.date)), db=parseDateStr(normDate(b.date));
+    return (db||0)-(da||0);
+  }).forEach(function(l){
+    rows.push([normDate(l.date), l.taskName||'', l.category||'',
+               l.type||'daily', l.hours||0, l.minutes||0, l.status||'', l.description||'']);
+  });
+  var csv = rows.map(function(r){
+    return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(',');
+  }).join('\n');
+  downloadCSV('\uFEFF'+csv, 'ประวัติงาน_'+uName+'.csv');
+  showToast('📥 Export สำเร็จ','ok');
 }
 
 // ══════════════════════════════════════════════
