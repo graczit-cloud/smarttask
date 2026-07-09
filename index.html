@@ -401,6 +401,10 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <input class="login-fi" id="login-user" placeholder="กรอก username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
     <label class="login-fl">รหัสผ่าน</label>
     <input class="login-fi" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ts);cursor:pointer;margin-bottom:14px;user-select:none">
+      <input type="checkbox" id="login-remember" style="width:16px;height:16px;cursor:pointer">
+      จดจำฉันไว้ (ไม่ต้อง login ครั้งหน้า)
+    </label>
     <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="login-err" id="login-err"></div>
   </div>
@@ -455,7 +459,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.23</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.24</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1190,6 +1194,11 @@ function doLogin() {
 
 function loginSuccess(user) {
   currentUser = user;
+  // จดจำฉัน — บันทึก session ถ้าติ๊ก checkbox
+  var rememberEl = document.getElementById('login-remember');
+  if (rememberEl && rememberEl.checked) {
+    try { localStorage.setItem('gracz_session', JSON.stringify(user)); } catch(e) {}
+  }
   document.getElementById('sb-name').textContent = user.name || user.username;
   document.getElementById('sb-role').textContent = user.role || '';
   document.getElementById('sb-av').textContent   = (user.name||user.username||'G').charAt(0).toUpperCase();
@@ -1226,6 +1235,8 @@ function loginSuccess(user) {
 
 function doLogout() {
   currentUser = null;
+  // ลบ session จดจำฉัน
+  try { localStorage.removeItem('gracz_session'); } catch(e) {}
   S = { users:[], dailyLogs:[], projects:[], steps:[] };
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
@@ -3378,6 +3389,23 @@ if (localStorage.getItem('gracz_dark') === '1') {
   var db = document.getElementById('dark-btn');
   if (db) db.textContent = '☀️';
 }
+
+// จดจำฉัน — auto login จาก session ที่บันทึกไว้
+(function autoLogin() {
+  try {
+    var saved = localStorage.getItem('gracz_session');
+    if (!saved) return;
+    var user = JSON.parse(saved);
+    if (!user || !user.username) return;
+    // login ทันทีโดยไม่ต้องกรอก
+    loginSuccess(user);
+    // ซ่อนหน้า login
+    var lw = document.getElementById('login-wrap');
+    if (lw) { lw.style.opacity='0'; lw.style.pointerEvents='none'; setTimeout(function(){ lw.style.display='none'; }, 300); }
+    document.body.classList.remove('logged-out');
+    loadAll();
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
