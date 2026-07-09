@@ -455,7 +455,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.21</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.22</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1204,9 +1204,9 @@ function loginSuccess(user) {
     userEls.forEach(function(el){ el.style.display='none'; });
     mgrEls.forEach(function(el){ el.style.display=''; });
   } else if (isManager) {
-    // manager: เห็นเมนูบันทึกงาน + ประวัติรายคน
+    // manager: เห็นแค่ ภาพรวม + ประวัติรายคน (ไม่มีบันทึกงาน)
     adminEls.forEach(function(el){ el.style.display='none'; });
-    userEls.forEach(function(el){ el.style.display=''; });
+    userEls.forEach(function(el){ el.style.display='none'; });
     mgrEls.forEach(function(el){ el.style.display=''; });
   } else {
     // user: เห็นเมนูบันทึกงานอย่างเดียว
@@ -1274,6 +1274,11 @@ function navigateTo(pg) {
 }
 
 function topbarAdd() {
+  // manager ไม่มีสิทธิ์เพิ่มงาน
+  if (currentUser && !currentUser.isAdmin &&
+      (String(currentUser.role||'').indexOf('Manager')>-1 || String(currentUser.role||'').indexOf('ผู้จัดการ')>-1)) {
+    return;
+  }
   var pg = document.querySelector('.pg.on');
   if (!pg) return;
   var id = pg.id.replace('pg-','');
@@ -1347,7 +1352,8 @@ function loadAll() {
   if (!SCRIPT_URL) { setCS('er','ยังไม่ได้ตั้งค่า URL'); loadDemoData(); return; }
   setCS('ld','กำลังโหลด...');
   // admin โหลด log ทั้งหมด, user ทั่วไปโหลดแค่ของตัวเอง
-  var logParams = currentUser.isAdmin ? {} : {username:currentUser.username};
+  var isMgr = !currentUser.isAdmin && (String(currentUser.role||'').indexOf('Manager')>-1 || String(currentUser.role||'').indexOf('ผู้จัดการ')>-1);
+  var logParams = (currentUser.isAdmin || isMgr) ? {} : {username:currentUser.username};
   Promise.allSettled([
     jsonp('getUsers'),
     jsonp('getDailyLogs', logParams),
@@ -1417,19 +1423,21 @@ function loadDashboard() {
   document.getElementById('dash-date-pick').value = fmtISO(fmt(dashDate));
 
   var isAdmin = currentUser && currentUser.isAdmin;
+  var isMgr = currentUser && !currentUser.isAdmin && (String(currentUser.role||'').indexOf('Manager')>-1 || String(currentUser.role||'').indexOf('ผู้จัดการ')>-1);
+  var seeAll = isAdmin || isMgr;
   var todayLogs = S.dailyLogs.filter(function(l){
     var dateOk = normDate(l.date) === selDate;
-    return isAdmin ? dateOk : (l.username===currentUser.username && dateOk);
+    return seeAll ? dateOk : (l.username===currentUser.username && dateOk);
   });
   var totalMins = todayLogs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
-  var myProjs = isAdmin
+  var myProjs = seeAll
     ? S.projects
     : S.projects.filter(function(p){ return p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1; });
   var activeP = myProjs.filter(function(p){ return p.status==='กำลังดำเนินการ'; });
 
   var h = Math.floor(totalMins/60), m = totalMins%60;
   document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-  document.getElementById('d-tasks').textContent  = isAdmin ? todayLogs.length+' (ท.ห.)' : todayLogs.length;
+  document.getElementById('d-tasks').textContent  = seeAll ? todayLogs.length+' (ทั้งหมด)' : todayLogs.length;
   document.getElementById('d-projs').textContent  = myProjs.length;
   document.getElementById('d-active').textContent = activeP.length;
 
