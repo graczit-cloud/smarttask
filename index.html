@@ -459,7 +459,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.24</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.25</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1954,7 +1954,7 @@ function openProjectModal() {
   document.getElementById('proj-modal-title').textContent='🗂️ สร้าง Project';
   document.getElementById('pj-del-btn').style.display='none';
   ['f-pj-name','f-pj-desc','f-pj-members'].forEach(function(id){ document.getElementById(id).value=''; });
-  document.getElementById('f-pj-start').value = fmt(new Date());
+  document.getElementById('f-pj-start').value = fmtISO(fmt(new Date()));
   document.getElementById('f-pj-due').value = '';
   document.getElementById('f-pj-status').value = 'กำลังดำเนินการ';
   document.getElementById('f-pj-owner').value = currentUser.username;
@@ -2017,7 +2017,7 @@ function saveProject() {
     }).catch(function(e){showToast('❌ '+e.message,'er');})
       .finally(function(){btn.disabled=false;btn.innerHTML='💾 บันทึก';});
   };
-  if(stImgFile&&!document.getElementById('f-st-img-url').value) uploadImage(stImgFile,doSave); else doSave(null);
+  if(imgFile&&!document.getElementById('f-pj-img-url').value) uploadImage(imgFile,doSave); else doSave(null);
 }
 
 function deleteProject() {
