@@ -459,7 +459,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.26</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.27</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -539,6 +539,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
         <div class="tab on" onclick="switchDailyView('day',this)">📅 รายวัน</div>
         <div class="tab" onclick="switchDailyView('week',this)">📆 รายสัปดาห์</div>
         <div class="tab" onclick="switchDailyView('month',this)">🗓️ รายเดือน</div>
+        <div class="tab" onclick="switchDailyView('report',this)">📊 รายงาน</div>
       </div>
 
       <!-- ── DAY VIEW ── -->
@@ -635,6 +636,36 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
             <button class="mc" onclick="document.getElementById('month-day-detail').style.display='none'">✕</button>
           </div>
           <div class="sec-b" id="month-day-list"></div>
+        </div>
+      </div>
+
+      <!-- ── REPORT VIEW (ของตัวเอง) ── -->
+      <div id="dv-report" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <select class="fi" id="dr-range" style="width:150px;font-size:13px;padding:7px 10px" onchange="renderMyReport()">
+            <option value="7">7 วันล่าสุด</option>
+            <option value="30" selected>30 วันล่าสุด</option>
+            <option value="90">90 วันล่าสุด</option>
+          </select>
+          <select class="fi" id="dr-cat" style="width:170px;font-size:13px;padding:7px 10px" onchange="renderMyReport()">
+            <option value="">— ทุกหมวดหมู่ —</option>
+          </select>
+          <button class="btn-x" onclick="exportMyReportCSV()" style="font-size:13px">📥 Export</button>
+        </div>
+
+        <!-- summary cards -->
+        <div class="grid-4" id="dr-cards" style="margin-bottom:16px"></div>
+
+        <!-- กราฟเทียบหมวดหมู่ -->
+        <div class="sec">
+          <div class="sec-h"><div class="sec-t">📊 เวลาแยกตามหมวดหมู่</div></div>
+          <div class="sec-b"><div id="dr-cat-chart" style="min-height:120px"></div></div>
+        </div>
+
+        <!-- รายละเอียดแต่ละหมวด (วันที่ทำ) -->
+        <div class="sec">
+          <div class="sec-h"><div class="sec-t">📅 รายการงาน <span id="dr-detail-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div></div>
+          <div class="sec-b" id="dr-detail"></div>
         </div>
       </div>
     </div>
@@ -1489,9 +1520,10 @@ function loadDailyPage() {
 }
 
 function renderCurrentDailyView() {
-  if (currentDailyView==='day')   renderDailyList();
-  if (currentDailyView==='week')  renderWeekView();
-  if (currentDailyView==='month') renderMonthView();
+  if (currentDailyView==='day')    renderDailyList();
+  if (currentDailyView==='week')   renderWeekView();
+  if (currentDailyView==='month')  renderMonthView();
+  if (currentDailyView==='report') renderMyReport();
 }
 
 function renderDailyDate() {
@@ -2396,10 +2428,12 @@ function switchDailyView(view, el) {
   document.getElementById('dv-day').style.display   = view==='day'   ? '' : 'none';
   document.getElementById('dv-week').style.display  = view==='week'  ? '' : 'none';
   document.getElementById('dv-month').style.display = view==='month' ? '' : 'none';
+  document.getElementById('dv-report').style.display = view==='report' ? '' : 'none';
   // render
-  if (view==='day')   renderDailyList();
-  if (view==='week')  renderWeekView();
-  if (view==='month') renderMonthView();
+  if (view==='day')    renderDailyList();
+  if (view==='week')   renderWeekView();
+  if (view==='month')  renderMonthView();
+  if (view==='report') initMyReport();
 }
 
 // ── WEEK VIEW ──────────────────────────────────
@@ -2580,6 +2614,145 @@ function typeBadge(type) {
   return map[type] || '';
 }
 
+
+
+// ══════════════════════════════════════════════
+//  MY REPORT (User ดูของตัวเอง แยกหมวดหมู่)
+// ══════════════════════════════════════════════
+function initMyReport() {
+  // เติม dropdown หมวดหมู่จากงานที่มี
+  var sel = document.getElementById('dr-cat');
+  var cur = sel.value;
+  var myLogs = S.dailyLogs.filter(function(l){ return l.username===currentUser.username; });
+  var cats = {};
+  myLogs.forEach(function(l){ if(l.category) cats[l.category]=true; });
+  sel.innerHTML = '<option value="">— ทุกหมวดหมู่ —</option>'
+    + Object.keys(cats).sort().map(function(c){
+        return '<option value="'+escHtml(c)+'">'+escHtml(c)+'</option>';
+      }).join('');
+  if (cur) sel.value = cur;
+  renderMyReport();
+}
+
+function drGetLogs() {
+  var range = parseInt(document.getElementById('dr-range').value)||30;
+  var cat   = document.getElementById('dr-cat').value;
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate()-range);
+  cutoff.setHours(0,0,0,0);
+  return S.dailyLogs.filter(function(l){
+    if (l.username !== currentUser.username) return false;
+    if (cat && l.category !== cat) return false;
+    var d = parseDateStr(normDate(l.date));
+    return d && d >= cutoff;
+  });
+}
+
+function renderMyReport() {
+  var range = parseInt(document.getElementById('dr-range').value)||30;
+  var selCat = document.getElementById('dr-cat').value;
+  var logs = drGetLogs();
+
+  // ── summary cards ──
+  var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60+parseInt(l.minutes||0)); },0);
+  var weeks = Math.max(1, Math.round(range/7));
+  var avgWeek = Math.round(totalMins/weeks);
+  var days = {};
+  logs.forEach(function(l){ days[normDate(l.date)]=true; });
+
+  document.getElementById('dr-cards').innerHTML =
+    drCard('⏱️','bl', fmtHM(totalMins), selCat||'เวลารวมทุกหมวด')
+   +drCard('📋','am', logs.length, 'จำนวนงาน')
+   +drCard('📅','gn', Object.keys(days).length+' วัน', 'วันที่ทำงาน')
+   +drCard('📊','pu', fmtHM(avgWeek), 'เฉลี่ย/สัปดาห์');
+
+  // ── กราฟเทียบหมวดหมู่ (ทุกหมวด แม้เลือก filter ก็แสดงเทียบ) ──
+  var allLogs = drGetAllForChart(range);
+  var byCat = {};
+  allLogs.forEach(function(l){
+    var c = l.category||'ไม่ระบุ';
+    byCat[c] = (byCat[c]||0)+(parseInt(l.hours||0)*60+parseInt(l.minutes||0));
+  });
+  renderCatChart('dr-cat-chart', byCat, selCat);
+
+  // ── รายละเอียด (วันที่ทำ) ──
+  renderMyReportDetail(logs);
+}
+
+function drGetAllForChart(range) {
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate()-range);
+  cutoff.setHours(0,0,0,0);
+  return S.dailyLogs.filter(function(l){
+    if (l.username !== currentUser.username) return false;
+    var d = parseDateStr(normDate(l.date));
+    return d && d >= cutoff;
+  });
+}
+
+function drCard(icon, cls, num, label) {
+  return '<div class="stat-card"><div class="stat-ic '+cls+'">'+icon+'</div>'
+    +'<div><div class="stat-n">'+num+'</div><div class="stat-l">'+escHtml(label)+'</div></div></div>';
+}
+
+function renderCatChart(elId, data, highlight) {
+  var keys = Object.keys(data).sort(function(a,b){ return data[b]-data[a]; });
+  if (!keys.length) {
+    document.getElementById(elId).innerHTML = '<div class="emp"><div class="emp-i">📊</div>ไม่มีข้อมูล</div>';
+    return;
+  }
+  var max = Math.max.apply(null, keys.map(function(k){ return data[k]; }));
+  document.getElementById(elId).innerHTML = keys.map(function(k){
+    var pct = max ? Math.round(data[k]/max*100) : 0;
+    var isHi = highlight && k===highlight;
+    return '<div class="sh-bar-row">'
+      +'<div class="sh-bar-label" style="'+(isHi?'font-weight:700;color:var(--navy)':'')+'">'+escHtml(k)+'</div>'
+      +'<div class="sh-bar-track"><div class="sh-bar-fill" style="width:'+pct+'%;'+(isHi?'background:var(--gold)':'')+'"></div></div>'
+      +'<div class="sh-bar-val">'+fmtHM(data[k])+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderMyReportDetail(logs) {
+  var sorted = logs.slice().sort(function(a,b){
+    var da=parseDateStr(normDate(a.date)), db=parseDateStr(normDate(b.date));
+    return (db||0)-(da||0);
+  });
+  document.getElementById('dr-detail-count').textContent = '('+sorted.length+' รายการ)';
+  if (!sorted.length) {
+    document.getElementById('dr-detail').innerHTML = '<div class="emp"><div class="emp-i">📅</div>ไม่มีรายการงาน</div>';
+    return;
+  }
+  document.getElementById('dr-detail').innerHTML = sorted.map(function(l){
+    var mins = parseInt(l.hours||0)*60+parseInt(l.minutes||0);
+    var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
+    return '<div class="sh-tl-item">'
+      +'<div class="sh-tl-date">'+escHtml(normDate(l.date))+'</div>'
+      +'<div class="sh-tl-body">'
+      +'<div class="sh-tl-name">'+typeBadge(l.type)+escHtml(l.taskName||'')+'</div>'
+      +'<div class="sh-tl-meta"><span class="badge" style="background:#eff6ff;color:#1d4ed8">'+escHtml(l.category||'')+'</span> · <span class="badge '+stCls+'">'+l.status+'</span></div>'
+      +'</div>'
+      +'<div class="sh-tl-time">'+fmtHM(mins)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function exportMyReportCSV() {
+  var logs = drGetLogs();
+  if (!logs.length) { showToast('⚠️ ไม่มีข้อมูล','er'); return; }
+  var rows = [['วันที่','ชื่องาน','หมวดหมู่','ประเภท','ชั่วโมง','นาที','สถานะ']];
+  logs.slice().sort(function(a,b){
+    var da=parseDateStr(normDate(a.date)), db=parseDateStr(normDate(b.date));
+    return (db||0)-(da||0);
+  }).forEach(function(l){
+    rows.push([normDate(l.date), l.taskName||'', l.category||'', l.type||'daily', l.hours||0, l.minutes||0, l.status||'']);
+  });
+  var csv = rows.map(function(r){
+    return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(',');
+  }).join('\n');
+  downloadCSV('\uFEFF'+csv, 'รายงานของฉัน.csv');
+  showToast('📥 Export สำเร็จ','ok');
+}
 
 // ══════════════════════════════════════════════
 //  STAFF HISTORY (Manager)
