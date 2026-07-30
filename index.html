@@ -459,7 +459,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.25</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.26</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -932,8 +932,8 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <div class="fg"><label class="fl">วันที่</label><input class="fi" type="date" id="f-dl-date"></div>
       <div class="fg"><label class="fl">หมวดหมู่</label>
         <select class="fs" id="f-dl-cat">
-          <option>ประชุม</option><option>พัฒนาระบบ</option><option>Support-QERP</option><option>Support-D365</option>
-          <option>Support-ทั่วไป</option><option>เอกสาร</option><option>อบรม</option><option>ตรวจสอบระบบ</option>
+          <option>ประชุม</option><option>พัฒนาระบบ</option><option>Project-QERP</option>
+          <option>Support</option><option>เอกสาร</option><option>อบรม</option>
           <option>ช่วยงานฝ่ายอื่น</option><option>อื่นๆ</option>
         </select>
       </div>
@@ -948,7 +948,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
         <span class="time-label" id="dl-time-warn"></span>
       </div>
     </div>
-    <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="f-dl-desc" placeholder="บันทึกรายละเอียดงาน..."></textarea></div>
+    <div class="fg"><label class="fl">รายละเอียด <span id="f-dl-desc-count" style="font-size:11px;color:var(--tl);font-weight:400"></span></label><textarea class="ft" id="f-dl-desc" maxlength="4000" placeholder="บันทึกรายละเอียดงาน..." oninput="updateCharCount(this,'f-dl-desc-count')"></textarea></div>
     <div class="form-grid">
       <div class="fg"><label class="fl">ประเภทงาน</label>
         <select class="fs" id="f-dl-type">
@@ -988,7 +988,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <div class="mh"><div class="mt2" id="proj-modal-title">🗂️ สร้าง Project</div><button class="mc" onclick="closeModal('mo-project')">✕</button></div>
     <input type="hidden" id="proj-eid">
     <div class="fg"><label class="fl">ชื่อ Project *</label><input class="fi" id="f-pj-name" placeholder="ชื่อ Project..."></div>
-    <div class="fg"><label class="fl">คำอธิบาย</label><textarea class="ft" id="f-pj-desc" placeholder="รายละเอียด Project..."></textarea></div>
+    <div class="fg"><label class="fl">คำอธิบาย <span id="f-pj-desc-count" style="font-size:11px;color:var(--tl);font-weight:400"></span></label><textarea class="ft" id="f-pj-desc" maxlength="4000" placeholder="รายละเอียด Project..." oninput="updateCharCount(this,'f-pj-desc-count')"></textarea></div>
     <div class="form-grid">
       <div class="fg"><label class="fl">วันที่เริ่ม</label><input class="fi" type="date" id="f-pj-start"></div>
       <div class="fg"><label class="fl">วันที่สิ้นสุด</label><input class="fi" type="date" id="f-pj-due"></div>
@@ -1042,7 +1042,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <div class="mh"><div class="mt2" id="step-modal-title">🔖 เพิ่มขั้นตอน</div><button class="mc" onclick="closeModal('mo-step')">✕</button></div>
     <input type="hidden" id="step-eid">
     <div class="fg"><label class="fl">ชื่อขั้นตอน *</label><input class="fi" id="f-st-name" placeholder="ชื่อขั้นตอน..."></div>
-    <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="f-st-desc" placeholder="รายละเอียด..."></textarea></div>
+    <div class="fg"><label class="fl">รายละเอียด <span id="f-st-desc-count" style="font-size:11px;color:var(--tl);font-weight:400"></span></label><textarea class="ft" id="f-st-desc" maxlength="4000" placeholder="รายละเอียด..." oninput="updateCharCount(this,'f-st-desc-count')"></textarea></div>
     <div class="form-grid">
       <div class="fg"><label class="fl">ผู้รับผิดชอบ</label><select class="fs" id="f-st-assignee"></select></div>
       <div class="fg"><label class="fl">กำหนดส่ง</label><input class="fi" type="date" id="f-st-due"></div>
@@ -1664,6 +1664,7 @@ function openDailyModal(id) {
   document.getElementById('f-dl-hours').value = 0;
   document.getElementById('f-dl-mins').value = 0;
   document.getElementById('f-dl-desc').value = '';
+  updateCharCount(document.getElementById('f-dl-desc'),'f-dl-desc-count');
   document.getElementById('f-dl-status').value = 'เสร็จแล้ว';
   document.getElementById('f-dl-type').value = 'daily';
   document.getElementById('dl-preview').style.display = 'none';
@@ -1686,6 +1687,7 @@ function editDailyLog(id) {
   document.getElementById('f-dl-hours').value = parseInt(l.hours||0);
   document.getElementById('f-dl-mins').value = parseInt(l.minutes||0);
   document.getElementById('f-dl-desc').value = l.description||'';
+  updateCharCount(document.getElementById('f-dl-desc'),'f-dl-desc-count');
   document.getElementById('f-dl-status').value = l.status||'เสร็จแล้ว';
   document.getElementById('f-dl-type').value = l.type||'daily';
   document.getElementById('f-dl-img-url').value = l.imageUrl||'';
@@ -1974,6 +1976,7 @@ function editCurrentProject() {
   document.getElementById('pj-del-btn').style.display='';
   document.getElementById('f-pj-name').value=p.name||'';
   document.getElementById('f-pj-desc').value=p.description||'';
+  updateCharCount(document.getElementById('f-pj-desc'),'f-pj-desc-count');
   document.getElementById('f-pj-start').value=fmtISO(p.startDate||'');
   document.getElementById('f-pj-due').value=fmtISO(p.dueDate||'');
   document.getElementById('f-pj-status').value=p.status||'กำลังดำเนินการ';
@@ -2063,6 +2066,7 @@ function editStep(id) {
   document.getElementById('st-del-btn').style.display='';
   document.getElementById('f-st-name').value=s.stepName||'';
   document.getElementById('f-st-desc').value=s.description||'';
+  updateCharCount(document.getElementById('f-st-desc'),'f-st-desc-count');
   document.getElementById('f-st-assignee').value=s.assignee||'';
   document.getElementById('f-st-due').value=fmtISO(s.dueDate||'');
   document.getElementById('f-st-order').value=s.order||1;
@@ -2352,6 +2356,18 @@ function fmtTH(d) {
 // ══════════════════════════════════════════════
 //  MISC
 // ══════════════════════════════════════════════
+function updateCharCount(el, countId) {
+  var len = el.value.length;
+  var max = 4000;
+  var cEl = document.getElementById(countId);
+  if (!cEl) return;
+  cEl.textContent = '(' + len.toLocaleString() + ' / ' + max.toLocaleString() + ')';
+  // เปลี่ยนสีเมื่อใกล้เต็ม
+  if (len >= max)        cEl.style.color = 'var(--red)';
+  else if (len >= 3600)  cEl.style.color = 'var(--gold)';
+  else                   cEl.style.color = 'var(--tl)';
+}
+
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
