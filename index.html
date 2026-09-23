@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gracz Task</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -386,6 +388,568 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
   .nav-i{justify-content:center;padding:12px}
   .grid-4,.grid-3,.grid-2{grid-template-columns:1fr}
 }
+
+/* ══════════════════════════════════════════════
+   GRACZ PRECISION — APPROVED VISUAL SYSTEM
+   Assumption: retain all DOM IDs, layout zones and
+   workflows; only the presentation layer changes.
+   ══════════════════════════════════════════════ */
+:root{
+  --navy:#241a16;
+  --navy-h:#34251f;
+  --gold:#66a41d;
+  --gold-d:#588f19;
+  --bg:#f1f3f0;
+  --white:#ffffff;
+  --surface:#ffffff;
+  --surface-muted:#f7f8f5;
+  --border:#d5dad3;
+  --border-strong:#b9c0b8;
+  --tp:#171c18;
+  --ts:#626c64;
+  --tl:#8d968f;
+  --green:#66a41d;
+  --red:#a33f32;
+  --blue:#456d5b;
+  --purple:#75614f;
+  --orange:#977a50;
+  --sand:#e8dfd0;
+  --brand-brown:#523432;
+  --brand-logo:url("data:image/png;base64,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");
+}
+
+html{background:var(--bg)}
+body{
+  background:var(--bg);
+  color:var(--tp);
+  font-family:'Sarabun',Tahoma,sans-serif;
+  font-size:14px;
+  letter-spacing:.005em;
+}
+button,input,select,textarea{font-family:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,
+[tabindex]:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* Institutional navigation */
+.sb{
+  width:240px;
+  background:var(--navy);
+  border-right:1px solid rgba(255,255,255,.08);
+  transition:transform .22s ease,width .22s ease;
+}
+.sb-logo{
+  min-height:86px;
+  padding:17px 18px;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+.logo-ic{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:transparent var(--brand-logo) center/contain no-repeat;
+  color:transparent;
+  font-size:0;
+}
+.logo-txt .logo-t{
+  font-family:'Prompt',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+.logo-txt .logo-s{
+  margin-top:3px;
+  color:#d6c5b5;
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.nav-sec{
+  padding:18px 18px 7px;
+  color:rgba(255,255,255,.46);
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.12em;
+}
+.nav-i{
+  min-height:42px;
+  gap:12px;
+  padding:10px 18px;
+  color:rgba(255,255,255,.72);
+  font-size:13px;
+  border-top:1px solid transparent;
+  border-bottom:1px solid transparent;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.nav-i:hover{
+  background:rgba(255,255,255,.055);
+  color:#fff;
+}
+.nav-i.on{
+  background:rgba(102,164,29,.14);
+  color:#fff;
+  border-color:rgba(255,255,255,.045);
+  font-weight:600;
+}
+.nav-i.on::before{
+  width:3px;
+  border-radius:0;
+  background:var(--green);
+}
+.nav-ic{
+  width:15px;
+  height:15px;
+  border:1px solid rgba(255,255,255,.58);
+  font-size:0;
+  line-height:0;
+}
+.nav-i.on .nav-ic{
+  border-color:var(--green);
+  box-shadow:inset 0 0 0 3px var(--navy);
+  background:var(--green);
+}
+.nav-badge{
+  min-width:20px;
+  padding:1px 6px;
+  border-radius:2px;
+  background:var(--red);
+  text-align:center;
+}
+.sb-user{
+  padding:14px 16px 16px;
+  border-top:1px solid rgba(255,255,255,.13);
+  background:rgba(0,0,0,.08);
+}
+.u-av{
+  width:34px;
+  height:34px;
+  border-radius:0;
+  border:1px solid rgba(255,255,255,.28);
+  background:transparent;
+  color:var(--green);
+}
+.u-rl{color:rgba(255,255,255,.48)}
+.btn-lo{
+  min-height:32px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:0;
+  background:transparent;
+  color:rgba(255,255,255,.76);
+}
+.btn-lo:hover{background:rgba(163,63,50,.2);border-color:rgba(255,255,255,.3)}
+
+/* Top command bar */
+.topbar{
+  height:56px;
+  padding:0 30px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.bc{font-size:12px;color:var(--ts)}
+.bc b{font-weight:600;color:var(--tp)}
+.bc span[style*="border-radius:20px"]{
+  border:1px solid var(--border)!important;
+  border-radius:0!important;
+  background:var(--surface-muted)!important;
+  color:var(--ts)!important;
+  letter-spacing:.06em;
+}
+.tb-r{gap:8px}
+.icon-btn{
+  min-width:32px;
+  height:32px;
+  padding:0!important;
+  border:1px solid var(--border)!important;
+  border-radius:0!important;
+  background:var(--surface)!important;
+  color:var(--tp)!important;
+  font-size:0!important;
+}
+.icon-btn::before{font-size:16px;line-height:1}
+#dark-btn::before{content:'◐'}
+.refresh-btn::before{content:'↻'}
+.search-bar{
+  min-height:34px;
+  padding:6px 10px;
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface);
+}
+.search-bar:focus-within{border-color:var(--green);box-shadow:inset 0 -2px 0 var(--green)}
+.search-bar input{font-size:12.5px}
+.cs-dot{width:7px;height:7px}
+.btn-add{
+  min-height:34px;
+  padding:7px 15px;
+  border:1px solid #4f8116;
+  border-radius:0;
+  background:var(--green);
+  color:#10180c;
+  font-weight:700;
+  box-shadow:none;
+}
+.btn-add:hover{
+  background:var(--gold-d);
+  transform:none;
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);
+}
+
+/* Content rhythm */
+.cnt{padding:26px 30px 34px;scrollbar-color:var(--border-strong) transparent}
+.cnt::-webkit-scrollbar{width:7px}
+.cnt::-webkit-scrollbar-thumb{border-radius:0;background:var(--border-strong)}
+.ph{margin-bottom:20px}
+.pt{
+  display:block;
+  font-family:'Prompt',sans-serif;
+  font-size:23px;
+  line-height:1.3;
+  font-weight:600;
+  letter-spacing:-.02em;
+}
+#pg-dashboard .pt::before{
+  content:'OPERATIONAL OVERVIEW / 01';
+  display:block;
+  margin-bottom:8px;
+  color:var(--orange);
+  font-family:'Sarabun',sans-serif;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.17em;
+}
+
+/* KPI band */
+.grid-4{gap:0;margin-bottom:20px}
+.stat-card{
+  position:relative;
+  min-height:120px;
+  display:block;
+  padding:20px;
+  border:1px solid var(--border);
+  border-left-width:0;
+  border-radius:0;
+  background:var(--surface);
+  overflow:hidden;
+}
+.stat-card:first-child{border-left-width:1px}
+.stat-card:hover{transform:none;box-shadow:none;background:var(--surface-muted)}
+.stat-card::before{
+  content:'';
+  position:absolute;
+  left:20px;
+  bottom:-1px;
+  width:28px;
+  height:2px;
+  background:var(--green);
+}
+.stat-card::after{
+  position:absolute;
+  top:20px;
+  right:18px;
+  color:#a27d72;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-size:8px;
+  letter-spacing:.12em;
+}
+.stat-card:nth-child(1)::after{content:'K-01'}
+.stat-card:nth-child(2)::after{content:'K-02'}
+.stat-card:nth-child(3)::after{content:'K-03'}
+.stat-card:nth-child(4)::after{content:'K-04'}
+.stat-card>div:last-child{display:flex;flex-direction:column}
+.stat-ic{display:none}
+.stat-n{
+  order:2;
+  margin-top:13px;
+  font-family:'Prompt',sans-serif;
+  font-size:25px;
+  font-weight:600;
+  color:var(--tp);
+  letter-spacing:-.025em;
+}
+.stat-l{
+  order:1;
+  margin:0;
+  color:var(--ts);
+  font-size:12px;
+}
+
+/* Sections and records */
+.sec{
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface);
+  box-shadow:none;
+}
+.sec-h{
+  min-height:56px;
+  padding:13px 20px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.sec-t{font-size:14px;font-weight:600;letter-spacing:.005em}
+.sec-b{padding:16px 20px 20px}
+.day-bar{
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface-muted);
+}
+.progress-bar,.hour-bar{
+  border-radius:0;
+  background:#e2e6df;
+}
+.progress-fill,.hour-seg{border-radius:0;background:var(--green)}
+.log-item{padding:14px 0;border-color:var(--border)}
+.log-time{
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface-muted);
+  color:var(--tp);
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.log-name{font-size:14px}
+.log-img{border-radius:0}
+.project-card,.proj-list-item{
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface);
+  box-shadow:none;
+}
+.project-card:hover,.proj-list-item:hover{
+  transform:none;
+  border-color:var(--border-strong);
+  box-shadow:inset 3px 0 0 var(--green);
+}
+.project-img,.project-img img{border-radius:0}
+.project-img{background:var(--surface-muted);color:var(--ts)}
+.project-body{padding:16px}
+.step-num{
+  border-radius:0;
+  background:var(--navy);
+}
+.step-num.done{background:var(--green);color:#111}
+
+/* Status language */
+.badge,.type-badge{
+  border:1px solid currentColor;
+  border-radius:2px;
+  background:transparent!important;
+  line-height:1.45;
+}
+.badge.pending,.badge.mid{color:#8a642e}
+.badge.doing{color:#456d5b}
+.badge.done,.badge.low{color:#4f8116}
+.badge.hold{color:#7e5361}
+.badge.high{color:#a33f32}
+
+/* Forms, controls and tables */
+.fi,.fs,.ft,.time-input,.login-fi{
+  border:1px solid var(--border-strong);
+  border-radius:0;
+  background:var(--surface);
+}
+.fi:focus,.fs:focus,.ft:focus,.time-input:focus,.login-fi:focus{
+  border-color:var(--green);
+  box-shadow:inset 0 -2px 0 var(--green);
+}
+.upload-area{
+  border:1px dashed var(--border-strong);
+  border-radius:0;
+  background:var(--surface-muted);
+}
+.upload-area:hover,.upload-area.drag{border-color:var(--green);background:#f5f8f1}
+.mb{
+  border:1px solid var(--border-strong);
+  border-radius:2px;
+  background:var(--surface);
+  box-shadow:0 18px 50px rgba(36,26,22,.22);
+}
+.mo{background:rgba(24,18,15,.56);backdrop-filter:blur(2px)}
+.mc,.btn-x,.btn-s,.btn-del,.date-nav button,.view-toggle button{
+  border-radius:0;
+  box-shadow:none;
+}
+.btn-s{background:var(--navy)}
+.btn-s:hover{background:var(--navy-h)}
+.btn-x{background:var(--surface-muted)}
+.tbl{font-size:12.5px}
+.tbl th{
+  padding:10px 12px;
+  border-color:var(--border);
+  background:var(--surface-muted);
+  color:var(--ts);
+  font-size:10.5px;
+  letter-spacing:.035em;
+}
+.tbl td{padding:11px 12px;border-color:var(--border)}
+.tbl tr:hover td{background:#f5f7f3}
+.bi{border-radius:0;background:var(--surface)}
+.tabs,.view-toggle{
+  padding:2px;
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface-muted);
+}
+.tab{border-radius:0}
+.tab.on,.view-toggle button.on{
+  background:var(--surface);
+  color:var(--tp);
+  box-shadow:inset 0 -2px 0 var(--green);
+}
+.week-col,.month-cell{
+  border-radius:0;
+  border-color:var(--border);
+  background:var(--surface);
+}
+.week-col-hdr{background:var(--surface-muted)}
+.week-col-hdr.today{background:var(--navy)}
+.week-task{border-radius:0;background:var(--surface-muted)}
+.cal-day{border-radius:0}
+.cal-day.today{color:var(--green)}
+.cal-day.selected,.cal-day.selected.today{background:var(--navy)}
+.search-results{
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface);
+  box-shadow:0 14px 40px rgba(36,26,22,.18);
+}
+.sr-ic{border-radius:0}
+.emp{min-height:92px}
+.emp-i{display:none}
+.toast{border-radius:0;background:var(--navy);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+
+/* Formal login surface */
+.login-wrap{background:var(--navy)}
+.login-box{
+  width:380px;
+  padding:38px 38px 34px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:2px;
+  box-shadow:0 26px 70px rgba(0,0,0,.34);
+}
+.login-logo{
+  width:72px;
+  height:72px;
+  margin-bottom:18px;
+  border-radius:50%;
+  background:transparent var(--brand-logo) center/contain no-repeat;
+  color:transparent;
+  font-size:0;
+}
+.login-title{
+  color:var(--tp);
+  font-size:21px;
+  letter-spacing:.025em;
+  text-transform:uppercase;
+}
+.login-sub{margin-bottom:26px;color:var(--ts)}
+.login-btn{
+  border:1px solid #4f8116;
+  border-radius:0;
+  background:var(--green);
+  color:#10180c;
+}
+.login-btn:hover{background:var(--gold-d)}
+
+/* Warm dark mode retains the approved brand language */
+body.dark{
+  --bg:#151916;
+  --white:#202621;
+  --surface:#202621;
+  --surface-muted:#262d27;
+  --border:#3a433b;
+  --border-strong:#59635a;
+  --tp:#f0f3ee;
+  --ts:#aeb7af;
+  --tl:#7d887f;
+  --navy:#74bd43;
+  --navy-h:#66a41d;
+}
+body.dark .topbar,body.dark .sec,body.dark .stat-card,body.dark .project-card,
+body.dark .proj-list-item,body.dark .mb,body.dark .search-results,body.dark .day-bar{
+  background:var(--surface);
+  border-color:var(--border);
+}
+body.dark .cnt{background:var(--bg)}
+body.dark .fi,body.dark .fs,body.dark .ft,body.dark .time-input,
+body.dark .search-bar{background:var(--surface);border-color:var(--border-strong);color:var(--tp)}
+body.dark .tbl th{background:var(--surface-muted)}
+body.dark .tbl tr:hover td{background:#29302a}
+body.dark .btn-x{background:var(--surface-muted);border-color:var(--border);color:var(--tp)}
+body.dark .progress-bar,body.dark .hour-bar{background:#394139}
+body.dark .upload-area{background:var(--surface-muted);border-color:var(--border-strong)}
+
+/* Responsive corrections: the original 60px drawer hid every label. */
+@media(max-width:900px){
+  .cnt{padding:20px}
+  .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-card:nth-child(3){border-left-width:1px}
+}
+@media(max-width:768px){
+  .topbar{padding:0 14px}
+  .topbar>.tb-r>.search-bar{display:none}
+  .cs-wrap span{display:none}
+  .bc>span:first-child,.bc span[style*="border-radius:20px"]{display:none}
+  .cnt{padding:16px 14px 26px}
+  .ph{align-items:flex-start}
+  #team-kanban{grid-template-columns:1fr!important}
+  #dv-week,#dv-month{overflow-x:auto;padding-bottom:8px}
+  #week-grid,#month-grid{min-width:700px}
+}
+@media(max-width:600px){
+  .sb{width:240px}
+  .logo-txt{display:block}
+  .nav-i{justify-content:flex-start;padding:10px 18px}
+  .nav-i span:not(.nav-ic),.btn-lo span{display:inline}
+  .u-nm,.u-rl{display:block}
+  .nav-badge{display:inline-flex}
+  .grid-4,.grid-3,.grid-2{grid-template-columns:1fr}
+  .stat-card{border-left-width:1px}
+  .pt{font-size:20px}
+  .ha{width:100%}
+  .login-box{padding:32px 24px}
+  .topbar #topbar-add-btn,.topbar .refresh-btn,.topbar .cs-wrap{display:none!important}
+  .topbar>.tb-r{gap:0}
+  .sec-h{padding:12px 14px}
+  .sec-b{padding:14px}
+  #pg-dashboard>.sec .sec-h{align-items:flex-start;gap:10px;flex-wrap:wrap}
+  #pg-dashboard>.sec .sec-h>div:last-child{width:100%;display:flex;flex-wrap:wrap!important;gap:7px!important}
+  #pg-dashboard .date-nav{gap:6px;flex-basis:100%}
+  #dash-date-pick{max-width:135px}
+  .day-bar-top{gap:8px;flex-wrap:wrap}
+}
+
+/* Component-specific finishing details */
+#team-kanban .sec-h{background:var(--surface-muted)!important}
+#team-kanban .sec:nth-child(1){border-top:2px solid #977a50}
+#team-kanban .sec:nth-child(2){border-top:2px solid #456d5b}
+#team-kanban .sec:nth-child(3){border-top:2px solid var(--green)}
+.sr-ic{font-size:0;border:1px solid var(--border);background:var(--surface-muted)!important}
+.sr-ic::after{font:600 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em;color:var(--ts)}
+.sr-ic.dl::after{content:'DL'}
+.sr-ic.pj::after{content:'PJ'}
+.sr-ic.st::after{content:'ST'}
+.project-img{font-size:0;position:relative}
+.project-img::after{content:'PROJECT';font:600 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em;color:var(--ts)}
+.project-img:has(img)::after{display:none}
+.project-code{
+  width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  background:var(--surface-muted);
+  color:var(--ts);
+  font:600 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.1em;
+}
+#proj-summary .stat-card{min-height:76px;border-left-width:1px;padding:12px 16px}
+#proj-summary .stat-card::after{display:none}
+#proj-summary .stat-n{margin-top:8px}
+.mt2{font-size:18px;letter-spacing:-.01em}
+.lightbox img{border-radius:0}
 </style>
 </head>
 <body>
@@ -426,7 +990,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <div class="logo-ic">✅</div>
     <div class="logo-txt">
       <div class="logo-t">Gracz Task</div>
-      <div class="logo-s">IT Gracz</div>
+      <div class="logo-s">IT Work Management</div>
     </div>
   </div>
   <div class="nav-sec">หลัก</div>
@@ -463,13 +1027,13 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
-        <span style="color:var(--tl);font-size:14px">🔍</span>
+        <span style="color:var(--tl);font-size:14px">⌕</span>
         <input type="text" id="search-input" placeholder="ค้นหางาน, Project..." autocomplete="off"
           oninput="onSearchInput(this.value)" onkeydown="onSearchKey(event)">
       </div>
       <div class="cs-wrap"><div class="cs-dot ld" id="cs-dot"></div><span id="cs-txt">กำลังโหลด...</span></div>
-      <button onclick="toggleDark()" id="dark-btn" title="Dark mode" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px">🌙</button>
-      <button onclick="loadAll()" title="รีเฟรชข้อมูล" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px">🔄</button>
+      <button onclick="toggleDark()" id="dark-btn" class="icon-btn" title="Dark mode">โหมดสี</button>
+      <button onclick="loadAll()" class="icon-btn refresh-btn" title="รีเฟรชข้อมูล">รีเฟรช</button>
       <button class="btn-add" id="topbar-add-btn" onclick="topbarAdd()">+ เพิ่ม</button>
     </div>
   </div>
@@ -478,20 +1042,20 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
     <!-- ══ DASHBOARD ══ -->
     <div id="pg-dashboard" class="pg on">
-      <div class="ph"><div class="pt">📊 ภาพรวมวันนี้</div>
+      <div class="ph"><div class="pt">ภาพรวมการทำงาน</div>
         <div class="ha"><button class="btn-add" onclick="navigateTo('daily')">+ บันทึกงาน</button></div>
       </div>
       <div class="grid-4" id="dash-stats">
-        <div class="stat-card"><div class="stat-ic am">⏱️</div><div><div class="stat-n" id="d-mins">—</div><div class="stat-l">ชั่วโมงวันนี้</div></div></div>
+        <div class="stat-card"><div class="stat-ic am">⏱️</div><div><div class="stat-n" id="d-mins">—</div><div class="stat-l">เวลาทำงานวันนี้</div></div></div>
         <div class="stat-card"><div class="stat-ic bl">📋</div><div><div class="stat-n" id="d-tasks">—</div><div class="stat-l">งานวันนี้</div></div></div>
-        <div class="stat-card"><div class="stat-ic pu">🗂️</div><div><div class="stat-n" id="d-projs">—</div><div class="stat-l">Projects ของฉัน</div></div></div>
-        <div class="stat-card"><div class="stat-ic gn">🚀</div><div><div class="stat-n" id="d-active">—</div><div class="stat-l">Project กำลังดำเนินการ</div></div></div>
+        <div class="stat-card"><div class="stat-ic pu">🗂️</div><div><div class="stat-n" id="d-projs">—</div><div class="stat-l">Projects ทั้งหมด</div></div></div>
+        <div class="stat-card"><div class="stat-ic gn">🚀</div><div><div class="stat-n" id="d-active">—</div><div class="stat-l">กำลังดำเนินการ</div></div></div>
       </div>
 
       <!-- Daily time bar -->
       <div class="sec">
         <div class="sec-h">
-          <div class="sec-t">⏱️ เวลาทำงาน</div>
+          <div class="sec-t">เวลาทำงาน</div>
           <div style="display:flex;align-items:center;gap:8px">
             <div class="date-nav">
               <button onclick="dashChangeDate(-1)" title="วันก่อนหน้า">‹</button>
@@ -516,7 +1080,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
       <!-- Active projects -->
       <div class="sec">
-        <div class="sec-h"><div class="sec-t">🗂️ Projects ที่กำลังดำเนินการ</div>
+        <div class="sec-h"><div class="sec-t">Projects ที่กำลังดำเนินการ</div>
           <button class="btn-add" onclick="navigateTo('projects')" style="font-size:12px;padding:5px 12px">ดูทั้งหมด</button>
         </div>
         <div class="sec-b" id="dash-projects">
@@ -528,7 +1092,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ DAILY LOG ══ -->
     <div id="pg-daily" class="pg">
       <div class="ph">
-        <div class="pt">📅 บันทึกงาน</div>
+        <div class="pt">บันทึกงาน</div>
         <div class="ha">
           <button class="btn-add" onclick="openDailyModal()">+ บันทึกงาน</button>
         </div>
@@ -536,10 +1100,10 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
       <!-- View Tabs -->
       <div class="tabs" id="daily-tabs">
-        <div class="tab on" onclick="switchDailyView('day',this)">📅 รายวัน</div>
-        <div class="tab" onclick="switchDailyView('week',this)">📆 รายสัปดาห์</div>
-        <div class="tab" onclick="switchDailyView('month',this)">🗓️ รายเดือน</div>
-        <div class="tab" onclick="switchDailyView('report',this)">📊 รายงาน</div>
+        <div class="tab on" onclick="switchDailyView('day',this)">รายวัน</div>
+        <div class="tab" onclick="switchDailyView('week',this)">รายสัปดาห์</div>
+        <div class="tab" onclick="switchDailyView('month',this)">รายเดือน</div>
+        <div class="tab" onclick="switchDailyView('report',this)">รายงาน</div>
       </div>
 
       <!-- ── DAY VIEW ── -->
@@ -650,7 +1214,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
           <select class="fi" id="dr-cat" style="width:170px;font-size:13px;padding:7px 10px" onchange="renderMyReport()">
             <option value="">— ทุกหมวดหมู่ —</option>
           </select>
-          <button class="btn-x" onclick="exportMyReportCSV()" style="font-size:13px">📥 Export</button>
+          <button class="btn-x" onclick="exportMyReportCSV()" style="font-size:13px">Export</button>
         </div>
 
         <!-- summary cards -->
@@ -658,13 +1222,13 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
         <!-- กราฟเทียบหมวดหมู่ -->
         <div class="sec">
-          <div class="sec-h"><div class="sec-t">📊 เวลาแยกตามหมวดหมู่</div></div>
+          <div class="sec-h"><div class="sec-t">เวลาแยกตามหมวดหมู่</div></div>
           <div class="sec-b"><div id="dr-cat-chart" style="min-height:120px"></div></div>
         </div>
 
         <!-- รายละเอียดแต่ละหมวด (วันที่ทำ) -->
         <div class="sec">
-          <div class="sec-h"><div class="sec-t">📅 รายการงาน <span id="dr-detail-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div></div>
+          <div class="sec-h"><div class="sec-t">รายการงาน <span id="dr-detail-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div></div>
           <div class="sec-b" id="dr-detail"></div>
         </div>
       </div>
@@ -673,11 +1237,11 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ PROJECTS ══ -->
     <div id="pg-projects" class="pg">
       <div class="ph">
-        <div class="pt">🗂️ Projects</div>
+        <div class="pt">Projects</div>
         <div class="ha">
           <!-- Search -->
           <div class="search-bar" style="max-width:200px;min-width:140px">
-            <span style="color:var(--tl);font-size:13px">🔍</span>
+            <span style="color:var(--tl);font-size:13px">⌕</span>
             <input type="text" id="proj-search" placeholder="ค้นหา Project..." style="font-size:13px" oninput="renderProjects()">
           </div>
           <!-- Filter Status -->
@@ -719,18 +1283,18 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
         </div>
         <div class="ha">
           <button class="btn-add" style="background:var(--blue);color:#fff" onclick="openStepModal()">+ เพิ่มขั้นตอน</button>
-          <button class="btn-add" onclick="editCurrentProject()">✏️ แก้ไข</button>
+          <button class="btn-add" onclick="editCurrentProject()">แก้ไข</button>
         </div>
       </div>
 
       <!-- Project info -->
       <div class="grid-2">
         <div class="sec">
-          <div class="sec-h"><div class="sec-t">📋 รายละเอียด</div></div>
+          <div class="sec-h"><div class="sec-t">รายละเอียด</div></div>
           <div class="sec-b" id="detail-info"></div>
         </div>
         <div class="sec">
-          <div class="sec-h"><div class="sec-t">📈 ความคืบหน้ารวม</div></div>
+          <div class="sec-h"><div class="sec-t">ความคืบหน้ารวม</div></div>
           <div class="sec-b">
             <div class="progress-wrap">
               <div class="progress-label"><span>ความคืบหน้า</span><span id="detail-prog-pct">0%</span></div>
@@ -743,7 +1307,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
       <!-- Steps -->
       <div class="sec">
-        <div class="sec-h"><div class="sec-t">🔖 ขั้นตอนการทำงาน</div><span id="detail-step-count" style="font-size:12px;color:var(--ts)"></span></div>
+        <div class="sec-h"><div class="sec-t">ขั้นตอนการทำงาน</div><span id="detail-step-count" style="font-size:12px;color:var(--ts)"></span></div>
         <div class="sec-b" id="detail-steps">
           <div class="emp"><div class="emp-i">📋</div>ยังไม่มีขั้นตอน</div>
         </div>
@@ -752,7 +1316,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
     <!-- ══ USERS ══ -->
     <div id="pg-users" class="pg">
-      <div class="ph"><div class="pt">👥 จัดการผู้ใช้งาน</div>
+      <div class="ph"><div class="pt">จัดการผู้ใช้งาน</div>
         <button class="btn-add" onclick="openUserModal()">+ เพิ่มผู้ใช้</button>
       </div>
       <div class="sec"><div class="tbl-wrap"><table class="tbl" id="users-table">
@@ -763,9 +1327,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 
     <!-- ══ SETTINGS ══ -->
     <div id="pg-settings" class="pg">
-      <div class="pt" style="margin-bottom:18px">⚙️ ตั้งค่าระบบ</div>
+      <div class="pt" style="margin-bottom:18px">ตั้งค่าระบบ</div>
       <div class="sec">
-        <div class="sec-h"><div class="sec-t">🔗 Google Apps Script URL</div></div>
+        <div class="sec-h"><div class="sec-t">Google Apps Script URL</div></div>
         <div class="sec-b">
           <div class="fg"><label class="fl">Web App URL</label>
             <input class="fi" id="url-input" placeholder="https://script.google.com/macros/s/...">
@@ -784,7 +1348,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ REPORT: LOGS (Admin) ══ -->
     <div id="pg-report-logs" class="pg">
       <div class="ph">
-        <div class="pt">📋 Log งานทุกคน</div>
+        <div class="pt">Log งานทุกคน</div>
         <div class="ha">
           <select class="fi" id="rl-filter-user" style="width:130px;font-size:13px;padding:7px 10px" onchange="renderReportLogs()">
             <option value="">— ทุกคน —</option>
@@ -792,7 +1356,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
           <input type="date" class="fi" id="rl-date-from" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderReportLogs()">
           <span style="font-size:13px;color:var(--ts)">ถึง</span>
           <input type="date" class="fi" id="rl-date-to" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderReportLogs()">
-          <button class="btn-add" onclick="exportLogsCSV()" style="background:var(--green);white-space:nowrap">⬇️ Export CSV</button>
+          <button class="btn-add" onclick="exportLogsCSV()" style="background:var(--green);white-space:nowrap">Export CSV</button>
         </div>
       </div>
       <div class="sec" id="rl-summary-bar" style="margin-bottom:14px">
@@ -817,7 +1381,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ REPORT: SUMMARY (Admin) ══ -->
     <div id="pg-report-summary" class="pg">
       <div class="ph">
-        <div class="pt">📈 สรุปเวลาทำงาน</div>
+        <div class="pt">สรุปเวลาทำงาน</div>
         <div class="ha">
           <select class="fi" id="rs-range" style="width:160px;font-size:13px;padding:7px 10px" onchange="renderReportSummary()">
             <option value="7">7 วันที่ผ่านมา</option>
@@ -827,14 +1391,14 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
           <select class="fi" id="rs-user" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderReportSummary()">
             <option value="">— ทุกคน —</option>
           </select>
-          <button class="btn-add" onclick="exportSummaryCSV()" style="background:var(--green);white-space:nowrap">⬇️ Export CSV</button>
+          <button class="btn-add" onclick="exportSummaryCSV()" style="background:var(--green);white-space:nowrap">Export CSV</button>
         </div>
       </div>
       <!-- Stats -->
       <div class="grid-4" id="rs-stats" style="margin-bottom:20px"></div>
       <!-- Bar chart by day -->
       <div class="sec" style="margin-bottom:16px">
-        <div class="sec-h"><div class="sec-t">⏱️ ชั่วโมงทำงานรายวัน</div></div>
+        <div class="sec-h"><div class="sec-t">ชั่วโมงทำงานรายวัน</div></div>
         <div class="sec-b">
           <div id="rs-chart" style="height:180px;display:flex;align-items:flex-end;gap:3px;padding:8px 0;overflow-x:auto"></div>
           <div id="rs-chart-labels" style="display:flex;gap:3px;overflow-x:auto;margin-top:4px"></div>
@@ -843,17 +1407,17 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <!-- By category -->
       <div class="grid-2">
         <div class="sec">
-          <div class="sec-h"><div class="sec-t">🏷️ แยกตามหมวดหมู่</div></div>
+          <div class="sec-h"><div class="sec-t">แยกตามหมวดหมู่</div></div>
           <div class="sec-b" id="rs-by-cat"></div>
         </div>
         <div class="sec">
-          <div class="sec-h"><div class="sec-t">👤 แยกตามผู้ใช้</div></div>
+          <div class="sec-h"><div class="sec-t">แยกตามผู้ใช้</div></div>
           <div class="sec-b" id="rs-by-user"></div>
         </div>
       </div>
       <!-- Due soon projects -->
       <div class="sec">
-        <div class="sec-h"><div class="sec-t">⚠️ Projects / Steps ใกล้ครบกำหนด</div></div>
+        <div class="sec-h"><div class="sec-t">Projects / Steps ใกล้ครบกำหนด</div></div>
         <div class="sec-b" id="rs-due-soon"></div>
       </div>
     </div>
@@ -862,31 +1426,31 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ TEAM BOARD ══ -->
     <div id="pg-team-board" class="pg">
       <div class="ph">
-        <div class="pt">👥 งานทีม</div>
+        <div class="pt">งานทีม</div>
         <div class="ha">
           <select class="fi" id="tb-filter-proj" style="width:160px;font-size:13px;padding:7px 10px" onchange="renderTeamBoard()">
             <option value="">— ทุก Project —</option>
           </select>
           <select class="fi" id="tb-filter-status" style="width:140px;font-size:13px;padding:7px 10px" onchange="renderTeamBoard()">
             <option value="">— ทุกสถานะ —</option>
-            <option value="รออยู่">⏳ รออยู่</option>
-            <option value="กำลังทำ">🔵 กำลังทำ</option>
-            <option value="เสร็จแล้ว">✅ เสร็จแล้ว</option>
+            <option value="รออยู่">รออยู่</option>
+            <option value="กำลังทำ">กำลังทำ</option>
+            <option value="เสร็จแล้ว">เสร็จแล้ว</option>
           </select>
         </div>
       </div>
       <!-- Kanban columns -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start" id="team-kanban">
         <div class="sec">
-          <div class="sec-h" style="background:#fef9c3"><div class="sec-t">⏳ รออยู่ <span class="badge" id="tb-cnt-pending" style="background:#92400e">0</span></div></div>
+          <div class="sec-h" style="background:#fef9c3"><div class="sec-t">รออยู่ <span class="badge" id="tb-cnt-pending" style="background:#92400e">0</span></div></div>
           <div class="sec-b" id="tb-col-pending" style="display:flex;flex-direction:column;gap:8px;min-height:100px"></div>
         </div>
         <div class="sec">
-          <div class="sec-h" style="background:#dbeafe"><div class="sec-t">🔵 กำลังทำ <span class="badge" id="tb-cnt-doing" style="background:#1d4ed8">0</span></div></div>
+          <div class="sec-h" style="background:#dbeafe"><div class="sec-t">กำลังทำ <span class="badge" id="tb-cnt-doing" style="background:#1d4ed8">0</span></div></div>
           <div class="sec-b" id="tb-col-doing" style="display:flex;flex-direction:column;gap:8px;min-height:100px"></div>
         </div>
         <div class="sec">
-          <div class="sec-h" style="background:#dcfce7"><div class="sec-t">✅ เสร็จแล้ว <span class="badge" id="tb-cnt-done" style="background:#15803d">0</span></div></div>
+          <div class="sec-h" style="background:#dcfce7"><div class="sec-t">เสร็จแล้ว <span class="badge" id="tb-cnt-done" style="background:#15803d">0</span></div></div>
           <div class="sec-b" id="tb-col-done" style="display:flex;flex-direction:column;gap:8px;min-height:100px"></div>
         </div>
       </div>
@@ -896,7 +1460,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <!-- ══ STAFF HISTORY (Manager) ══ -->
     <div id="pg-staff-history" class="pg">
       <div class="ph">
-        <div class="pt">👔 ประวัติการทำงานรายคน</div>
+        <div class="pt">ประวัติการทำงานรายคน</div>
         <div class="ha">
           <select class="fi" id="sh-emp" style="width:200px;font-size:13px;padding:7px 10px" onchange="renderStaffHistory()">
             <option value="">— เลือกพนักงาน —</option>
@@ -907,7 +1471,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
             <option value="90">90 วันล่าสุด</option>
             <option value="365">1 ปีล่าสุด</option>
           </select>
-          <button class="btn-x" onclick="exportStaffHistoryCSV()" style="font-size:13px">📥 Export</button>
+          <button class="btn-x" onclick="exportStaffHistoryCSV()" style="font-size:13px">Export</button>
         </div>
       </div>
 
@@ -920,7 +1484,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
         <!-- กราฟชั่วโมงทำงาน -->
         <div class="sec">
           <div class="sec-h">
-            <div class="sec-t">📊 ชั่วโมงทำงาน</div>
+            <div class="sec-t">ชั่วโมงทำงาน</div>
             <div style="display:flex;gap:4px">
               <button class="sh-gtab tab on" onclick="setStaffChart('day',this)" style="font-size:11.5px;padding:4px 12px">รายวัน</button>
               <button class="sh-gtab tab" onclick="setStaffChart('week',this)" style="font-size:11.5px;padding:4px 12px">รายสัปดาห์</button>
@@ -937,7 +1501,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
             <div class="sec-b"><div id="sh-by-cat"></div></div>
           </div>
           <div class="sec">
-            <div class="sec-h"><div class="sec-t">🏷️ ตามประเภทงาน</div></div>
+            <div class="sec-h"><div class="sec-t">ตามประเภทงาน</div></div>
             <div class="sec-b"><div id="sh-by-type"></div></div>
           </div>
         </div>
@@ -956,7 +1520,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 <!-- ══ MODAL: DAILY LOG ══ -->
 <div class="mo" id="mo-daily">
   <div class="mb">
-    <div class="mh"><div class="mt2" id="daily-modal-title">📅 บันทึกงาน</div><button class="mc" onclick="closeModal('mo-daily')">✕</button></div>
+    <div class="mh"><div class="mt2" id="daily-modal-title">บันทึกงาน</div><button class="mc" onclick="closeModal('mo-daily')">✕</button></div>
     <input type="hidden" id="daily-eid">
     <div class="fg"><label class="fl">ชื่องาน / กิจกรรม *</label><input class="fi" id="f-dl-name" placeholder="ชื่องาน..."></div>
     <div class="form-grid">
@@ -983,16 +1547,16 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <div class="form-grid">
       <div class="fg"><label class="fl">ประเภทงาน</label>
         <select class="fs" id="f-dl-type">
-          <option value="daily">📅 งานประจำวัน</option>
-          <option value="weekly">📆 งานประจำสัปดาห์</option>
-          <option value="monthly">🗓️ งานประจำเดือน</option>
+          <option value="daily">งานประจำวัน</option>
+          <option value="weekly">งานประจำสัปดาห์</option>
+          <option value="monthly">งานประจำเดือน</option>
         </select>
       </div>
       <div class="fg"><label class="fl">สถานะ</label>
         <select class="fs" id="f-dl-status">
-          <option value="เสร็จแล้ว">✅ เสร็จแล้ว</option>
-          <option value="กำลังทำ">🔵 กำลังทำ</option>
-          <option value="รออยู่">⏳ รออยู่</option>
+          <option value="เสร็จแล้ว">เสร็จแล้ว</option>
+          <option value="กำลังทำ">กำลังทำ</option>
+          <option value="รออยู่">รออยู่</option>
         </select>
       </div>
     </div>
@@ -1006,9 +1570,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <input type="hidden" id="f-dl-img-url">
     </div>
     <div class="ma">
-      <button class="btn-del" id="dl-del-btn" style="display:none" onclick="deleteDailyLog()">🗑️ ลบ</button>
+      <button class="btn-del" id="dl-del-btn" style="display:none" onclick="deleteDailyLog()">ลบ</button>
       <button class="btn-x" onclick="closeModal('mo-daily')">ยกเลิก</button>
-      <button class="btn-s" id="dl-save-btn" onclick="saveDailyLog()">💾 บันทึก</button>
+      <button class="btn-s" id="dl-save-btn" onclick="saveDailyLog()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -1016,7 +1580,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 <!-- ══ MODAL: PROJECT ══ -->
 <div class="mo" id="mo-project">
   <div class="mb lg">
-    <div class="mh"><div class="mt2" id="proj-modal-title">🗂️ สร้าง Project</div><button class="mc" onclick="closeModal('mo-project')">✕</button></div>
+    <div class="mh"><div class="mt2" id="proj-modal-title">สร้าง Project</div><button class="mc" onclick="closeModal('mo-project')">✕</button></div>
     <input type="hidden" id="proj-eid">
     <div class="fg"><label class="fl">ชื่อ Project *</label><input class="fi" id="f-pj-name" placeholder="ชื่อ Project..."></div>
     <div class="fg"><label class="fl">คำอธิบาย <span id="f-pj-desc-count" style="font-size:11px;color:var(--tl);font-weight:400"></span></label><textarea class="ft" id="f-pj-desc" maxlength="4000" placeholder="รายละเอียด Project..." oninput="updateCharCount(this,'f-pj-desc-count')"></textarea></div>
@@ -1030,9 +1594,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       </div>
       <div class="fg"><label class="fl">สถานะ</label>
         <select class="fs" id="f-pj-status">
-          <option value="รออยู่">⏳ รออยู่</option>
-          <option value="กำลังดำเนินการ" selected>🔵 กำลังดำเนินการ</option>
-          <option value="เสร็จสิ้น">✅ เสร็จสิ้น</option>
+          <option value="รออยู่">รออยู่</option>
+          <option value="กำลังดำเนินการ" selected>กำลังดำเนินการ</option>
+          <option value="เสร็จสิ้น">เสร็จสิ้น</option>
           <option value="ระงับ">⏸️ ระงับ</option>
         </select>
       </div>
@@ -1060,9 +1624,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <input type="hidden" id="f-pj-img-url">
     </div>
     <div class="ma">
-      <button class="btn-del" id="pj-del-btn" style="display:none" onclick="deleteProject()">🗑️ ลบ Project</button>
+      <button class="btn-del" id="pj-del-btn" style="display:none" onclick="deleteProject()">ลบ Project</button>
       <button class="btn-x" onclick="closeModal('mo-project')">ยกเลิก</button>
-      <button class="btn-s" id="pj-save-btn" onclick="saveProject()">💾 บันทึก</button>
+      <button class="btn-s" id="pj-save-btn" onclick="saveProject()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -1070,7 +1634,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 <!-- ══ MODAL: STEP ══ -->
 <div class="mo" id="mo-step">
   <div class="mb">
-    <div class="mh"><div class="mt2" id="step-modal-title">🔖 เพิ่มขั้นตอน</div><button class="mc" onclick="closeModal('mo-step')">✕</button></div>
+    <div class="mh"><div class="mt2" id="step-modal-title">เพิ่มขั้นตอน</div><button class="mc" onclick="closeModal('mo-step')">✕</button></div>
     <input type="hidden" id="step-eid">
     <div class="fg"><label class="fl">ชื่อขั้นตอน *</label><input class="fi" id="f-st-name" placeholder="ชื่อขั้นตอน..."></div>
     <div class="fg"><label class="fl">รายละเอียด <span id="f-st-desc-count" style="font-size:11px;color:var(--tl);font-weight:400"></span></label><textarea class="ft" id="f-st-desc" maxlength="4000" placeholder="รายละเอียด..." oninput="updateCharCount(this,'f-st-desc-count')"></textarea></div>
@@ -1082,9 +1646,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       <div class="fg"><label class="fl">ลำดับ</label><input class="fi" type="number" id="f-st-order" min="1" value="1"></div>
       <div class="fg"><label class="fl">สถานะ</label>
         <select class="fs" id="f-st-status">
-          <option value="รออยู่">⏳ รออยู่</option>
-          <option value="กำลังทำ">🔵 กำลังทำ</option>
-          <option value="เสร็จแล้ว">✅ เสร็จแล้ว</option>
+          <option value="รออยู่">รออยู่</option>
+          <option value="กำลังทำ">กำลังทำ</option>
+          <option value="เสร็จแล้ว">เสร็จแล้ว</option>
         </select>
       </div>
     </div>
@@ -1107,7 +1671,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     <div class="fg" style="background:var(--bg);border-radius:10px;padding:12px;margin-top:4px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;font-weight:600;user-select:none">
         <input type="checkbox" id="f-st-tolog" style="width:16px;height:16px;cursor:pointer" onchange="toggleStepLogFields()">
-        📅 บันทึกลงงานประจำด้วย
+        บันทึกลงงานประจำด้วย
       </label>
       <div id="st-log-fields" style="display:none;margin-top:12px">
         <div class="form-grid">
@@ -1133,9 +1697,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
     </div>
 
     <div class="ma">
-      <button class="btn-del" id="st-del-btn" style="display:none" onclick="deleteStep()">🗑️ ลบขั้นตอน</button>
+      <button class="btn-del" id="st-del-btn" style="display:none" onclick="deleteStep()">ลบขั้นตอน</button>
       <button class="btn-x" onclick="closeModal('mo-step')">ยกเลิก</button>
-      <button class="btn-s" id="st-save-btn" onclick="saveStep()">💾 บันทึก</button>
+      <button class="btn-s" id="st-save-btn" onclick="saveStep()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -1143,7 +1707,7 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
 <!-- ══ MODAL: USER ══ -->
 <div class="mo" id="mo-user">
   <div class="mb" style="width:480px">
-    <div class="mh"><div class="mt2" id="user-modal-title">👤 เพิ่มผู้ใช้</div><button class="mc" onclick="closeModal('mo-user')">✕</button></div>
+    <div class="mh"><div class="mt2" id="user-modal-title">เพิ่มผู้ใช้</div><button class="mc" onclick="closeModal('mo-user')">✕</button></div>
     <input type="hidden" id="user-eid">
     <div class="form-grid">
       <div class="fg"><label class="fl">Username *</label><input class="fi" id="f-u-username" placeholder="username"></div>
@@ -1162,9 +1726,9 @@ body.dark .upload-area{background:#1e2a3e;border-color:#2d3d6e}
       </div>
     </div>
     <div class="ma">
-      <button class="btn-del" id="u-del-btn" style="display:none" onclick="deleteUser()">🗑️ ลบผู้ใช้</button>
+      <button class="btn-del" id="u-del-btn" style="display:none" onclick="deleteUser()">ลบผู้ใช้</button>
       <button class="btn-x" onclick="closeModal('mo-user')">ยกเลิก</button>
-      <button class="btn-s" onclick="saveUser()">💾 บันทึก</button>
+      <button class="btn-s" onclick="saveUser()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -1185,11 +1749,9 @@ var S = { users:[], dailyLogs:[], projects:[], steps:[] };
 var currentUser = null;
 var currentDate = new Date();
 var currentProjectId = null;
-
-// Fallback users (ใช้เมื่อ Sheet ยังไม่พร้อม)
-var LOCAL_USERS = [
-  { username:'admin', password:'1234', name:'Admin IT Gracz', role:'ผู้ดูแลระบบ', isAdmin:true },
-];
+var _loadAllPromise = null;
+var _loadedStepProjects = {};
+var _stepsLoadedAll = false;
 
 // ══════════════════════════════════════════════
 //  LOGIN / LOGOUT
@@ -1204,14 +1766,11 @@ function doLogin() {
   btn.textContent = '⏳ กำลังตรวจสอบ...'; btn.disabled = true;
   errEl.textContent = '';
 
-  var tryLocalLogin = function() {
-    var found = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
-    if (found) { loginSuccess(found); }
-    else { errEl.textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'; }
+  if (!SCRIPT_URL) {
+    errEl.textContent = '❌ ยังไม่ได้ตั้งค่า URL ของระบบ';
     btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
-  };
-
-  if (!SCRIPT_URL) { tryLocalLogin(); return; }
+    return;
+  }
 
   // ลอง login จาก Sheet — timeout 15 วิ (มือถือ network ช้ากว่า)
   var cb = '_lcb_'+(++_ci), sc = document.createElement('script'), done = false;
@@ -1220,13 +1779,7 @@ function doLogin() {
       done=true;
       if (sc.parentNode) sc.parentNode.removeChild(sc);
       window[cb]=function(){};
-      // timeout — ลอง local fallback ก่อน แล้วค่อยแสดง error
-      var found = LOCAL_USERS.find(function(x){ return x.username===u && x.password===p; });
-      if (found) {
-        loginSuccess(found);
-      } else {
-        errEl.textContent = '❌ เชื่อมต่อช้า กรุณาลองใหม่อีกครั้ง';
-      }
+      errEl.textContent = '❌ เชื่อมต่อช้า กรุณาลองใหม่อีกครั้ง';
       btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false;
     }
   }, 15000);
@@ -1299,6 +1852,9 @@ function doLogout() {
   // ลบ session จดจำฉัน
   try { localStorage.removeItem('gracz_session'); } catch(e) {}
   S = { users:[], dailyLogs:[], projects:[], steps:[] };
+  _loadAllPromise = null;
+  _loadedStepProjects = {};
+  _stepsLoadedAll = false;
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-err').textContent = '';
@@ -1409,7 +1965,8 @@ function jsonp(action, extra, _retried) {
 function api(body) {
   if (!SCRIPT_URL) return Promise.reject(new Error('ยังไม่ได้ตั้งค่า URL'));
   // ใช้ JSONP RPC แทน fetch POST เพราะ GitHub Pages ถูก CORS block
-  return jsonp('rpc', { payload: JSON.stringify(body) });
+  // write ห้าม retry อัตโนมัติ เพราะคำสั่งเดิมอาจสำเร็จแล้วแต่ response มาช้า
+  return jsonp('rpc', { payload: JSON.stringify(body) }, true);
 }
 
 function setCS(cls, txt) {
@@ -1423,33 +1980,36 @@ function setCS(cls, txt) {
 function loadAll() {
   if (!currentUser) return; // ยังไม่ได้ login
   if (!SCRIPT_URL) { setCS('er','ยังไม่ได้ตั้งค่า URL'); loadDemoData(); return; }
+  if (_loadAllPromise) return _loadAllPromise;
+  var requestedUsername = currentUser.username;
   setCS('ld','กำลังโหลด...');
-  // admin โหลด log ทั้งหมด, user ทั่วไปโหลดแค่ของตัวเอง
+  // admin/manager โหลด log ทั้งหมด, user ทั่วไปโหลดเฉพาะของตัวเอง
   var isMgr = !currentUser.isAdmin && (String(currentUser.role||'').indexOf('Manager')>-1 || String(currentUser.role||'').indexOf('ผู้จัดการ')>-1);
   var logParams = (currentUser.isAdmin || isMgr) ? {} : {username:currentUser.username};
-  Promise.allSettled([
-    jsonp('getUsers'),
-    jsonp('getDailyLogs', logParams),
-    jsonp('getProjects'),
-  ]).then(function(res){
-    var failed = [];
-    if (res[0].status==='fulfilled') S.users     = res[0].value||[]; else failed.push('ผู้ใช้');
-    if (res[1].status==='fulfilled') S.dailyLogs = res[1].value||[]; else failed.push('งานประจำวัน');
-    if (res[2].status==='fulfilled') S.projects  = res[2].value||[]; else failed.push('Projects');
-    if (failed.length === 3) {
-      // ทุกอย่าง fail — น่าจะเชื่อมต่อไม่ได้เลย
-      setCS('er','เชื่อมต่อไม่ได้');
-      showToast('❌ โหลดข้อมูลไม่สำเร็จ กด 🔄 เพื่อลองใหม่','er');
-    } else if (failed.length) {
-      setCS('ok','เชื่อมต่อแล้ว');
-      showToast('⚠️ โหลด'+failed.join(', ')+'ไม่สำเร็จ กด 🔄 เพื่อลองใหม่','er');
-    } else {
-      setCS('ok','เชื่อมต่อแล้ว');
-    }
+  _loadAllPromise = jsonp('getBootstrap', logParams).then(function(data){
+    data = data || {};
+    // ผู้ใช้อาจ logout หรือเปลี่ยน session ระหว่างรอ response
+    if (!currentUser || currentUser.username !== requestedUsername) return data;
+    S.users = data.users || [];
+    S.dailyLogs = data.dailyLogs || [];
+    S.projects = data.projects || [];
+    // Steps โหลดแบบ lazy เมื่อเปิดรายละเอียดหรือ Team Board
+    S.steps = [];
+    _loadedStepProjects = {};
+    _stepsLoadedAll = false;
+    setCS('ok','เชื่อมต่อแล้ว');
     fillUserDropdowns();
     loadDashboard();
     updateDueBadge();
+    return data;
+  }).catch(function(err){
+    setCS('er','เชื่อมต่อไม่ได้');
+    showToast('❌ โหลดข้อมูลไม่สำเร็จ: '+err.message,'er');
+    return null;
+  }).finally(function(){
+    _loadAllPromise = null;
   });
+  return _loadAllPromise;
 }
 
 function loadDemoData() {
@@ -1505,12 +2065,12 @@ function loadDashboard() {
   var totalMins = todayLogs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); }, 0);
   var myProjs = seeAll
     ? S.projects
-    : S.projects.filter(function(p){ return p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1; });
+    : S.projects.filter(function(p){ return p.owner===currentUser.username||hasProjectMember(p,currentUser.username); });
   var activeP = myProjs.filter(function(p){ return p.status==='กำลังดำเนินการ'; });
 
   var h = Math.floor(totalMins/60), m = totalMins%60;
-  document.getElementById('d-mins').textContent  = h+'h '+m+'m';
-  document.getElementById('d-tasks').textContent  = seeAll ? todayLogs.length+' (ทั้งหมด)' : todayLogs.length;
+  document.getElementById('d-mins').textContent  = h+' ชม. '+m+' น.';
+  document.getElementById('d-tasks').textContent  = todayLogs.length;
   document.getElementById('d-projs').textContent  = myProjs.length;
   document.getElementById('d-active').textContent = activeP.length;
 
@@ -1538,15 +2098,7 @@ function loadDashboard() {
 // ══════════════════════════════════════════════
 function loadDailyPage() {
   renderDailyDate();
-  if (SCRIPT_URL) {
-    setCS('ld','กำลังโหลด...');
-    var lp = currentUser.isAdmin ? {} : {username:currentUser.username};
-    jsonp('getDailyLogs', lp).then(function(d){
-      S.dailyLogs = d||[];
-      setCS('ok','เชื่อมต่อแล้ว');
-      renderCurrentDailyView();
-    }).catch(function(e){ showToast('❌ โหลดไม่ได้: '+e.message,'er'); renderCurrentDailyView(); });
-  } else { renderCurrentDailyView(); }
+  renderCurrentDailyView();
 }
 
 function renderCurrentDailyView() {
@@ -1602,7 +2154,7 @@ function logItemHTML(l) {
     var thumbUrl = driveUrl(l.imageUrl);
     var origUrl  = escHtml(l.imageUrl);
     imgHtml = '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px">'
-      + '<img class="log-img" src="'+thumbUrl+'" title="คลิกดูรูป"'
+      + '<img class="log-img" loading="lazy" decoding="async" src="'+thumbUrl+'" title="คลิกดูรูป"'
       + ' onerror="this.parentNode.style.display=\'none\'"'
       + ' data-orig="'+origUrl+'" onclick="lightbox(this.dataset.orig)">'
       + '<button class="bi" style="font-size:11px;padding:2px 8px"'
@@ -1619,7 +2171,7 @@ function logItemHTML(l) {
     +'</div>'
     +imgHtml
     +'<div class="log-actions">'
-    +'<button class="bi" data-id="'+escHtml(l.id||'')+'" onclick="editDailyLog(this.dataset.id)">✏️</button>'
+    +'<button class="bi" data-id="'+escHtml(l.id||'')+'" onclick="editDailyLog(this.dataset.id)">แก้ไข</button>'
     +'</div></div>';
 }
 
@@ -1718,7 +2270,7 @@ function calSelect(ds) {
 function openDailyModal(id) {
   closeAllModals();
   document.getElementById('daily-eid').value = '';
-  document.getElementById('daily-modal-title').textContent = '📅 บันทึกงาน';
+  document.getElementById('daily-modal-title').textContent = 'บันทึกงาน';
   document.getElementById('dl-del-btn').style.display = 'none';
   document.getElementById('f-dl-name').value = '';
   document.getElementById('f-dl-date').value = fmtISO(fmt(currentDate));
@@ -1741,7 +2293,7 @@ function editDailyLog(id) {
   if (!l) return;
   closeAllModals();
   document.getElementById('daily-eid').value = id;
-  document.getElementById('daily-modal-title').textContent = '✏️ แก้ไขงาน';
+  document.getElementById('daily-modal-title').textContent = 'แก้ไขงาน';
   document.getElementById('dl-del-btn').style.display = '';
   document.getElementById('f-dl-name').value = l.taskName||'';
   document.getElementById('f-dl-date').value = fmtISO(l.date||'');
@@ -1793,7 +2345,7 @@ function saveDailyLog() {
       closeModal('mo-daily'); showToast('✅ บันทึกงานสำเร็จ','ok');
       renderCurrentDailyView(); loadDashboard();
     }).catch(function(e){ showToast('❌ '+e.message,'er'); })
-      .finally(function(){ btn.disabled=false; btn.innerHTML='💾 บันทึก'; });
+      .finally(function(){ btn.disabled=false; btn.textContent='บันทึก'; });
   };
 
   if (imgFile && !document.getElementById('f-dl-img-url').value) {
@@ -1822,9 +2374,7 @@ function loadProjects() {
   if (bg) { bg.classList.toggle('on', saved==='grid'); }
   if (bl) { bl.classList.toggle('on', saved==='list'); }
 
-  if (SCRIPT_URL) {
-    jsonp('getProjects').then(function(d){ S.projects=d||[]; renderProjects(); }).catch(function(){ renderProjects(); });
-  } else { renderProjects(); }
+  renderProjects();
 }
 
 var projViewMode = localStorage.getItem('gracz_proj_view') || 'grid';
@@ -1851,7 +2401,7 @@ function renderProjects() {
   var search = srchEl ? srchEl.value.toLowerCase().trim() : '';
 
   var list = S.projects.filter(function(p){
-    var mine = p.owner===currentUser.username||(p.members||'').indexOf(currentUser.username)>-1||currentUser.isAdmin;
+    var mine = p.owner===currentUser.username||hasProjectMember(p,currentUser.username)||currentUser.isAdmin;
     if (!mine) return false;
     if (filter && p.status!==filter) return false;
     if (search && (p.name||'').toLowerCase().indexOf(search)<0 && (p.description||'').toLowerCase().indexOf(search)<0) return false;
@@ -1898,10 +2448,9 @@ function projCardHTML(p) {
   var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
   var prog = parseInt(p.progress||0);
   var imgInner = isValidImgUrl(p.imageUrl)
-    ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
+    ? '<img loading="lazy" decoding="async" src="'+driveUrl(p.imageUrl)+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
     : '';
-  var imgHtml = '<div style="width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;flex-shrink:0">'
-    + imgInner + (isValidImgUrl(p.imageUrl)?'':'🗂️') + '</div>';
+  var imgHtml = '<div class="project-img">' + imgInner + '</div>';
   return '<div class="project-card '+progColor(prog)+'" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">'
     +imgHtml
     +'<div class="project-body">'
@@ -1916,8 +2465,8 @@ function projListHTML(p) {
   var stCls = {กำลังดำเนินการ:'doing',เสร็จสิ้น:'done',รออยู่:'pending',ระงับ:'hold'}[p.status]||'pending';
   var prog = parseInt(p.progress||0);
   var imgHtml = isValidImgUrl(p.imageUrl)
-    ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">' 
-    : '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px">🗂️</div>';
+    ? '<img loading="lazy" decoding="async" src="'+driveUrl(p.imageUrl)+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">' 
+    : '<div class="project-code">PJ</div>';
   var owner = (S.users.find(function(u){return u.username===p.owner;})||{}).name||p.owner||'-';
   return '<div class="proj-list-item '+progColor(prog)+'" onclick="openProjectDetail(this.dataset.pid)" data-pid="'+p.id+'">'
     +'<div class="proj-list-img">'+imgHtml+'</div>'
@@ -1926,8 +2475,8 @@ function projListHTML(p) {
     +'<div class="proj-list-desc">'+escHtml(p.description||'ไม่มีคำอธิบาย')+'</div>'
     +'<div class="proj-list-meta">'
     +'<span class="badge '+stCls+'">'+p.status+'</span>'
-    +'<span style="font-size:11.5px;color:var(--ts)">👤 '+escHtml(owner)+'</span>'
-    +(p.dueDate?'<span style="font-size:11.5px;color:var(--ts)">📅 '+escHtml(p.dueDate)+'</span>':'')
+    +'<span style="font-size:11.5px;color:var(--ts)">Owner: '+escHtml(owner)+'</span>'
+    +(p.dueDate?'<span style="font-size:11.5px;color:var(--ts)">Due: '+escHtml(p.dueDate)+'</span>':'')
     +'</div></div>'
     +'<div class="proj-list-right">'
     +'<span style="font-size:14px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
@@ -1958,13 +2507,14 @@ function loadProjectDetail(id) {
   document.getElementById('detail-prog-pct').textContent = prog+'%';
   document.getElementById('detail-prog-bar').style.width = prog+'%';
   var imgEl = document.getElementById('detail-proj-image');
-  imgEl.innerHTML = isValidImgUrl(p.imageUrl) ? '<img src="'+driveUrl(p.imageUrl)+'" style="width:100%;border-radius:8px;cursor:zoom-in" onclick="lightbox(\''+escHtml(p.imageUrl)+'\')" onerror="this.style.display=\'none\'">' : '';
-  // load steps
-  if (SCRIPT_URL) {
+  imgEl.innerHTML = isValidImgUrl(p.imageUrl) ? '<img loading="lazy" decoding="async" src="'+driveUrl(p.imageUrl)+'" style="width:100%;border-radius:8px;cursor:zoom-in" onclick="lightbox(\''+escHtml(p.imageUrl)+'\')" onerror="this.style.display=\'none\'">' : '';
+  // โหลด steps เฉพาะครั้งแรกของ project นี้
+  if (SCRIPT_URL && !_stepsLoadedAll && !_loadedStepProjects[id]) {
     jsonp('getSteps',{projectId:id}).then(function(d){
       S.steps = (S.steps||[]).filter(function(s){return s.projectId!==id;}).concat(d||[]);
-      renderSteps(id);
-    }).catch(function(){ renderSteps(id); });
+      _loadedStepProjects[id] = true;
+      if (currentProjectId === id) renderSteps(id);
+    }).catch(function(){ if (currentProjectId === id) renderSteps(id); });
   } else { renderSteps(id); }
 }
 
@@ -1999,14 +2549,14 @@ function renderSteps(projectId) {
       +'<span style="font-size:13px;font-weight:700;color:var(--navy)">'+prog+'%</span>'
       +(isValidImgUrl(s.imageUrl)
         ? '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'
-          + '<img src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover"'
+          + '<img loading="lazy" decoding="async" src="'+driveUrl(s.imageUrl)+'" style="width:44px;height:44px;border-radius:6px;object-fit:cover"'
           + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)"'
           + ' onerror="this.parentNode.style.display=\'none\'">' 
           + '<button class="bi" style="font-size:10px;padding:1px 5px"'
           + ' data-orig="'+escHtml(s.imageUrl)+'" onclick="lightbox(this.dataset.orig)">🔍</button>'
           + '</div>'
         : '')
-      +'<button class="bi" onclick="editStep(\''+s.id+'\')">✏️</button>'
+      +'<button class="bi" onclick="editStep(\''+s.id+'\')">แก้ไข</button>'
       +'</div>'
       +'</div>';
   }).join('');
@@ -2015,7 +2565,7 @@ function renderSteps(projectId) {
 function openProjectModal() {
   closeAllModals();
   document.getElementById('proj-eid').value='';
-  document.getElementById('proj-modal-title').textContent='🗂️ สร้าง Project';
+  document.getElementById('proj-modal-title').textContent='สร้าง Project';
   document.getElementById('pj-del-btn').style.display='none';
   ['f-pj-name','f-pj-desc','f-pj-members'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('f-pj-start').value = fmtISO(fmt(new Date()));
@@ -2034,7 +2584,7 @@ function editCurrentProject() {
   if (!p) return;
   closeAllModals();
   document.getElementById('proj-eid').value=p.id;
-  document.getElementById('proj-modal-title').textContent='✏️ แก้ไข Project';
+  document.getElementById('proj-modal-title').textContent='แก้ไข Project';
   document.getElementById('pj-del-btn').style.display='';
   document.getElementById('f-pj-name').value=p.name||'';
   document.getElementById('f-pj-desc').value=p.description||'';
@@ -2080,7 +2630,7 @@ function saveProject() {
       closeModal('mo-project'); showToast('✅ บันทึก Project สำเร็จ','ok'); renderProjects();
       if(eid) loadProjectDetail(eid);
     }).catch(function(e){showToast('❌ '+e.message,'er');})
-      .finally(function(){btn.disabled=false;btn.innerHTML='💾 บันทึก';});
+      .finally(function(){btn.disabled=false;btn.textContent='บันทึก';});
   };
   if(imgFile&&!document.getElementById('f-pj-img-url').value) uploadImage(imgFile,doSave); else doSave(null);
 }
@@ -2090,6 +2640,8 @@ function deleteProject() {
   if(!id||!confirm('ลบ Project นี้ใช่หรือไม่? (รวมถึงขั้นตอนทั้งหมด)'))return;
   api({action:'deleteProject',id:id}).then(function(){
     S.projects=S.projects.filter(function(x){return x.id!==id;});
+    S.steps=(S.steps||[]).filter(function(x){return x.projectId!==id;});
+    delete _loadedStepProjects[id];
     closeModal('mo-project'); showToast('🗑️ ลบ Project แล้ว',''); navigateTo('projects');
   }).catch(function(e){showToast('❌ '+e.message,'er');});
 }
@@ -2100,7 +2652,7 @@ function deleteProject() {
 function openStepModal() {
   closeAllModals();
   document.getElementById('step-eid').value='';
-  document.getElementById('step-modal-title').textContent='🔖 เพิ่มขั้นตอน';
+  document.getElementById('step-modal-title').textContent='เพิ่มขั้นตอน';
   document.getElementById('st-del-btn').style.display='none';
   ['f-st-name','f-st-desc'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('f-st-due').value='';
@@ -2131,7 +2683,7 @@ function editStep(id) {
   if(!s)return;
   closeAllModals();
   document.getElementById('step-eid').value=id;
-  document.getElementById('step-modal-title').textContent='✏️ แก้ไขขั้นตอน';
+  document.getElementById('step-modal-title').textContent='แก้ไขขั้นตอน';
   document.getElementById('st-del-btn').style.display='';
   document.getElementById('f-st-name').value=s.stepName||'';
   document.getElementById('f-st-desc').value=s.description||'';
@@ -2224,6 +2776,7 @@ function saveStep() {
     api({action:action,data:d}).then(function(res){
       if(!eid){d.id=(res&&res.id)||('STP_'+Date.now()); S.steps=S.steps||[]; S.steps.push(d);}
       else{var idx=(S.steps||[]).findIndex(function(x){return x.id===eid;});if(idx>-1)S.steps[idx]=Object.assign(S.steps[idx],d);}
+      _loadedStepProjects[currentProjectId] = true;
       // recalc progress locally
       var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
       var avg=steps.length?Math.round(steps.reduce(function(s,r){return s+(parseInt(r.progress||0));},0)/steps.length):0;
@@ -2235,7 +2788,7 @@ function saveStep() {
       // บันทึกลงงานประจำด้วย (ถ้าติ๊ก)
       maybeLogStepToDaily(d);
     }).catch(function(e){showToast('❌ '+e.message,'er');})
-      .finally(function(){btn.disabled=false;btn.innerHTML='💾 บันทึก';});
+      .finally(function(){btn.disabled=false;btn.textContent='บันทึก';});
   };
   if(stImgFile&&!document.getElementById('f-st-img-url').value) uploadImage(stImgFile,doSave); else doSave(null);
 }
@@ -2245,7 +2798,13 @@ function deleteStep() {
   if(!id||!confirm('ลบขั้นตอนนี้ใช่หรือไม่?'))return;
   api({action:'deleteStep',id:id}).then(function(){
     S.steps=(S.steps||[]).filter(function(x){return x.id!==id;});
+    var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
+    var avg=steps.length?Math.round(steps.reduce(function(sum,s){return sum+(parseInt(s.progress||0));},0)/steps.length):0;
+    var pidx=S.projects.findIndex(function(x){return x.id===currentProjectId;});
+    if(pidx>-1) S.projects[pidx].progress=avg;
     closeModal('mo-step'); showToast('🗑️ ลบขั้นตอนแล้ว',''); renderSteps(currentProjectId);
+    document.getElementById('detail-prog-pct').textContent=avg+'%';
+    document.getElementById('detail-prog-bar').style.width=avg+'%';
   }).catch(function(e){showToast('❌ '+e.message,'er');});
 }
 
@@ -2253,9 +2812,8 @@ function deleteStep() {
 //  USERS
 // ══════════════════════════════════════════════
 function loadUsers() {
-  if(SCRIPT_URL){
-    jsonp('getUsers').then(function(d){S.users=d||[];renderUsers();fillUserDropdowns();}).catch(function(){renderUsers();});
-  } else { renderUsers(); }
+  renderUsers();
+  fillUserDropdowns();
 }
 
 function renderUsers() {
@@ -2264,15 +2822,15 @@ function renderUsers() {
   tbody.innerHTML=S.users.map(function(u){
     return '<tr><td><b>'+escHtml(u.username||'')+'</b></td><td>'+escHtml(u.name||'')+'</td>'
       +'<td>'+escHtml(u.role||'')+'</td><td>'+escHtml(u.department||'')+'</td>'
-      +'<td><span class="badge '+(u.status==='ใช้งาน'?'done':'hold')+'">'+u.status+'</span></td>'
-      +'<td><button class="bi" onclick="editUser(\''+u.id+'\')">✏️</button></td></tr>';
+      +'<td><span class="badge '+(u.status==='ใช้งาน'?'done':'hold')+'">'+escHtml(u.status||'')+'</span></td>'
+      +'<td><button class="bi" data-id="'+escHtml(u.id||'')+'" onclick="editUser(this.dataset.id)">แก้ไข</button></td></tr>';
   }).join('');
 }
 
 function openUserModal(){
   closeAllModals();
   document.getElementById('user-eid').value='';
-  document.getElementById('user-modal-title').textContent='👤 เพิ่มผู้ใช้';
+  document.getElementById('user-modal-title').textContent='เพิ่มผู้ใช้';
   document.getElementById('u-del-btn').style.display='none';
   ['f-u-username','f-u-pass','f-u-name','f-u-dept'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('mo-user').classList.add('on');
@@ -2282,7 +2840,7 @@ function editUser(id){
   var u=S.users.find(function(x){return x.id===id;});if(!u)return;
   closeAllModals();
   document.getElementById('user-eid').value=id;
-  document.getElementById('user-modal-title').textContent='✏️ แก้ไขผู้ใช้';
+  document.getElementById('user-modal-title').textContent='แก้ไขผู้ใช้';
   document.getElementById('u-del-btn').style.display='';
   document.getElementById('f-u-username').value=u.username||'';
   document.getElementById('f-u-pass').value='';
@@ -2440,7 +2998,7 @@ function closeAllModals() {
 // ══════════════════════════════════════════════
 function fillUserDropdowns() {
   var opts = '<option value="">— เลือก —</option>' + S.users.map(function(u){
-    return '<option value="'+u.username+'">'+(u.name||u.username)+' ('+u.username+')</option>';
+    return '<option value="'+escHtml(u.username||'')+'">'+escHtml(u.name||u.username)+' ('+escHtml(u.username||'')+')</option>';
   }).join('');
   ['f-pj-owner','f-st-assignee'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.innerHTML=opts;
@@ -2498,6 +3056,14 @@ function updateCharCount(el, countId) {
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function hasProjectMember(project, username) {
+  username = String(username || '').trim();
+  if (!username) return false;
+  return String((project && project.members) || '').split(/[,;\n]+/).some(function(member){
+    return String(member || '').trim() === username;
+  });
 }
 var _tt;
 function showToast(msg,type){
@@ -2865,10 +3431,7 @@ function initStaffHistory() {
       }).join('');
   if (cur) sel.value = cur;
 
-  // โหลด log ทั้งหมด (ถ้ายังไม่มี)
-  if (SCRIPT_URL && (!S.dailyLogs || !S.dailyLogs.length)) {
-    jsonp('getDailyLogs', {}).then(function(d){ S.dailyLogs = d||[]; renderStaffHistory(); }).catch(function(){});
-  }
+  renderStaffHistory();
 }
 
 function shGetFilteredLogs() {
@@ -3012,7 +3575,7 @@ function renderStaffByType(logs) {
     var t = l.type || 'daily';
     types[t] = (types[t]||0) + (parseInt(l.hours||0)*60+parseInt(l.minutes||0));
   });
-  var labels = { daily:'📅 งานประจำวัน', weekly:'📆 งานสัปดาห์', monthly:'🗓️ งานประจำเดือน' };
+  var labels = { daily:'งานประจำวัน', weekly:'งานสัปดาห์', monthly:'งานประจำเดือน' };
   var named = {};
   Object.keys(types).forEach(function(k){ if(types[k]>0) named[labels[k]||k] = types[k]; });
   renderBarList('sh-by-type', named);
@@ -3093,19 +3656,13 @@ function initReportLogs() {
   // fill user dropdown
   var sel = document.getElementById('rl-filter-user');
   sel.innerHTML = '<option value="">— ทุกคน —</option>'
-    + S.users.map(function(u){ return '<option value="'+u.username+'">'+(u.name||u.username)+'</option>'; }).join('');
+    + S.users.map(function(u){ return '<option value="'+escHtml(u.username||'')+'">'+escHtml(u.name||u.username)+'</option>'; }).join('');
   // default: 30 วันที่ผ่านมา
   var today = new Date(), from = new Date(today);
   from.setDate(from.getDate()-29);
-  document.getElementById('rl-date-from').value = today.toISOString().split('T')[0];
-  document.getElementById('rl-date-to').value   = today.toISOString().split('T')[0];
-  document.getElementById('rl-date-from').value = from.toISOString().split('T')[0];
-  // reload logs if needed
-  if (SCRIPT_URL && currentUser && currentUser.isAdmin) {
-    setCS('ld','กำลังโหลด...');
-    jsonp('getDailyLogs',{}).then(function(d){ S.dailyLogs=d||[]; setCS('ok','เชื่อมต่อแล้ว'); renderReportLogs(); })
-      .catch(function(){ renderReportLogs(); });
-  } else { renderReportLogs(); }
+  document.getElementById('rl-date-to').value   = fmtISO(fmt(today));
+  document.getElementById('rl-date-from').value = fmtISO(fmt(from));
+  renderReportLogs();
 }
 
 function renderReportLogs() {
@@ -3125,7 +3682,7 @@ function renderReportLogs() {
   });
 
   // sort newest first
-  logs = logs.slice().sort(function(a,b){ return normDate(b.date).localeCompare(normDate(a.date)); });
+  logs = logs.slice().sort(function(a,b){ return dateValue(b.date)-dateValue(a.date); });
 
   // summary bar
   var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); },0);
@@ -3174,7 +3731,7 @@ function exportLogsCSV() {
     if (fromDate && d < fromDate) return false;
     if (toDate   && d > toDate)   return false;
     return true;
-  }).sort(function(a,b){ return normDate(a.date).localeCompare(normDate(b.date)); });
+  }).sort(function(a,b){ return dateValue(a.date)-dateValue(b.date); });
 
   var rows = [['วันที่','Username','ชื่อ-นามสกุล','งาน','หมวดหมู่','ชั่วโมง','นาที','รวม(นาที)','สถานะ','รายละเอียด']];
   logs.forEach(function(l){
@@ -3191,13 +3748,8 @@ function exportLogsCSV() {
 function initReportSummary() {
   var sel = document.getElementById('rs-user');
   sel.innerHTML = '<option value="">— ทุกคน —</option>'
-    + S.users.map(function(u){ return '<option value="'+u.username+'">'+(u.name||u.username)+'</option>'; }).join('');
-  // reload all logs
-  if (SCRIPT_URL && currentUser && currentUser.isAdmin) {
-    setCS('ld','กำลังโหลด...');
-    jsonp('getDailyLogs',{}).then(function(d){ S.dailyLogs=d||[]; setCS('ok','เชื่อมต่อแล้ว'); renderReportSummary(); })
-      .catch(function(){ renderReportSummary(); });
-  } else { renderReportSummary(); }
+    + S.users.map(function(u){ return '<option value="'+escHtml(u.username||'')+'">'+escHtml(u.name||u.username)+'</option>'; }).join('');
+  renderReportSummary();
 }
 
 function renderReportSummary() {
@@ -3318,7 +3870,7 @@ function exportSummaryCSV() {
   var logs = S.dailyLogs.filter(function(l){
     if (uFilt && l.username!==uFilt) return false;
     var d=parseDateStr(normDate(l.date)); return d>=from&&d<=today;
-  }).sort(function(a,b){ return normDate(a.date).localeCompare(normDate(b.date)); });
+  }).sort(function(a,b){ return dateValue(a.date)-dateValue(b.date); });
   var rows=[['วันที่','Username','ชื่อ-นามสกุล','งาน','หมวดหมู่','ชั่วโมง','นาที','รวม(นาที)','สถานะ']];
   logs.forEach(function(l){
     var uName=(S.users.find(function(u){return u.username===l.username;})||{}).name||l.username;
@@ -3359,6 +3911,11 @@ function parseDateStr(s) {
     }
   }
   var d=new Date(s); return isNaN(d)?null:d;
+}
+
+function dateValue(s) {
+  var d = parseDateStr(normDate(s));
+  return d ? d.getTime() : 0;
 }
 
 // Badge เตือนใน dashboard — เพิ่ม badge ใน sidebar project menu
@@ -3553,19 +4110,14 @@ function initTeamBoard() {
         return '<option value="'+p.id+'">'+escHtml(p.name)+'</option>';
       }).join('');
 
-  // โหลด steps จาก server ถ้าไม่มีในหน่วยความจำ
-  if (SCRIPT_URL && pubProjs.length) {
-    var loaded = 0;
-    pubProjs.forEach(function(p){
-      var existing = (S.steps||[]).filter(function(s){return s.projectId===p.id;});
-      if (existing.length) { loaded++; if(loaded===pubProjs.length) renderTeamBoard(); return; }
-      jsonp('getSteps',{projectId:p.id}).then(function(d){
-        S.steps = (S.steps||[]).filter(function(s){return s.projectId!==p.id;}).concat(d||[]);
-        loaded++;
-        if (loaded===pubProjs.length) renderTeamBoard();
-      }).catch(function(){ loaded++; if(loaded===pubProjs.length) renderTeamBoard(); });
-    });
-    if (!pubProjs.length) renderTeamBoard();
+  // โหลด steps ทั้งหมดครั้งเดียว แทน N requests ตามจำนวน project
+  if (SCRIPT_URL && pubProjs.length && !_stepsLoadedAll) {
+    jsonp('getSteps',{}).then(function(d){
+      S.steps = d || [];
+      _stepsLoadedAll = true;
+      _loadedStepProjects = {};
+      renderTeamBoard();
+    }).catch(function(){ renderTeamBoard(); });
   } else {
     renderTeamBoard();
   }
@@ -3642,8 +4194,10 @@ document.body.classList.add('logged-out'); // ซ่อน sidebar จนกว�
 // ทำให้ login ครั้งแรกเร็วขึ้นมาก
 (function pingScript() {
   if (!SCRIPT_URL) return;
+  // auto-login จะเรียก bootstrap อยู่แล้ว ไม่ต้องยิง ping ซ้ำพร้อมกัน
+  try { if (localStorage.getItem('gracz_session')) return; } catch(e) {}
   var statusEl = document.getElementById('login-status');
-  if (statusEl) statusEl.textContent = '⏳ กำลังเชื่อมต่อ...';
+  if (statusEl) statusEl.textContent = 'กำลังเชื่อมต่อ...';
   var cb = '_ping_'+Date.now();
   var sc = document.createElement('script');
   var t  = setTimeout(function(){
@@ -3654,13 +4208,13 @@ document.body.classList.add('logged-out'); // ซ่อน sidebar จนกว�
   window[cb] = function(d){
     clearTimeout(t); window[cb]=function(){};
     if(sc.parentNode) sc.parentNode.removeChild(sc);
-    if (statusEl) statusEl.textContent = d.ok ? '✅ เชื่อมต่อแล้ว พร้อมใช้งาน' : '';
+    if (statusEl) statusEl.textContent = d.ok ? 'เชื่อมต่อแล้ว พร้อมใช้งาน' : '';
     setTimeout(function(){ if(statusEl) statusEl.textContent=''; }, 3000);
   };
   sc.onerror = function(){
     clearTimeout(t); window[cb]=function(){};
     if(sc.parentNode) sc.parentNode.removeChild(sc);
-    if (statusEl) statusEl.textContent = '⚠️ เชื่อมต่อช้า';
+    if (statusEl) statusEl.textContent = 'เชื่อมต่อช้า';
   };
   sc.src = SCRIPT_URL + '?action=ping&callback=' + cb + '&_=' + Date.now();
   document.head.appendChild(sc);
@@ -3688,7 +4242,6 @@ if (localStorage.getItem('gracz_dark') === '1') {
     var lw = document.getElementById('login-wrap');
     if (lw) { lw.style.opacity='0'; lw.style.pointerEvents='none'; setTimeout(function(){ lw.style.display='none'; }, 300); }
     document.body.classList.remove('logged-out');
-    loadAll();
   } catch(e) {}
 })();
 </script>
