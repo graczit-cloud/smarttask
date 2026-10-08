@@ -950,6 +950,256 @@ body.dark .upload-area{background:var(--surface-muted);border-color:var(--border
 #proj-summary .stat-n{margin-top:8px}
 .mt2{font-size:18px;letter-spacing:-.01em}
 .lightbox img{border-radius:0}
+
+/* ── PROJECT TIMELINE / SPLIT GANTT ── */
+.gt-subtitle{margin-top:3px;color:var(--ts);font-size:12.5px;font-weight:400}
+.gt-toolbar{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  padding:10px;
+  margin-bottom:12px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  flex-wrap:wrap;
+}
+.gt-filter{display:flex;flex-direction:column;gap:3px;min-width:132px}
+.gt-filter.project{min-width:180px}
+.gt-filter label{
+  color:var(--ts);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.gt-filter select{
+  min-height:34px;
+  padding:5px 28px 5px 9px;
+  border:1px solid var(--border);
+  border-radius:0;
+  background:var(--surface);
+  color:var(--tp);
+  font-size:12px;
+  outline:none;
+}
+.gt-filter select:focus{border-color:var(--green)}
+.gt-toolbar-sep{width:1px;height:34px;background:var(--border);margin:0 2px}
+.gt-nav,.gt-zoom{display:flex;align-items:center;border:1px solid var(--border);background:var(--surface-muted)}
+.gt-nav button,.gt-zoom button{
+  height:34px;
+  min-width:36px;
+  padding:0 10px;
+  border:0;
+  border-right:1px solid var(--border);
+  background:transparent;
+  color:var(--tp);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+}
+.gt-nav button:last-child,.gt-zoom button:last-child{border-right:0}
+.gt-nav button:hover,.gt-zoom button:hover{background:var(--surface)}
+.gt-zoom button.on{background:#edf4e8;color:#355f16;box-shadow:inset 0 -2px 0 var(--green)}
+.gt-check{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:34px;
+  margin-left:auto;
+  padding:0 8px;
+  color:var(--ts);
+  font-size:12px;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.gt-check input{width:15px;height:15px;accent-color:var(--green)}
+.gt-status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:8px;
+  color:var(--ts);
+  font-size:11px;
+}
+.gt-status strong{color:var(--tp)}
+.gt-inferred-note{display:flex;align-items:center;gap:7px}
+.gt-inferred-note::before{content:'';width:14px;border-top:1px dashed var(--orange)}
+.gt-shell-wrap{overflow:hidden;border:1px solid var(--border);background:var(--surface)}
+.gt-shell{
+  --gt-row:48px;
+  --gt-head:70px;
+  display:grid;
+  grid-template-columns:minmax(390px,420px) minmax(0,1fr);
+  min-height:470px;
+  background:var(--surface);
+}
+.gt-tree{position:relative;z-index:2;border-right:1px solid var(--border);background:var(--surface);min-width:0}
+.gt-tree-head{
+  height:var(--gt-head);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 140px;
+  align-items:end;
+  background:var(--surface-muted);
+  border-bottom:1px solid var(--border);
+  color:var(--ts);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+.gt-tree-head span{padding:0 13px 10px}
+.gt-tree-head span+span{border-left:1px solid var(--border)}
+.gt-tree-row{
+  height:var(--gt-row);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 140px;
+  align-items:center;
+  border-bottom:1px solid var(--border);
+  color:var(--tp);
+  cursor:pointer;
+}
+.gt-tree-row:hover,.gt-tree-row.selected{background:#f3f7ef}
+.gt-tree-row.project{background:#efede9;font-weight:700}
+.gt-tree-row.project:hover{background:#e8e6e1}
+.gt-task-cell{display:flex;align-items:center;gap:8px;min-width:0;padding:0 12px}
+.gt-task-cell.step{padding-left:39px;position:relative}
+.gt-task-cell.step::before{content:'';position:absolute;left:25px;width:9px;border-top:1px solid var(--border-strong)}
+.gt-collapse{
+  width:20px;
+  height:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  border:0;
+  background:transparent;
+  color:var(--ts);
+  cursor:pointer;
+  font-size:13px;
+}
+.gt-task-text{min-width:0}
+.gt-task-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.gt-task-meta{display:flex;align-items:center;gap:6px;margin-top:2px;color:var(--ts);font-size:9.5px;font-weight:400}
+.gt-badge-inferred{padding:1px 5px;border:1px dashed var(--orange);color:#7b603c;background:#fbf7ef;font-size:8.5px;white-space:nowrap}
+.gt-owner-cell{height:100%;display:flex;align-items:center;gap:7px;padding:0 10px;border-left:1px solid var(--border);min-width:0}
+.gt-avatar{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border-radius:50%;background:#ebe5dc;color:var(--brand-brown);font-size:9px;font-weight:700}
+.gt-owner-text{min-width:0}
+.gt-owner-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;font-weight:600}
+.gt-owner-status{display:flex;align-items:center;gap:4px;margin-top:2px;color:var(--ts);font-size:8.5px;font-weight:400}
+.gt-owner-status::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--orange)}
+.gt-owner-status.done::before{background:var(--green)}
+.gt-owner-status.risk::before{background:var(--red)}
+.gt-time{min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.gt-time::-webkit-scrollbar{height:9px}.gt-time::-webkit-scrollbar-thumb{background:var(--border-strong)}
+.gt-canvas{position:relative;min-width:100%;background:var(--surface)}
+.gt-time-head{height:var(--gt-head);position:relative;border-bottom:1px solid var(--border);background:var(--surface-muted)}
+.gt-month-band{height:30px;position:relative;border-bottom:1px solid var(--border)}
+.gt-month{
+  position:absolute;
+  top:0;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-right:1px solid var(--border-strong);
+  color:var(--brand-brown);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.gt-date-row{height:40px;display:flex}
+.gt-date-cell{
+  width:var(--gt-cell);
+  flex:0 0 var(--gt-cell);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border-right:1px solid var(--border);
+  color:var(--ts);
+  font-size:9px;
+  font-variant-numeric:tabular-nums;
+}
+.gt-date-cell strong{color:var(--tp);font-size:10px;font-weight:600}
+.gt-date-cell.weekend{background:#f4f0e9;color:#967b57}
+.gt-date-cell.today{background:#edf5e7;color:#355f16;box-shadow:inset 0 -2px 0 var(--green)}
+.gt-time-body{
+  position:relative;
+  min-height:400px;
+  background-image:linear-gradient(to right,var(--border) 1px,transparent 1px);
+  background-size:var(--gt-cell) 100%;
+}
+.gt-weekend{position:absolute;top:0;bottom:0;width:var(--gt-cell);background:rgba(232,223,208,.28);pointer-events:none}
+.gt-project-shade{position:absolute;left:0;right:0;height:var(--gt-row);background:rgba(82,52,50,.055);border-bottom:1px solid var(--border);pointer-events:none}
+.gt-row-line{position:absolute;left:0;right:0;height:1px;background:var(--border);pointer-events:none}
+.gt-today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--green);z-index:3;pointer-events:none}
+.gt-today-label{position:absolute;top:4px;z-index:4;transform:translateX(-50%);padding:2px 5px;background:var(--green);color:#13220b;font-size:8px;font-weight:700;pointer-events:none}
+.gt-bar{
+  position:absolute;
+  height:22px;
+  overflow:hidden;
+  border:1px solid #73a94c;
+  border-radius:2px;
+  background:#e1efd9;
+  color:#1e3312;
+  cursor:pointer;
+  z-index:2;
+  text-align:left;
+  font-family:inherit;
+  font-size:9px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.gt-bar:hover{outline:2px solid rgba(102,164,29,.22);outline-offset:1px;z-index:5}
+.gt-bar.project{height:26px;border-color:#523432;background:#d8d3ce;color:#fff}
+.gt-bar.waiting{border-color:#b2966d;background:#f3eee5;color:#6d5332}
+.gt-bar.risk{border-color:#a33f32;background:#f8e0dc;color:#7f2d24}
+.gt-bar.done{border-color:#568838;background:#dbeccf;color:#284d14}
+.gt-bar.inferred{border-style:dashed}
+.gt-bar-progress{position:absolute;inset:0 auto 0 0;background:var(--green);opacity:.9;pointer-events:none}
+.gt-bar.project .gt-bar-progress{background:var(--brand-brown);opacity:1}
+.gt-bar.risk .gt-bar-progress{background:#c85b4d}
+.gt-bar.done .gt-bar-progress{background:#5d9440}
+.gt-bar-label{position:relative;z-index:1;display:flex;align-items:center;height:100%;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+.gt-milestone{
+  position:absolute;
+  width:17px;
+  height:17px;
+  transform:rotate(45deg);
+  border:2px solid #b07e2d;
+  background:#fff7e5;
+  z-index:4;
+  cursor:pointer;
+}
+.gt-empty{min-height:360px;display:flex;align-items:center;justify-content:center;color:var(--ts);font-size:13px}
+.gt-legend{display:flex;justify-content:flex-end;gap:14px;flex-wrap:wrap;padding:9px 12px;border-top:1px solid var(--border);color:var(--ts);font-size:9.5px}
+.gt-legend span{display:inline-flex;align-items:center;gap:5px}
+.gt-swatch{width:15px;height:7px;border:1px solid var(--border-strong);background:#e1efd9}
+.gt-swatch.project{background:var(--brand-brown);border-color:var(--brand-brown)}
+.gt-swatch.waiting{background:#f3eee5;border-color:#b2966d}
+.gt-swatch.risk{background:#f8e0dc;border-color:#a33f32}
+.gt-swatch.inferred{background:transparent;border:1px dashed var(--orange)}
+body.dark .gt-toolbar,body.dark .gt-shell-wrap,body.dark .gt-tree,body.dark .gt-canvas{background:var(--surface);border-color:var(--border)}
+body.dark .gt-tree-head,body.dark .gt-time-head{background:var(--surface-muted)}
+body.dark .gt-tree-row.project{background:#2c2926}
+body.dark .gt-tree-row:hover,body.dark .gt-tree-row.selected{background:#2d352b}
+body.dark .gt-date-cell.weekend,body.dark .gt-weekend{background:rgba(151,122,80,.12)}
+body.dark .gt-badge-inferred{background:#302b23;color:#d8c7ac}
+body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
+@media(max-width:900px){
+  .gt-shell{grid-template-columns:340px minmax(0,1fr)}
+  .gt-tree-head,.gt-tree-row{grid-template-columns:minmax(0,1fr) 112px}
+  .gt-check{margin-left:0}
+}
+@media(max-width:600px){
+  .gt-toolbar{align-items:stretch}
+  .gt-filter,.gt-filter.project{min-width:calc(50% - 4px);flex:1}
+  .gt-shell-wrap{overflow-x:auto}
+  .gt-shell{min-width:920px;grid-template-columns:330px 1fr}
+  .gt-status{align-items:flex-start;flex-direction:column}
+}
 </style>
 </head>
 <body>
@@ -998,6 +1248,7 @@ body.dark .upload-area{background:var(--surface-muted);border-color:var(--border
   <div class="nav-sec nav-user-only">บันทึกงาน</div>
   <div class="nav-i nav-user-only" data-pg="daily"><span class="nav-ic">📅</span><span>งานประจำ</span></div>
   <div class="nav-i nav-user-only" data-pg="projects"><span class="nav-ic">🗂️</span><span>Projects</span> <span id="due-badge" class="nav-badge" style="display:none">0</span></div>
+  <div class="nav-i" data-pg="project-timeline"><span class="nav-ic">▦</span><span>Project Timeline</span></div>
   <div class="nav-i nav-user-only" data-pg="team-board"><span class="nav-ic">👥</span><span>งานทีม</span></div>
   <div class="nav-sec nav-admin-only" style="display:none">จัดการ</div>
   <div class="nav-i nav-admin-only" data-pg="users" style="display:none"><span class="nav-ic">👥</span><span>ผู้ใช้งาน</span></div>
@@ -1023,7 +1274,7 @@ body.dark .upload-area{background:var(--surface-muted);border-color:var(--border
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.7.31</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.9.0</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1271,6 +1522,79 @@ body.dark .upload-area{background:var(--surface-muted);border-color:var(--border
       <!-- list -->
       <div id="project-list">
         <div class="emp"><div class="emp-i">⏳</div>กำลังโหลด...</div>
+      </div>
+    </div>
+
+    <!-- ══ PROJECT TIMELINE / SPLIT GANTT ══ -->
+    <div id="pg-project-timeline" class="pg">
+      <div class="ph">
+        <div>
+          <div class="pt">Project Timeline</div>
+          <div class="gt-subtitle">แผนงานและกำหนดส่งของทุก Project</div>
+        </div>
+      </div>
+
+      <div class="gt-toolbar" aria-label="ตัวกรอง Project Timeline">
+        <div class="gt-filter project">
+          <label for="gt-project-filter">Project</label>
+          <select id="gt-project-filter" onchange="renderProjectTimeline()"><option value="">ทุก Project</option></select>
+        </div>
+        <div class="gt-filter">
+          <label for="gt-owner-filter">ผู้รับผิดชอบ</label>
+          <select id="gt-owner-filter" onchange="renderProjectTimeline()"><option value="">ทุกคน</option></select>
+        </div>
+        <div class="gt-filter">
+          <label for="gt-status-filter">สถานะ</label>
+          <select id="gt-status-filter" onchange="renderProjectTimeline()">
+            <option value="">ทุกสถานะ</option>
+            <option value="active">กำลังดำเนินการ</option>
+            <option value="waiting">รอดำเนินการ</option>
+            <option value="done">เสร็จแล้ว</option>
+            <option value="risk">ล่าช้า</option>
+          </select>
+        </div>
+        <div class="gt-toolbar-sep"></div>
+        <div class="gt-nav" aria-label="เลื่อนเส้นเวลา">
+          <button type="button" onclick="gtScrollPeriod(-1)" title="ช่วงก่อนหน้า">‹</button>
+          <button type="button" onclick="gtScrollToday()">วันนี้</button>
+          <button type="button" onclick="gtScrollPeriod(1)" title="ช่วงถัดไป">›</button>
+        </div>
+        <div class="gt-zoom" aria-label="ระดับการซูม">
+          <button type="button" class="on" data-gt-zoom="day" onclick="setGtZoom('day',this)">วัน</button>
+          <button type="button" data-gt-zoom="week" onclick="setGtZoom('week',this)">สัปดาห์</button>
+          <button type="button" data-gt-zoom="month" onclick="setGtZoom('month',this)">เดือน</button>
+        </div>
+        <label class="gt-check"><input type="checkbox" id="gt-hide-complete" onchange="renderProjectTimeline()"> ซ่อนงานที่เสร็จแล้ว</label>
+      </div>
+
+      <div class="gt-status">
+        <div id="gt-summary"><strong>0 Projects</strong> · 0 Steps</div>
+        <div class="gt-inferred-note">วันที่เส้นประคือค่าประมาณจากข้อมูลเดิม</div>
+      </div>
+
+      <div class="gt-shell-wrap">
+        <div class="gt-shell" id="gt-shell">
+          <div class="gt-tree">
+            <div class="gt-tree-head"><span>งาน / ลำดับขั้น</span><span>ผู้รับผิดชอบ</span></div>
+            <div id="gt-tree-body"></div>
+          </div>
+          <div class="gt-time" id="gt-time-scroll">
+            <div class="gt-canvas" id="gt-canvas">
+              <div class="gt-time-head">
+                <div class="gt-month-band" id="gt-month-band"></div>
+                <div class="gt-date-row" id="gt-date-row"></div>
+              </div>
+              <div class="gt-time-body" id="gt-time-body"></div>
+            </div>
+          </div>
+        </div>
+        <div class="gt-legend">
+          <span><i class="gt-swatch project"></i>Project</span>
+          <span><i class="gt-swatch"></i>กำลังทำ</span>
+          <span><i class="gt-swatch waiting"></i>รอดำเนินการ</span>
+          <span><i class="gt-swatch risk"></i>ล่าช้า</span>
+          <span><i class="gt-swatch inferred"></i>วันที่ประมาณการ</span>
+        </div>
       </div>
     </div>
 
@@ -1640,10 +1964,6 @@ body.dark .upload-area{background:var(--surface-muted);border-color:var(--border
     <div class="fg"><label class="fl">รายละเอียด <span id="f-st-desc-count" style="font-size:11px;color:var(--tl);font-weight:400"></span></label><textarea class="ft" id="f-st-desc" maxlength="4000" placeholder="รายละเอียด..." oninput="updateCharCount(this,'f-st-desc-count')"></textarea></div>
     <div class="form-grid">
       <div class="fg"><label class="fl">ผู้รับผิดชอบ</label><select class="fs" id="f-st-assignee"></select></div>
-      <div class="fg"><label class="fl">กำหนดส่ง</label><input class="fi" type="date" id="f-st-due"></div>
-    </div>
-    <div class="form-grid">
-      <div class="fg"><label class="fl">ลำดับ</label><input class="fi" type="number" id="f-st-order" min="1" value="1"></div>
       <div class="fg"><label class="fl">สถานะ</label>
         <select class="fs" id="f-st-status">
           <option value="รออยู่">รออยู่</option>
@@ -1652,6 +1972,11 @@ body.dark .upload-area{background:var(--surface-muted);border-color:var(--border
         </select>
       </div>
     </div>
+    <div class="form-grid">
+      <div class="fg"><label class="fl">วันที่เริ่ม</label><input class="fi" type="date" id="f-st-start"><div style="font-size:10.5px;color:var(--tl);margin-top:4px">รายการเก่าที่ว่างจะแสดงวันที่โดยประมาณใน Timeline</div></div>
+      <div class="fg"><label class="fl">กำหนดส่ง</label><input class="fi" type="date" id="f-st-due"></div>
+    </div>
+    <div class="fg"><label class="fl">ลำดับ</label><input class="fi" type="number" id="f-st-order" min="1" value="1"></div>
     <div class="fg">
       <label class="fl">ความคืบหน้า: <span id="step-prog-val">0</span>%</label>
       <input type="range" class="fi" id="f-st-prog" min="0" max="100" value="0" oninput="document.getElementById('step-prog-val').textContent=this.value">
@@ -1752,6 +2077,9 @@ var currentProjectId = null;
 var _loadAllPromise = null;
 var _loadedStepProjects = {};
 var _stepsLoadedAll = false;
+var gtZoom = 'day';
+var gtCollapsedProjects = {};
+var gtLastRange = null;
 
 // ══════════════════════════════════════════════
 //  LOGIN / LOGOUT
@@ -1855,6 +2183,8 @@ function doLogout() {
   _loadAllPromise = null;
   _loadedStepProjects = {};
   _stepsLoadedAll = false;
+  gtCollapsedProjects = {};
+  gtLastRange = null;
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-err').textContent = '';
@@ -1872,6 +2202,7 @@ function doLogout() {
 // ══════════════════════════════════════════════
 var pgLabels = {
   'dashboard':'ภาพรวม','daily':'งานประจำ','projects':'Projects',
+  'project-timeline':'Project Timeline',
   'project-detail':'รายละเอียด Project','users':'ผู้ใช้งาน','settings':'ตั้งค่าระบบ',
   'team-board':'งานทีม','report-logs':'Log ทุกคน','report-summary':'สรุปเวลา',
   'staff-history':'ประวัติการทำงานรายคน'
@@ -1897,7 +2228,7 @@ function navigateTo(pg) {
   var el = document.getElementById('pg-'+pg);
   if (el) el.classList.add('on');
   document.getElementById('bc-label').textContent = pgLabels[pg] || pg;
-  document.getElementById('topbar-add-btn').style.display = (pg==='settings'||pg==='report-logs'||pg==='report-summary') ? 'none' : '';
+  document.getElementById('topbar-add-btn').style.display = (pg==='settings'||pg==='project-timeline'||pg==='report-logs'||pg==='report-summary') ? 'none' : '';
   document.querySelector('.cnt').scrollTop = 0;
   onEnter(pg);
 }
@@ -1918,6 +2249,7 @@ function onEnter(pg) {
   if (pg === 'dashboard')      loadDashboard();
   if (pg === 'daily')          loadDailyPage();
   if (pg === 'projects')       loadProjects();
+  if (pg === 'project-timeline') initProjectTimeline();
   if (pg === 'users')          loadUsers();
   if (pg === 'settings')         initSettings();
   if (pg === 'project-detail')   loadProjectDetail(currentProjectId);
@@ -2541,7 +2873,7 @@ function renderSteps(projectId) {
       +'<div class="step-num'+(isDone?' done':'')+'">'+((parseInt(s.order)||i+1))+'</div>'
       +'<div class="step-body">'
       +'<div class="step-name">'+escHtml(s.stepName||'')+'</div>'
-      +'<div class="step-meta">'+escHtml(s.assignee||'-')+' · '+escHtml(s.dueDate||'')+' · <span class="badge '+stCls+'">'+s.status+'</span></div>'
+      +'<div class="step-meta">'+escHtml(s.assignee||'-')+' · '+escHtml((s.startDate?s.startDate+' – ':'')+(s.dueDate||''))+' · <span class="badge '+stCls+'">'+s.status+'</span></div>'
       +(s.description?'<div style="font-size:11.5px;color:var(--ts);margin-top:3px">'+escHtml(s.description)+'</div>':'')
       +'<div class="progress-wrap" style="margin-top:6px"><div class="progress-bar"><div class="progress-fill bl" style="width:'+prog+'%"></div></div></div>'
       +'</div>'
@@ -2629,6 +2961,7 @@ function saveProject() {
       else{d.id=(res&&res.id)||d.id||('PRJ_'+Date.now());d.progress=0;S.projects.unshift(d);}
       closeModal('mo-project'); showToast('✅ บันทึก Project สำเร็จ','ok'); renderProjects();
       if(eid) loadProjectDetail(eid);
+      if (document.getElementById('pg-project-timeline').classList.contains('on')) renderProjectTimeline();
     }).catch(function(e){showToast('❌ '+e.message,'er');})
       .finally(function(){btn.disabled=false;btn.textContent='บันทึก';});
   };
@@ -2647,6 +2980,322 @@ function deleteProject() {
 }
 
 // ══════════════════════════════════════════════
+//  PROJECT TIMELINE / SPLIT GANTT
+// ══════════════════════════════════════════════
+var GT_DAY_MS = 86400000;
+
+function gtIsManager() {
+  return currentUser && !currentUser.isAdmin &&
+    (String(currentUser.role||'').indexOf('Manager')>-1 || String(currentUser.role||'').indexOf('ผู้จัดการ')>-1);
+}
+
+function gtAccessibleProjects() {
+  if (!currentUser) return [];
+  return (S.projects||[]).filter(function(p){
+    if (currentUser.isAdmin || gtIsManager()) return true;
+    return p.owner===currentUser.username || hasProjectMember(p,currentUser.username) || String(p.visibility||'private')==='public';
+  });
+}
+
+function gtParseDate(v) {
+  if (!v) return null;
+  var s = String(v).trim();
+  var y, m, d, p;
+  if (/^\d{4}-\d{1,2}-\d{1,2}/.test(s)) {
+    p=s.substring(0,10).split('-'); y=parseInt(p[0],10); m=parseInt(p[1],10)-1; d=parseInt(p[2],10);
+  } else if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) {
+    p=s.split(' ')[0].split('/'); d=parseInt(p[0],10); m=parseInt(p[1],10)-1; y=parseInt(p[2],10);
+  } else { return null; }
+  if (y>2400) y-=543;
+  var out=new Date(y,m,d); out.setHours(0,0,0,0);
+  return isNaN(out.getTime()) ? null : out;
+}
+
+function gtStartOfDay(d) {
+  var out=new Date(d||new Date()); out.setHours(0,0,0,0); return out;
+}
+function gtAddDays(d,n) { return new Date(d.getTime()+(n*GT_DAY_MS)); }
+function gtDaysBetween(a,b) { return Math.round((gtStartOfDay(b)-gtStartOfDay(a))/GT_DAY_MS); }
+function gtFormatDate(d) { return d ? fmt(d) : ''; }
+function gtFormatShort(d) {
+  var th=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return d.getDate()+' '+th[d.getMonth()];
+}
+function gtMonthTitle(d) {
+  var th=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  return th[d.getMonth()]+' '+(d.getFullYear()+543);
+}
+function gtInitials(v) {
+  var s=String(v||'-').trim();
+  if (!s) return '-';
+  var parts=s.split(/[.\s]+/).filter(function(x){return x;});
+  return (parts.length>1 ? parts.map(function(x){return x.charAt(0);}).join('') : s.substring(0,2)).toUpperCase();
+}
+
+function gtStatusGroup(status,dueDate,progress) {
+  var s=String(status||'');
+  var p=parseInt(progress||0,10);
+  if (s==='เสร็จแล้ว' || s==='เสร็จสิ้น' || p>=100) return 'done';
+  if (dueDate && gtStartOfDay(dueDate)<gtStartOfDay(new Date())) return 'risk';
+  if (s==='รออยู่' || s==='รอดำเนินการ' || s==='ระงับ') return 'waiting';
+  return 'active';
+}
+function gtStatusText(group,status) {
+  if (group==='risk') return 'ล่าช้า';
+  if (group==='done') return 'เสร็จแล้ว';
+  if (group==='waiting') return status==='ระงับ' ? 'ระงับ' : 'รอดำเนินการ';
+  return status||'กำลังดำเนินการ';
+}
+
+function gtBuildProjectSchedule(project) {
+  var steps=(S.steps||[]).filter(function(s){return String(s.projectId)===String(project.id);});
+  steps.sort(function(a,b){return (parseInt(a.order)||0)-(parseInt(b.order)||0);});
+  var projectStart=gtParseDate(project.startDate);
+  var projectDue=gtParseDate(project.dueDate);
+  var previousDue=null;
+  var mapped=steps.map(function(step){
+    var actualStart=gtParseDate(step.startDate);
+    var due=gtParseDate(step.dueDate);
+    var start=actualStart;
+    var inferredStart=false;
+    var inferredDue=false;
+    if (!start) {
+      start=previousDue ? gtAddDays(previousDue,1) : (projectStart || due || gtStartOfDay(new Date()));
+      inferredStart=true;
+    }
+    if (!due) {
+      due=projectDue || start;
+      inferredDue=true;
+    }
+    if (due<start) due=start;
+    previousDue=due;
+    var group=gtStatusGroup(step.status,due,step.progress);
+    return {kind:'step',id:step.id,projectId:project.id,name:step.stepName||'ขั้นตอน',owner:step.assignee||'-',status:step.status||'รออยู่',group:group,progress:Math.max(0,Math.min(100,parseInt(step.progress||0,10))),start:start,due:due,inferredStart:inferredStart,inferredDue:inferredDue,order:parseInt(step.order||0,10)};
+  });
+  if (!projectStart && mapped.length) projectStart=new Date(Math.min.apply(null,mapped.map(function(s){return s.start.getTime();})));
+  if (!projectDue && mapped.length) projectDue=new Date(Math.max.apply(null,mapped.map(function(s){return s.due.getTime();})));
+  if (!projectStart) projectStart=gtStartOfDay(new Date());
+  if (!projectDue) projectDue=gtAddDays(projectStart,7);
+  if (projectDue<projectStart) projectDue=projectStart;
+  return {
+    project:{kind:'project',id:project.id,projectId:project.id,name:project.name||'Project',owner:project.owner||'-',status:project.status||'กำลังดำเนินการ',group:gtStatusGroup(project.status,projectDue,project.progress),progress:Math.max(0,Math.min(100,parseInt(project.progress||0,10))),start:projectStart,due:projectDue,inferredStart:!gtParseDate(project.startDate),inferredDue:!gtParseDate(project.dueDate),stepCount:mapped.length},
+    steps:mapped
+  };
+}
+
+function gtPopulateFilters() {
+  var projects=gtAccessibleProjects();
+  var projectEl=document.getElementById('gt-project-filter');
+  var ownerEl=document.getElementById('gt-owner-filter');
+  if (!projectEl || !ownerEl) return;
+  var keepProject=projectEl.value;
+  var keepOwner=ownerEl.value;
+  projectEl.innerHTML='<option value="">ทุก Project</option>'+projects.map(function(p){return '<option value="'+escHtml(p.id)+'">'+escHtml(p.name||'Project')+'</option>';}).join('');
+  if (projects.some(function(p){return String(p.id)===String(keepProject);})) projectEl.value=keepProject;
+  var projectIds=projects.map(function(p){return String(p.id);});
+  var owners={};
+  projects.forEach(function(p){if(p.owner)owners[p.owner]=true;});
+  (S.steps||[]).forEach(function(s){if(projectIds.indexOf(String(s.projectId))>-1&&s.assignee)owners[s.assignee]=true;});
+  ownerEl.innerHTML='<option value="">ทุกคน</option>'+Object.keys(owners).sort().map(function(name){
+    var user=(S.users||[]).find(function(u){return u.username===name;});
+    return '<option value="'+escHtml(name)+'">'+escHtml((user&&user.name)||name)+'</option>';
+  }).join('');
+  if (owners[keepOwner]) ownerEl.value=keepOwner;
+}
+
+function initProjectTimeline() {
+  if (!currentUser) return;
+  gtPopulateFilters();
+  var tree=document.getElementById('gt-tree-body');
+  if (tree && !_stepsLoadedAll) tree.innerHTML='<div class="gt-empty">กำลังโหลดแผนงาน...</div>';
+  if (SCRIPT_URL && !_stepsLoadedAll) {
+    jsonp('getSteps',{}).then(function(data){
+      S.steps=data||[];
+      _stepsLoadedAll=true;
+      _loadedStepProjects={};
+      gtPopulateFilters();
+      renderProjectTimeline();
+      setTimeout(gtScrollToday,60);
+    }).catch(function(err){
+      renderProjectTimeline();
+      showToast('❌ โหลด Timeline ไม่สำเร็จ: '+err.message,'er');
+    });
+  } else {
+    renderProjectTimeline();
+    setTimeout(gtScrollToday,60);
+  }
+}
+
+function gtRowMatches(row,ownerFilter,statusFilter,hideComplete) {
+  if (ownerFilter && row.owner!==ownerFilter) return false;
+  if (statusFilter && row.group!==statusFilter) return false;
+  if (hideComplete && row.group==='done') return false;
+  return true;
+}
+
+function renderProjectTimeline() {
+  var treeBody=document.getElementById('gt-tree-body');
+  var timeBody=document.getElementById('gt-time-body');
+  var canvas=document.getElementById('gt-canvas');
+  var dateRow=document.getElementById('gt-date-row');
+  var monthBand=document.getElementById('gt-month-band');
+  if (!treeBody || !timeBody || !canvas || !dateRow || !monthBand) return;
+
+  var projectFilter=document.getElementById('gt-project-filter').value;
+  var ownerFilter=document.getElementById('gt-owner-filter').value;
+  var statusFilter=document.getElementById('gt-status-filter').value;
+  var hideComplete=document.getElementById('gt-hide-complete').checked;
+  var schedules=gtAccessibleProjects().filter(function(p){return !projectFilter||String(p.id)===String(projectFilter);}).map(gtBuildProjectSchedule);
+  var rows=[];
+  var shownSteps=0;
+  schedules.forEach(function(schedule){
+    var matchingSteps=schedule.steps.filter(function(step){return gtRowMatches(step,ownerFilter,statusFilter,hideComplete);});
+    var projectMatches=gtRowMatches(schedule.project,ownerFilter,statusFilter,hideComplete);
+    if (!projectMatches && !matchingSteps.length) return;
+    rows.push(schedule.project);
+    if (!gtCollapsedProjects[schedule.project.id]) {
+      matchingSteps.forEach(function(step){rows.push(step);shownSteps++;});
+    }
+  });
+
+  var shownProjects=rows.filter(function(r){return r.kind==='project';}).length;
+  document.getElementById('gt-summary').innerHTML='<strong>'+shownProjects+' Projects</strong> · '+shownSteps+' Steps';
+  if (!rows.length) {
+    treeBody.innerHTML='<div class="gt-empty">ไม่พบแผนงานตามตัวกรอง</div>';
+    timeBody.innerHTML=''; dateRow.innerHTML=''; monthBand.innerHTML='';
+    timeBody.style.height='400px'; canvas.style.width='100%'; gtLastRange=null; return;
+  }
+
+  var minTime=Math.min.apply(null,rows.map(function(r){return r.start.getTime();}));
+  var maxTime=Math.max.apply(null,rows.map(function(r){return r.due.getTime();}));
+  var rangeStart=gtAddDays(new Date(minTime),-2);
+  var rangeEnd=gtAddDays(new Date(maxTime),2);
+  var today=gtStartOfDay(new Date());
+  if (Math.abs(gtDaysBetween(rangeStart,today))<=60 || Math.abs(gtDaysBetween(rangeEnd,today))<=60 || (today>=rangeStart&&today<=rangeEnd)) {
+    if (today<rangeStart) rangeStart=gtAddDays(today,-2);
+    if (today>rangeEnd) rangeEnd=gtAddDays(today,2);
+  }
+  var totalDays=gtDaysBetween(rangeStart,rangeEnd)+1;
+  if (totalDays>730) { totalDays=730; rangeEnd=gtAddDays(rangeStart,totalDays-1); }
+  var cell={day:28,week:20,month:13}[gtZoom]||28;
+  var width=Math.max(totalDays*cell,720);
+  var rowHeight=48;
+  var bodyHeight=Math.max(rows.length*rowHeight,400);
+  var todayIndex=gtDaysBetween(rangeStart,today);
+  gtLastRange={start:rangeStart,end:rangeEnd,cell:cell,totalDays:totalDays};
+  document.getElementById('gt-shell').style.setProperty('--gt-cell',cell+'px');
+  canvas.style.width=width+'px';
+  canvas.className='gt-canvas zoom-'+gtZoom;
+  timeBody.style.height=bodyHeight+'px';
+
+  var thaiDays=['อา','จ','อ','พ','พฤ','ศ','ส'];
+  var dateHtml='';
+  var weekendHtml='';
+  var monthHtml='';
+  var monthStart=0;
+  var monthKey='';
+  for (var dayIndex=0;dayIndex<totalDays;dayIndex++) {
+    var day=gtAddDays(rangeStart,dayIndex);
+    var key=day.getFullYear()+'-'+day.getMonth();
+    if (dayIndex===0) monthKey=key;
+    if (key!==monthKey) {
+      monthHtml+='<div class="gt-month" style="left:'+(monthStart*cell)+'px;width:'+((dayIndex-monthStart)*cell)+'px">'+escHtml(gtMonthTitle(gtAddDays(rangeStart,monthStart)))+'</div>';
+      monthStart=dayIndex; monthKey=key;
+    }
+    var isWeekend=day.getDay()===0||day.getDay()===6;
+    var isToday=gtFormatDate(day)===gtFormatDate(today);
+    dateHtml+='<div class="gt-date-cell'+(isWeekend?' weekend':'')+(isToday?' today':'')+'"><strong>'+day.getDate()+'</strong><span>'+thaiDays[day.getDay()]+'</span></div>';
+    if (isWeekend) weekendHtml+='<div class="gt-weekend" style="left:'+(dayIndex*cell)+'px"></div>';
+  }
+  monthHtml+='<div class="gt-month" style="left:'+(monthStart*cell)+'px;width:'+((totalDays-monthStart)*cell)+'px">'+escHtml(gtMonthTitle(gtAddDays(rangeStart,monthStart)))+'</div>';
+  dateRow.innerHTML=dateHtml;
+  monthBand.innerHTML=monthHtml;
+
+  var treeHtml='';
+  var barsHtml=weekendHtml;
+  rows.forEach(function(row,index){
+    var statusText=gtStatusText(row.group,row.status);
+    var inferred=row.inferredStart||row.inferredDue;
+    var collapsed=!!gtCollapsedProjects[row.id];
+    treeHtml+='<div class="gt-tree-row '+row.kind+'" data-gt-kind="'+row.kind+'" data-gt-id="'+escHtml(row.id)+'">'
+      +'<div class="gt-task-cell '+row.kind+'">'
+      +(row.kind==='project'?'<button type="button" class="gt-collapse" data-gt-collapse="'+escHtml(row.id)+'" aria-label="'+(collapsed?'ขยาย':'ย่อ')+' Project">'+(collapsed?'›':'⌄')+'</button>':'')
+      +'<div class="gt-task-text"><div class="gt-task-name">'+escHtml(row.name)+'</div><div class="gt-task-meta">'
+      +(row.kind==='project'?row.stepCount+' ขั้นตอน':gtFormatShort(row.start)+' – '+gtFormatShort(row.due))
+      +(inferred?'<span class="gt-badge-inferred">ประมาณการ</span>':'')
+      +'</div></div></div>'
+      +'<div class="gt-owner-cell"><span class="gt-avatar">'+escHtml(gtInitials(row.owner))+'</span><div class="gt-owner-text"><div class="gt-owner-name">'+escHtml(row.owner)+'</div><div class="gt-owner-status '+row.group+'">'+escHtml(statusText)+'</div></div></div></div>';
+    if (row.kind==='project') barsHtml+='<div class="gt-project-shade" style="top:'+(index*rowHeight)+'px"></div>';
+    barsHtml+='<div class="gt-row-line" style="top:'+((index+1)*rowHeight-1)+'px"></div>';
+    var startIndex=Math.max(0,gtDaysBetween(rangeStart,row.start));
+    var endIndex=Math.min(totalDays-1,gtDaysBetween(rangeStart,row.due));
+    if (endIndex<0||startIndex>=totalDays) return;
+    var span=Math.max(1,endIndex-startIndex+1);
+    var left=startIndex*cell+2;
+    if (row.kind==='step' && span===1 && gtFormatDate(row.start)===gtFormatDate(row.due)) {
+      barsHtml+='<button type="button" class="gt-milestone" data-gt-kind="step" data-gt-id="'+escHtml(row.id)+'" style="left:'+(left+Math.max(0,cell/2-9))+'px;top:'+(index*rowHeight+15)+'px" title="'+escHtml(row.name+' · '+gtFormatDate(row.start))+'"></button>';
+    } else {
+      var barTop=index*rowHeight+(row.kind==='project'?11:13);
+      var barWidth=Math.max(span*cell-4,18);
+      var cls='gt-bar '+row.kind+' '+row.group+(inferred?' inferred':'');
+      var label=row.kind==='project' ? row.name+' · '+row.progress+'%' : (barWidth>86 ? row.name+' · '+row.progress+'%' : row.progress+'%');
+      barsHtml+='<button type="button" class="'+cls+'" data-gt-kind="'+row.kind+'" data-gt-id="'+escHtml(row.id)+'" style="left:'+left+'px;top:'+barTop+'px;width:'+barWidth+'px" title="'+escHtml(row.name+' · '+gtFormatDate(row.start)+' – '+gtFormatDate(row.due)+(inferred?' · วันที่โดยประมาณ':''))+'"><span class="gt-bar-progress" style="width:'+row.progress+'%"></span><span class="gt-bar-label">'+escHtml(label)+'</span></button>';
+    }
+  });
+  if (todayIndex>=0&&todayIndex<totalDays) {
+    var todayLeft=todayIndex*cell+(cell/2);
+    barsHtml+='<div class="gt-today-line" style="left:'+todayLeft+'px"></div><div class="gt-today-label" style="left:'+todayLeft+'px">วันนี้</div>';
+  }
+  treeBody.innerHTML=treeHtml;
+  timeBody.innerHTML=barsHtml;
+
+  document.querySelectorAll('#pg-project-timeline [data-gt-collapse]').forEach(function(button){
+    button.addEventListener('click',function(event){event.stopPropagation();gtToggleProject(this.getAttribute('data-gt-collapse'));});
+  });
+  document.querySelectorAll('#pg-project-timeline [data-gt-kind][data-gt-id]').forEach(function(el){
+    el.addEventListener('click',function(event){
+      if (event.target.closest('[data-gt-collapse]')) return;
+      openGtItem(this.getAttribute('data-gt-kind'),this.getAttribute('data-gt-id'));
+    });
+  });
+}
+
+function gtToggleProject(id) {
+  gtCollapsedProjects[id]=!gtCollapsedProjects[id];
+  renderProjectTimeline();
+}
+
+function openGtItem(kind,id) {
+  if (kind==='project') { openProjectDetail(id); return; }
+  var step=(S.steps||[]).find(function(s){return String(s.id)===String(id);});
+  if (!step) return;
+  if (gtIsManager()) { showToast('บัญชีผู้จัดการดู Timeline ได้อย่างเดียว',''); return; }
+  currentProjectId=step.projectId;
+  editStep(id);
+}
+
+function setGtZoom(mode,button) {
+  gtZoom=mode;
+  document.querySelectorAll('[data-gt-zoom]').forEach(function(b){b.classList.toggle('on',b===button);});
+  renderProjectTimeline();
+  setTimeout(gtScrollToday,30);
+}
+
+function gtScrollToday() {
+  var scroller=document.getElementById('gt-time-scroll');
+  if (!scroller||!gtLastRange) return;
+  var index=gtDaysBetween(gtLastRange.start,gtStartOfDay(new Date()));
+  if (index<0||index>=gtLastRange.totalDays) { scroller.scrollLeft=0; return; }
+  scroller.scrollTo({left:Math.max(0,(index*gtLastRange.cell)-(scroller.clientWidth/2)),behavior:'smooth'});
+}
+
+function gtScrollPeriod(direction) {
+  var scroller=document.getElementById('gt-time-scroll');
+  if (!scroller) return;
+  scroller.scrollBy({left:direction*Math.max(280,scroller.clientWidth*.72),behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════════
 //  STEPS
 // ══════════════════════════════════════════════
 function openStepModal() {
@@ -2655,11 +3304,18 @@ function openStepModal() {
   document.getElementById('step-modal-title').textContent='เพิ่มขั้นตอน';
   document.getElementById('st-del-btn').style.display='none';
   ['f-st-name','f-st-desc'].forEach(function(id){document.getElementById(id).value='';});
+  var currentProject = S.projects.find(function(p){return p.id===currentProjectId;});
+  var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
+  steps.sort(function(a,b){return (parseInt(a.order)||0)-(parseInt(b.order)||0);});
+  var lastStep=steps.length?steps[steps.length-1]:null;
+  var suggestedStart=lastStep&&gtParseDate(lastStep.dueDate)
+    ? gtFormatDate(gtAddDays(gtParseDate(lastStep.dueDate),1))
+    : ((currentProject&&currentProject.startDate)||fmt(new Date()));
+  document.getElementById('f-st-start').value=fmtISO(suggestedStart);
   document.getElementById('f-st-due').value='';
   document.getElementById('f-st-status').value='รออยู่';
   document.getElementById('f-st-prog').value=0;
   document.getElementById('step-prog-val').textContent='0%';
-  var steps=(S.steps||[]).filter(function(s){return s.projectId===currentProjectId;});
   document.getElementById('f-st-order').value=steps.length+1;
   document.getElementById('f-st-assignee').value=currentUser.username;
   document.getElementById('st-preview').style.display='none';
@@ -2689,6 +3345,7 @@ function editStep(id) {
   document.getElementById('f-st-desc').value=s.description||'';
   updateCharCount(document.getElementById('f-st-desc'),'f-st-desc-count');
   document.getElementById('f-st-assignee').value=s.assignee||'';
+  document.getElementById('f-st-start').value=fmtISO(s.startDate||'');
   document.getElementById('f-st-due').value=fmtISO(s.dueDate||'');
   document.getElementById('f-st-order').value=s.order||1;
   document.getElementById('f-st-status').value=s.status||'รออยู่';
@@ -2760,9 +3417,13 @@ function maybeLogStepToDaily(stepData) {
 function saveStep() {
   var name=document.getElementById('f-st-name').value.trim();
   if(!name){showToast('⚠️ กรุณากรอกชื่อขั้นตอน','er');return;}
+  var startInput=document.getElementById('f-st-start').value;
+  var dueInput=document.getElementById('f-st-due').value;
+  if(startInput&&dueInput&&startInput>dueInput){showToast('⚠️ วันที่เริ่มต้องไม่อยู่หลังกำหนดส่ง','er');return;}
   var eid=document.getElementById('step-eid').value;
   var d={projectId:currentProjectId,stepName:name,description:document.getElementById('f-st-desc').value,
-    assignee:document.getElementById('f-st-assignee').value,dueDate:fmtTHdb(document.getElementById('f-st-due').value),
+    assignee:document.getElementById('f-st-assignee').value,
+    startDate:fmtTHdb(startInput),dueDate:fmtTHdb(dueInput),
     order:document.getElementById('f-st-order').value,status:document.getElementById('f-st-status').value,
     progress:document.getElementById('f-st-prog').value,imageUrl:document.getElementById('f-st-img-url').value,};
   if(eid) d.id=eid;
@@ -2785,6 +3446,7 @@ function saveStep() {
       closeModal('mo-step'); showToast('✅ บันทึกขั้นตอนสำเร็จ','ok'); renderSteps(currentProjectId);
       document.getElementById('detail-prog-pct').textContent=avg+'%';
       document.getElementById('detail-prog-bar').style.width=avg+'%';
+      if (document.getElementById('pg-project-timeline').classList.contains('on')) renderProjectTimeline();
       // บันทึกลงงานประจำด้วย (ถ้าติ๊ก)
       maybeLogStepToDaily(d);
     }).catch(function(e){showToast('❌ '+e.message,'er');})
@@ -2805,6 +3467,7 @@ function deleteStep() {
     closeModal('mo-step'); showToast('🗑️ ลบขั้นตอนแล้ว',''); renderSteps(currentProjectId);
     document.getElementById('detail-prog-pct').textContent=avg+'%';
     document.getElementById('detail-prog-bar').style.width=avg+'%';
+    if (document.getElementById('pg-project-timeline').classList.contains('on')) renderProjectTimeline();
   }).catch(function(e){showToast('❌ '+e.message,'er');});
 }
 
