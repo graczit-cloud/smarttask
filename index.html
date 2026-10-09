@@ -1274,7 +1274,7 @@ body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger-btn" onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--tp);border-radius:7px" title="เมนู">☰</button>
-      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.9.0</span></div>
+      <div class="bc"><span>Gracz Task</span><span style="color:var(--tl)">›</span><b id="bc-label">ภาพรวม</b><span style="font-size:10px;background:#e2e6f0;color:var(--ts);padding:2px 7px;border-radius:20px;margin-left:6px;font-weight:600">v2.10.0</span></div>
     </div>
     <div class="tb-r">
       <div class="search-bar" onclick="openSearch()">
@@ -1457,12 +1457,12 @@ body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
       <!-- ── REPORT VIEW (ของตัวเอง) ── -->
       <div id="dv-report" style="display:none">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-          <select class="fi" id="dr-range" style="width:150px;font-size:13px;padding:7px 10px" onchange="renderMyReport()">
+          <select class="fi" id="dr-range" style="width:150px;font-size:13px;padding:7px 10px" onchange="myReportPage=1;initMyReport()">
             <option value="7">7 วันล่าสุด</option>
             <option value="30" selected>30 วันล่าสุด</option>
             <option value="90">90 วันล่าสุด</option>
           </select>
-          <select class="fi" id="dr-cat" style="width:170px;font-size:13px;padding:7px 10px" onchange="renderMyReport()">
+          <select class="fi" id="dr-cat" style="width:170px;font-size:13px;padding:7px 10px" onchange="myReportPage=1;renderMyReport()">
             <option value="">— ทุกหมวดหมู่ —</option>
           </select>
           <button class="btn-x" onclick="exportMyReportCSV()" style="font-size:13px">Export</button>
@@ -1481,6 +1481,11 @@ body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
         <div class="sec">
           <div class="sec-h"><div class="sec-t">รายการงาน <span id="dr-detail-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div></div>
           <div class="sec-b" id="dr-detail"></div>
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px">
+            <button class="btn-x" id="dr-prev" onclick="changeMyReportPage(-1)">ก่อนหน้า</button>
+            <span id="dr-page-info" style="font-size:12px;color:var(--ts)">หน้า 1</span>
+            <button class="btn-x" id="dr-next" onclick="changeMyReportPage(1)">ถัดไป</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1699,6 +1704,11 @@ body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
             <tbody id="rl-tbody"></tbody>
           </table>
         </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px">
+          <button class="btn-x" id="rl-prev" onclick="changeReportLogsPage(-1)">ก่อนหน้า</button>
+          <span id="rl-page-info" style="font-size:12px;color:var(--ts)">หน้า 1</span>
+          <button class="btn-x" id="rl-next" onclick="changeReportLogsPage(1)">ถัดไป</button>
+        </div>
       </div>
     </div>
 
@@ -1786,10 +1796,10 @@ body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
       <div class="ph">
         <div class="pt">ประวัติการทำงานรายคน</div>
         <div class="ha">
-          <select class="fi" id="sh-emp" style="width:200px;font-size:13px;padding:7px 10px" onchange="renderStaffHistory()">
+          <select class="fi" id="sh-emp" style="width:200px;font-size:13px;padding:7px 10px" onchange="staffTimelinePage=1;renderStaffHistory()">
             <option value="">— เลือกพนักงาน —</option>
           </select>
-          <select class="fi" id="sh-range" style="width:130px;font-size:13px;padding:7px 10px" onchange="renderStaffHistory()">
+          <select class="fi" id="sh-range" style="width:130px;font-size:13px;padding:7px 10px" onchange="staffTimelinePage=1;renderStaffHistory()">
             <option value="7">7 วันล่าสุด</option>
             <option value="30" selected>30 วันล่าสุด</option>
             <option value="90">90 วันล่าสุด</option>
@@ -1834,6 +1844,11 @@ body.dark .gt-project-shade{background:rgba(255,255,255,.035)}
         <div class="sec">
           <div class="sec-h"><div class="sec-t">📜 Timeline รายการงาน <span id="sh-tl-count" style="font-size:12px;color:var(--ts);font-weight:400"></span></div></div>
           <div class="sec-b" id="sh-timeline"></div>
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px">
+            <button class="btn-x" id="sh-prev" onclick="changeStaffTimelinePage(-1)">ก่อนหน้า</button>
+            <span id="sh-page-info" style="font-size:12px;color:var(--ts)">หน้า 1</span>
+            <button class="btn-x" id="sh-next" onclick="changeStaffTimelinePage(1)">ถัดไป</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2077,6 +2092,10 @@ var currentProjectId = null;
 var _loadAllPromise = null;
 var _loadedStepProjects = {};
 var _stepsLoadedAll = false;
+var _loadingStepProjects = {};
+var gtTimelineInitialized = false;
+var _dailyRanges = {};
+var _dailyRangePromises = {};
 var gtZoom = 'day';
 var gtCollapsedProjects = {};
 var gtLastRange = null;
@@ -2183,6 +2202,10 @@ function doLogout() {
   _loadAllPromise = null;
   _loadedStepProjects = {};
   _stepsLoadedAll = false;
+  _loadingStepProjects = {};
+  gtTimelineInitialized = false;
+  _dailyRanges = {};
+  _dailyRangePromises = {};
   gtCollapsedProjects = {};
   gtLastRange = null;
   document.getElementById('login-user').value = '';
@@ -2315,20 +2338,27 @@ function loadAll() {
   if (_loadAllPromise) return _loadAllPromise;
   var requestedUsername = currentUser.username;
   setCS('ld','กำลังโหลด...');
-  // admin/manager โหลด log ทั้งหมด, user ทั่วไปโหลดเฉพาะของตัวเอง
+  // โหลด Project กับ Log วันนี้พร้อมกัน เพื่อให้หน้าแรกพร้อมเร็วขึ้น
   var isMgr = !currentUser.isAdmin && (String(currentUser.role||'').indexOf('Manager')>-1 || String(currentUser.role||'').indexOf('ผู้จัดการ')>-1);
   var logParams = (currentUser.isAdmin || isMgr) ? {} : {username:currentUser.username};
-  _loadAllPromise = jsonp('getBootstrap', logParams).then(function(data){
+  S.dailyLogs = [];
+  _dailyRanges = {};
+  _dailyRangePromises = {};
+  var bootstrapRequest=jsonp('getBootstrap', logParams);
+  ensureDailyRange(new Date(),new Date(),logParams.username||'').catch(function(){});
+  _loadAllPromise = bootstrapRequest.then(function(data){
     data = data || {};
     // ผู้ใช้อาจ logout หรือเปลี่ยน session ระหว่างรอ response
     if (!currentUser || currentUser.username !== requestedUsername) return data;
     S.users = data.users || [];
-    S.dailyLogs = data.dailyLogs || [];
+    // Log วันนี้อาจมาถึงก่อน Bootstrap; เก็บไว้ใน state เดิม
     S.projects = data.projects || [];
     // Steps โหลดแบบ lazy เมื่อเปิดรายละเอียดหรือ Team Board
     S.steps = [];
     _loadedStepProjects = {};
     _stepsLoadedAll = false;
+    _loadingStepProjects = {};
+    gtTimelineInitialized = false;
     setCS('ok','เชื่อมต่อแล้ว');
     fillUserDropdowns();
     loadDashboard();
@@ -2342,6 +2372,39 @@ function loadAll() {
     _loadAllPromise = null;
   });
   return _loadAllPromise;
+}
+
+function dailyRangeKey(from,to,username) {
+  return String(username||'*')+'|'+fmt(from)+'|'+fmt(to);
+}
+
+function hasDailyRange(from,to,username) {
+  return !!_dailyRanges[dailyRangeKey(from,to,username)];
+}
+
+function ensureDailyRange(from,to,username) {
+  var key=dailyRangeKey(from,to,username);
+  if (_dailyRanges[key] || !SCRIPT_URL) return Promise.resolve();
+  if (_dailyRangePromises[key]) return _dailyRangePromises[key];
+  var generation=currentUser&&currentUser.username;
+  _dailyRangePromises[key]=jsonp('getDailyLogs',{
+    username:username||'',from:fmt(from),to:fmt(to)
+  }).then(function(rows){
+    if (!currentUser || currentUser.username!==generation) return;
+    var incoming=rows||[];
+    var ids={};
+    incoming.forEach(function(row){ids[String(row.id)]=true;});
+    S.dailyLogs=S.dailyLogs.filter(function(row){return !ids[String(row.id)];}).concat(incoming);
+    _dailyRanges[key]=true;
+  }).catch(function(err){
+    showToast('❌ โหลดบันทึกงานไม่สำเร็จ: '+err.message,'er');
+    throw err;
+  }).finally(function(){delete _dailyRangePromises[key];});
+  return _dailyRangePromises[key];
+}
+
+function daysAgo(days) {
+  var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-days); return d;
 }
 
 function loadDemoData() {
@@ -2380,6 +2443,12 @@ function dashPickDate(isoStr) {
 }
 
 function loadDashboard() {
+  var dashboardDate=new Date(dashDate);
+  var dashboardUser=(currentUser && (currentUser.isAdmin || gtIsManager())) ? '' : currentUser.username;
+  if (!hasDailyRange(dashboardDate,dashboardDate,dashboardUser) && SCRIPT_URL) {
+    ensureDailyRange(dashboardDate,dashboardDate,dashboardUser).then(loadDashboard).catch(function(){});
+    return;
+  }
   var selDate = fmt(dashDate);
   var isToday = selDate === fmt(new Date());
   // อัปเดต date picker
@@ -2457,6 +2526,11 @@ function normDate(s) {
 }
 
 function renderDailyList() {
+  if (!hasDailyRange(currentDate,currentDate,currentUser.username) && SCRIPT_URL) {
+    document.getElementById('daily-list').innerHTML='<div class="emp">กำลังโหลดรายการงาน...</div>';
+    ensureDailyRange(currentDate,currentDate,currentUser.username).then(renderDailyList).catch(function(){});
+    return;
+  }
   var dateStr = fmt(currentDate);
   var logs = S.dailyLogs.filter(function(l){
     return l.username===currentUser.username && normDate(l.date)===dateStr;
@@ -2550,6 +2624,12 @@ function calPrevMonth() { calViewDate.setMonth(calViewDate.getMonth()-1); render
 function calNextMonth() { calViewDate.setMonth(calViewDate.getMonth()+1); renderCalendar(); }
 
 function renderCalendar() {
+  var calendarFrom=new Date(calViewDate.getFullYear(),calViewDate.getMonth(),-6);
+  var calendarTo=new Date(calViewDate.getFullYear(),calViewDate.getMonth()+1,7);
+  if (!hasDailyRange(calendarFrom,calendarTo,currentUser.username) && SCRIPT_URL) {
+    ensureDailyRange(calendarFrom,calendarTo,currentUser.username).then(renderCalendar).catch(function(){});
+    return;
+  }
   var thM = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
              'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
   var y = calViewDate.getFullYear(), mo = calViewDate.getMonth();
@@ -3105,25 +3185,13 @@ function gtPopulateFilters() {
 
 function initProjectTimeline() {
   if (!currentUser) return;
-  gtPopulateFilters();
-  var tree=document.getElementById('gt-tree-body');
-  if (tree && !_stepsLoadedAll) tree.innerHTML='<div class="gt-empty">กำลังโหลดแผนงาน...</div>';
-  if (SCRIPT_URL && !_stepsLoadedAll) {
-    jsonp('getSteps',{}).then(function(data){
-      S.steps=data||[];
-      _stepsLoadedAll=true;
-      _loadedStepProjects={};
-      gtPopulateFilters();
-      renderProjectTimeline();
-      setTimeout(gtScrollToday,60);
-    }).catch(function(err){
-      renderProjectTimeline();
-      showToast('❌ โหลด Timeline ไม่สำเร็จ: '+err.message,'er');
-    });
-  } else {
-    renderProjectTimeline();
-    setTimeout(gtScrollToday,60);
+  if (!gtTimelineInitialized) {
+    gtAccessibleProjects().forEach(function(p){gtCollapsedProjects[p.id]=true;});
+    gtTimelineInitialized=true;
   }
+  gtPopulateFilters();
+  renderProjectTimeline();
+  setTimeout(gtScrollToday,60);
 }
 
 function gtRowMatches(row,ownerFilter,statusFilter,hideComplete) {
@@ -3221,7 +3289,7 @@ function renderProjectTimeline() {
       +'<div class="gt-task-cell '+row.kind+'">'
       +(row.kind==='project'?'<button type="button" class="gt-collapse" data-gt-collapse="'+escHtml(row.id)+'" aria-label="'+(collapsed?'ขยาย':'ย่อ')+' Project">'+(collapsed?'›':'⌄')+'</button>':'')
       +'<div class="gt-task-text"><div class="gt-task-name">'+escHtml(row.name)+'</div><div class="gt-task-meta">'
-      +(row.kind==='project'?row.stepCount+' ขั้นตอน':gtFormatShort(row.start)+' – '+gtFormatShort(row.due))
+      +(row.kind==='project'?(_loadedStepProjects[row.id]||_stepsLoadedAll?row.stepCount+' ขั้นตอน':'กดขยายเพื่อโหลดขั้นตอน'):gtFormatShort(row.start)+' – '+gtFormatShort(row.due))
       +(inferred?'<span class="gt-badge-inferred">ประมาณการ</span>':'')
       +'</div></div></div>'
       +'<div class="gt-owner-cell"><span class="gt-avatar">'+escHtml(gtInitials(row.owner))+'</span><div class="gt-owner-text"><div class="gt-owner-name">'+escHtml(row.owner)+'</div><div class="gt-owner-status '+row.group+'">'+escHtml(statusText)+'</div></div></div></div>';
@@ -3263,6 +3331,16 @@ function renderProjectTimeline() {
 function gtToggleProject(id) {
   gtCollapsedProjects[id]=!gtCollapsedProjects[id];
   renderProjectTimeline();
+  if (!gtCollapsedProjects[id] && !_stepsLoadedAll && !_loadedStepProjects[id] && !_loadingStepProjects[id] && SCRIPT_URL) {
+    _loadingStepProjects[id]=true;
+    jsonp('getSteps',{projectId:id}).then(function(rows){
+      S.steps=(S.steps||[]).filter(function(s){return String(s.projectId)!==String(id);}).concat(rows||[]);
+      _loadedStepProjects[id]=true;
+      gtPopulateFilters();
+      renderProjectTimeline();
+    }).catch(function(err){showToast('❌ โหลดขั้นตอนไม่สำเร็จ: '+err.message,'er');})
+      .finally(function(){delete _loadingStepProjects[id];});
+  }
 }
 
 function openGtItem(kind,id) {
@@ -3783,6 +3861,10 @@ function getWeekStart(d) {
 function renderWeekView() {
   var weekStart = getWeekStart(currentWeekDate);
   var weekEnd   = new Date(weekStart); weekEnd.setDate(weekEnd.getDate()+6);
+  if (!hasDailyRange(weekStart,weekEnd,currentUser.username) && SCRIPT_URL) {
+    ensureDailyRange(weekStart,weekEnd,currentUser.username).then(renderWeekView).catch(function(){});
+    return;
+  }
   var thDays = ['อา','จ','อ','พ','พฤ','ศ','ส'];
   var thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
@@ -3853,6 +3935,12 @@ function goThisMonth() {
 }
 
 function renderMonthView() {
+  var monthFrom=new Date(currentMonthDate.getFullYear(),currentMonthDate.getMonth(),-6);
+  var monthTo=new Date(currentMonthDate.getFullYear(),currentMonthDate.getMonth()+1,7);
+  if (!hasDailyRange(monthFrom,monthTo,currentUser.username) && SCRIPT_URL) {
+    ensureDailyRange(monthFrom,monthTo,currentUser.username).then(renderMonthView).catch(function(){});
+    return;
+  }
   var thM = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
              'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
   var y  = currentMonthDate.getFullYear();
@@ -3945,6 +4033,11 @@ function typeBadge(type) {
 //  MY REPORT (User ดูของตัวเอง แยกหมวดหมู่)
 // ══════════════════════════════════════════════
 function initMyReport() {
+  var reportDays=parseInt(document.getElementById('dr-range').value,10)||30;
+  if (!hasDailyRange(daysAgo(reportDays),new Date(),currentUser.username) && SCRIPT_URL) {
+    ensureDailyRange(daysAgo(reportDays),new Date(),currentUser.username).then(initMyReport).catch(function(){});
+    return;
+  }
   // เติม dropdown หมวดหมู่จากงานที่มี
   var sel = document.getElementById('dr-cat');
   var cur = sel.value;
@@ -3975,6 +4068,10 @@ function drGetLogs() {
 
 function renderMyReport() {
   var range = parseInt(document.getElementById('dr-range').value)||30;
+  if (!hasDailyRange(daysAgo(range),new Date(),currentUser.username) && SCRIPT_URL) {
+    ensureDailyRange(daysAgo(range),new Date(),currentUser.username).then(renderMyReport).catch(function(){});
+    return;
+  }
   var selCat = document.getElementById('dr-cat').value;
   var logs = drGetLogs();
 
@@ -4038,17 +4135,28 @@ function renderCatChart(elId, data, highlight) {
   }).join('');
 }
 
+var myReportPage=1;
+function changeMyReportPage(delta) {
+  myReportPage=Math.max(1,myReportPage+delta);
+  renderMyReport();
+}
+
 function renderMyReportDetail(logs) {
   var sorted = logs.slice().sort(function(a,b){
     var da=parseDateStr(normDate(a.date)), db=parseDateStr(normDate(b.date));
     return (db||0)-(da||0);
   });
   document.getElementById('dr-detail-count').textContent = '('+sorted.length+' รายการ)';
+  var pages=Math.max(1,Math.ceil(sorted.length/50));
+  myReportPage=Math.min(myReportPage,pages);
+  document.getElementById('dr-page-info').textContent='หน้า '+myReportPage+' / '+pages;
+  document.getElementById('dr-prev').disabled=myReportPage<=1;
+  document.getElementById('dr-next').disabled=myReportPage>=pages;
   if (!sorted.length) {
     document.getElementById('dr-detail').innerHTML = '<div class="emp"><div class="emp-i">📅</div>ไม่มีรายการงาน</div>';
     return;
   }
-  document.getElementById('dr-detail').innerHTML = sorted.map(function(l){
+  document.getElementById('dr-detail').innerHTML = sorted.slice((myReportPage-1)*50,myReportPage*50).map(function(l){
     var mins = parseInt(l.hours||0)*60+parseInt(l.minutes||0);
     var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
     return '<div class="sh-tl-item">'
@@ -4261,6 +4369,12 @@ function renderBarList(elId, data) {
   }).join('');
 }
 
+var staffTimelinePage=1;
+function changeStaffTimelinePage(delta) {
+  staffTimelinePage=Math.max(1,staffTimelinePage+delta);
+  renderStaffHistory();
+}
+
 function renderStaffTimeline(logs) {
   // เรียงวันที่ล่าสุดก่อน
   var sorted = logs.slice().sort(function(a,b){
@@ -4269,13 +4383,18 @@ function renderStaffTimeline(logs) {
   });
 
   document.getElementById('sh-tl-count').textContent = '('+sorted.length+' รายการ)';
+  var pages=Math.max(1,Math.ceil(sorted.length/50));
+  staffTimelinePage=Math.min(staffTimelinePage,pages);
+  document.getElementById('sh-page-info').textContent='หน้า '+staffTimelinePage+' / '+pages;
+  document.getElementById('sh-prev').disabled=staffTimelinePage<=1;
+  document.getElementById('sh-next').disabled=staffTimelinePage>=pages;
 
   if (!sorted.length) {
     document.getElementById('sh-timeline').innerHTML = '<div class="emp"><div class="emp-i">📜</div>ไม่มีรายการงาน</div>';
     return;
   }
 
-  document.getElementById('sh-timeline').innerHTML = sorted.map(function(l){
+  document.getElementById('sh-timeline').innerHTML = sorted.slice((staffTimelinePage-1)*50,staffTimelinePage*50).map(function(l){
     var mins = parseInt(l.hours||0)*60+parseInt(l.minutes||0);
     var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
     return '<div class="sh-tl-item">'
@@ -4328,35 +4447,52 @@ function initReportLogs() {
   renderReportLogs();
 }
 
-function renderReportLogs() {
-  var uFilter  = document.getElementById('rl-filter-user').value;
-  var fromVal  = document.getElementById('rl-date-from').value;
-  var toVal    = document.getElementById('rl-date-to').value;
-  var fromDate = fromVal ? new Date(fromVal) : null;
-  var toDate   = toVal   ? new Date(toVal)   : null;
-  if (toDate) toDate.setHours(23,59,59);
+var reportLogsPage=1;
+var reportLogsRequest=0;
+var reportLogsData={rows:[],total:0,totalMinutes:0,userCount:0,page:1,pageSize:50};
 
-  var logs = S.dailyLogs.filter(function(l){
-    if (uFilter && l.username !== uFilter) return false;
-    var d = parseDateStr(normDate(l.date));
-    if (fromDate && d < fromDate) return false;
-    if (toDate   && d > toDate)   return false;
-    return true;
+function changeReportLogsPage(delta) {
+  reportLogsPage=Math.max(1,reportLogsPage+delta);
+  renderReportLogs(false);
+}
+
+function renderReportLogs(resetPage) {
+  if (resetPage!==false) reportLogsPage=1;
+  if (!SCRIPT_URL) { paintReportLogs(); return; }
+  var request=++reportLogsRequest;
+  document.getElementById('rl-tbody').innerHTML='<tr><td colspan="7" style="padding:20px;text-align:center">กำลังโหลด...</td></tr>';
+  jsonp('getDailyLogsPage',{
+    username:document.getElementById('rl-filter-user').value,
+    from:document.getElementById('rl-date-from').value,
+    to:document.getElementById('rl-date-to').value,
+    page:reportLogsPage,pageSize:50
+  }).then(function(data){
+    if (request!==reportLogsRequest) return;
+    reportLogsData=data||{rows:[],total:0,totalMinutes:0,userCount:0,page:1,pageSize:50};
+    paintReportLogs();
+  }).catch(function(err){
+    if (request===reportLogsRequest) showToast('❌ โหลดรายงานไม่สำเร็จ: '+err.message,'er');
   });
+}
 
-  // sort newest first
-  logs = logs.slice().sort(function(a,b){ return dateValue(b.date)-dateValue(a.date); });
+function paintReportLogs() {
+  var logs=reportLogsData.rows||[];
+  var total=reportLogsData.total||0;
+  var pages=Math.max(1,Math.ceil(total/50));
+  document.getElementById('rl-page-info').textContent='หน้า '+reportLogsPage+' / '+pages;
+  document.getElementById('rl-prev').disabled=reportLogsPage<=1;
+  document.getElementById('rl-next').disabled=reportLogsPage>=pages;
 
   // summary bar
-  var totalMins = logs.reduce(function(s,l){ return s+(parseInt(l.hours||0)*60)+(parseInt(l.minutes||0)); },0);
+  var totalMins = reportLogsData.totalMinutes||0;
   var th = Math.floor(totalMins/60), tm = totalMins%60;
   document.getElementById('rl-summary').innerHTML =
     '<div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">'
-    +'<span><b style="font-size:20px;color:var(--navy)">'+logs.length+'</b> รายการ</span>'
+    +'<span><b style="font-size:20px;color:var(--navy)">'+total+'</b> รายการ</span>'
     +'<span><b style="font-size:20px;color:var(--blue)">'+th+'h '+tm+'m</b> รวมเวลา</span>'
-    +'<span><b style="font-size:20px;color:var(--green)">'+(new Set(logs.map(function(l){return l.username;}))).size+'</b> คน</span>'
+    +'<span><b style="font-size:20px;color:var(--green)">'+(reportLogsData.userCount||0)+'</b> คน</span>'
     +'</div>';
-  document.getElementById('rl-count').textContent = '('+logs.length+' รายการ)';
+  document.getElementById('rl-count').textContent = '('+total+' รายการ)';
 
   var tbody = document.getElementById('rl-tbody');
   if (!logs.length) {
@@ -4366,7 +4502,6 @@ function renderReportLogs() {
   tbody.innerHTML = logs.map(function(l){
     var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
     var stCls = {เสร็จแล้ว:'done',กำลังทำ:'doing',รออยู่:'pending'}[l.status]||'pending';
-  var tBadge = typeBadge(l.type||'daily');
     var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name || l.username;
     return '<tr>'
       +'<td style="white-space:nowrap">'+escHtml(normDate(l.date))+'</td>'
@@ -4384,25 +4519,17 @@ function exportLogsCSV() {
   var uFilter  = document.getElementById('rl-filter-user').value;
   var fromVal  = document.getElementById('rl-date-from').value;
   var toVal    = document.getElementById('rl-date-to').value;
-  var fromDate = fromVal ? new Date(fromVal) : null;
-  var toDate   = toVal   ? new Date(toVal)   : null;
-  if (toDate) toDate.setHours(23,59,59);
-
-  var logs = S.dailyLogs.filter(function(l){
-    if (uFilter && l.username !== uFilter) return false;
-    var d = parseDateStr(normDate(l.date));
-    if (fromDate && d < fromDate) return false;
-    if (toDate   && d > toDate)   return false;
-    return true;
-  }).sort(function(a,b){ return dateValue(a.date)-dateValue(b.date); });
-
-  var rows = [['วันที่','Username','ชื่อ-นามสกุล','งาน','หมวดหมู่','ชั่วโมง','นาที','รวม(นาที)','สถานะ','รายละเอียด']];
-  logs.forEach(function(l){
-    var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name || l.username;
-    var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
-    rows.push([normDate(l.date),l.username,uName,l.taskName||'',l.category||'',h,m,(h*60+m),l.status||'',l.description||'']);
+  jsonp('getDailyLogs',{username:uFilter,from:fromVal,to:toVal}).then(function(logs){
+    var rows = [['วันที่','Username','ชื่อ-นามสกุล','งาน','หมวดหมู่','ชั่วโมง','นาที','รวม(นาที)','สถานะ','รายละเอียด']];
+    (logs||[]).sort(function(a,b){ return dateValue(a.date)-dateValue(b.date); }).forEach(function(l){
+      var uName = (S.users.find(function(u){return u.username===l.username;})||{}).name || l.username;
+      var h=parseInt(l.hours||0), m=parseInt(l.minutes||0);
+      rows.push([normDate(l.date),l.username,uName,l.taskName||'',l.category||'',h,m,(h*60+m),l.status||'',l.description||'']);
+    });
+    downloadCSV(rows, 'daily-log-'+fromVal+'-to-'+toVal+'.csv');
+  }).catch(function(err){
+    showToast('❌ Export ไม่สำเร็จ: '+err.message,'er');
   });
-  downloadCSV(rows, 'daily-log-'+fromVal+'-to-'+toVal+'.csv');
 }
 
 // ══════════════════════════════════════════════
@@ -4420,6 +4547,15 @@ function renderReportSummary() {
   var uFilt = document.getElementById('rs-user').value;
   var today = new Date(); today.setHours(23,59,59);
   var from  = new Date(); from.setDate(from.getDate()-(days-1)); from.setHours(0,0,0,0);
+  if (!hasDailyRange(from,today,uFilt) && SCRIPT_URL) {
+    ensureDailyRange(from,today,uFilt).then(renderReportSummary).catch(function(){});
+    return;
+  }
+  var staffDays=parseInt(document.getElementById('sh-range').value,10)||30;
+  if (!hasDailyRange(daysAgo(staffDays),new Date(),username) && SCRIPT_URL) {
+    ensureDailyRange(daysAgo(staffDays),new Date(),username).then(renderStaffHistory).catch(function(){});
+    return;
+  }
 
   var logs = S.dailyLogs.filter(function(l){
     if (uFilt && l.username!==uFilt) return false;
@@ -4628,12 +4764,22 @@ function onSearchKey(e) {
   if (e.key === 'Escape') { closeSearch(); return; }
 }
 
-function doSearch(q) {
+function doSearch(q,remote) {
+  if (!remote && SCRIPT_URL) {
+    jsonp('searchRecords',{
+      q:q,
+      username:(currentUser.isAdmin||gtIsManager())?'':currentUser.username,
+      projectIds:gtAccessibleProjects().map(function(p){return p.id;}).join(',')
+    }).then(function(data){
+      if (document.getElementById('search-input').value.trim()===q) doSearch(q,data||{dailyLogs:[],steps:[]});
+    }).catch(function(err){showToast('❌ ค้นหาไม่สำเร็จ: '+err.message,'er');});
+    return;
+  }
   var ql = q.toLowerCase();
   var results = [];
 
   // ค้นใน Daily Logs
-  S.dailyLogs.forEach(function(l) {
+  (remote ? remote.dailyLogs : S.dailyLogs).forEach(function(l) {
     if (!currentUser) return;
     if (!currentUser.isAdmin && l.username !== currentUser.username) return;
     var score = 0;
@@ -4653,7 +4799,7 @@ function doSearch(q) {
   });
 
   // ค้นใน Steps
-  (S.steps||[]).forEach(function(s) {
+  (remote ? remote.steps : (S.steps||[])).forEach(function(s) {
     var score = 0;
     if ((s.stepName||'').toLowerCase().indexOf(ql) > -1) score += 3;
     if ((s.description||'').toLowerCase().indexOf(ql) > -1) score += 1;
